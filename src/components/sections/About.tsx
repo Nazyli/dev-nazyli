@@ -58,9 +58,9 @@ export function About() {
           <DataPlate title="Observer record">
             <DataRow k="Observer" v="Evry Nazyli" />
             <DataRow k="Role" v="AI Engineer" />
-            <DataRow k="Focus" v="LLM systems · Backend" />
+            <DataRow k="Focus" v="Generative AI · Voice AI · Backend" />
             <DataRow k="Sector" v="Intelligent applications" />
-            <DataRow k="Instruments" v="Next.js · TypeScript · Three.js" />
+            <DataRow k="Instruments" v="Go · Python · FastAPI · AWS" />
           </DataPlate>
         </div>
       </div>
