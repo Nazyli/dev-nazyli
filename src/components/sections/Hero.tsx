@@ -67,7 +67,7 @@ export function Hero() {
           <p className="hero-reveal mt-8 max-w-md text-lg leading-relaxed text-starlight/70">
             Building intelligent systems for the real world.
           </p>
-          <p className="hero-reveal mt-12 font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/45">
+          <p className="hero-reveal mt-12 font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/80">
             [ Scroll to begin survey ]
           </p>
         </div>

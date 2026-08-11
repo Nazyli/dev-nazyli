@@ -71,7 +71,7 @@ export function Contact() {
       </ul>
 
       <footer className="contact-reveal absolute bottom-8 left-0 right-0">
-        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/50">
+        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/75">
           Evry Nazyli - 2026
         </p>
       </footer>

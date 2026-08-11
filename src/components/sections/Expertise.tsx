@@ -136,7 +136,7 @@ export function Expertise() {
             active ? "opacity-0" : "opacity-100"
           }`}
         >
-          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/50">
+          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/75">
             Awaiting object selection · hover a planet
           </p>
         </div>

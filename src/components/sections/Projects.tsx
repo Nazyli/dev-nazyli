@@ -48,7 +48,7 @@ function ProjectCard({ project }: { project: Project }) {
 
 function CatalogLine({ project }: { project: Project }) {
   return (
-    <p className="hidden font-mono text-[9px] uppercase tracking-[0.3em] text-starlight/50 sm:block">
+    <p className="hidden font-mono text-[9px] uppercase tracking-[0.3em] text-starlight/80 sm:block">
       STARS {project.constellation.stars.length} · LINKS{" "}
       {project.constellation.lines.length} · EPOCH 2026
     </p>
