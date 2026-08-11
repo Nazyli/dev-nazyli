@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { buildConstellationPath, projects } from "@/data/projects";
@@ -64,9 +64,33 @@ function ConstellationSvg({
   staticDraw?: boolean;
   pathRef?: (el: SVGPathElement | null) => void;
 }) {
+  const gradientId = useId().replace(/:/g, "");
+
   return (
     <div className="flex flex-col items-center gap-6">
       <svg viewBox="0 0 100 100" className="h-[min(46vmin,340px)] w-[min(46vmin,340px)] md:h-[min(70vmin,640px)] md:w-[min(70vmin,640px)]">
+        <defs>
+          <radialGradient id={`${gradientId}-core`} cx="35%" cy="35%" r="75%">
+            <stop offset="0%" style={{ stopColor: "var(--color-starlight)" }} />
+            <stop offset="60%" style={{ stopColor: "var(--color-gold)" }} />
+            <stop
+              offset="100%"
+              style={{
+                stopColor: "color-mix(in srgb, var(--color-gold) 35%, #000)",
+              }}
+            />
+          </radialGradient>
+          <radialGradient id={`${gradientId}-halo`} cx="50%" cy="50%" r="50%">
+            <stop
+              offset="0%"
+              style={{ stopColor: "var(--color-gold)", stopOpacity: 0.55 }}
+            />
+            <stop
+              offset="100%"
+              style={{ stopColor: "var(--color-gold)", stopOpacity: 0 }}
+            />
+          </radialGradient>
+        </defs>
         <path
           ref={pathRef}
           d={buildConstellationPath(project)}
@@ -80,13 +104,15 @@ function ConstellationSvg({
           vectorEffect="non-scaling-stroke"
         />
         {project.constellation.stars.map(([x, y], s) => (
-          <circle
-            key={s}
-            cx={x}
-            cy={y}
-            r={s % 2 === 0 ? 1.6 : 1.1}
-            className="fill-gold"
-          />
+          <g key={s}>
+            <circle cx={x} cy={y} r={3.6} fill={`url(#${gradientId}-halo)`} />
+            <circle
+              cx={x}
+              cy={y}
+              r={s % 2 === 0 ? 1.6 : 1.1}
+              fill={`url(#${gradientId}-core)`}
+            />
+          </g>
         ))}
       </svg>
       <CatalogLine project={project} />
