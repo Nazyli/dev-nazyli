@@ -20,6 +20,11 @@
   }
 }
 
+.node-lit {
+  background-color: var(--color-gold);
+  border-color: var(--color-gold);
+}
+
 .star-map-fallback {
   background-color: var(--color-void);
   background-image:
