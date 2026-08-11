@@ -1,0 +1,389 @@
+[
+  {
+    "no": 1,
+    "title": "Fundamentals of Cloud Computing & Generative AI on AWS",
+    "skills": [
+      "AWS",
+      "Amazon Web Services (AWS)",
+      "Amazon CloudWatch",
+      "AWS CloudTrail",
+      "Amazon EBS",
+      "Amazon S3",
+      "Amazon DynamoDB",
+      "Amazon CloudFront",
+      "Amazon EC2",
+      "Load Balancing",
+      "Amazon Simple Notification Service (SNS)",
+      "Amazon SQS"
+    ],
+    "provider": "Dicoding Indonesia",
+    "from": "Jun 2026",
+    "to": "Jun 2029",
+    "constellation": {
+      "stars": [
+        [26, 18],
+        [38, 12],
+        [50, 18],
+        [46, 28],
+        [34, 26],
+        [40, 36],
+        [52, 34],
+        [62, 40],
+        [58, 52],
+        [68, 58],
+        [76, 52],
+        [28, 42]
+      ]
+    }
+  },
+  {
+    "no": 2,
+    "title": "Prompt Engineering for Software Developers",
+    "skills": [
+      "Prompt Engineering",
+      "Prompt Design",
+      "Prompt Optimization",
+      "Few-Shot Prompting",
+      "Persona Prompting",
+      "Audience Persona Prompting",
+      "Chain-of-Thought Prompting",
+      "ReAct Prompting",
+      "Iterative Prompt Development",
+      "Generative AI Fundamentals",
+      "AI-Assisted Software Development",
+      "Responsible AI",
+      "AI Ethics"
+    ],
+    "provider": "Dicoding Indonesia",
+    "from": "Feb 2026",
+    "to": "Feb 2029",
+    "constellation": {
+      "stars": [
+        [50, 40],
+        [42, 48],
+        [34, 56],
+        [58, 48],
+        [66, 56],
+        [36, 30],
+        [26, 20],
+        [62, 30],
+        [74, 24],
+        [46, 60],
+        [54, 60],
+        [50, 70]
+      ]
+    }
+  },
+  {
+    "no": 3,
+    "title": "Learn AI Basics",
+    "skills": [
+      "Artificial Intelligence (AI)",
+      "Generative AI",
+      "Machine Learning",
+      "Deep Learning",
+      "Data Processing",
+      "Data Cleaning",
+      "Data Visualization",
+      "Data Collection"
+    ],
+    "provider": "Dicoding Indonesia",
+    "from": "Nov 2025",
+    "to": "Nov 2028",
+    "constellation": {
+      "stars": [
+        [30, 20],
+        [28, 34],
+        [26, 48],
+        [28, 62],
+        [42, 18],
+        [42, 32],
+        [44, 46],
+        [42, 60],
+        [36, 40],
+        [36, 56],
+        [20, 28],
+        [54, 26]
+      ]
+    }
+  },
+  {
+    "no": 5,
+    "title": "Machine Learning Expert",
+    "skills": [
+      "Machine Learning",
+      "Predictive Analytics",
+      "Sentiment Analysis",
+      "Computer Vision",
+      "Recommender Systems",
+      "Collaborative Filtering",
+      "Content-based Filtering",
+      "Project Reporting"
+    ],
+    "provider": "DBS Foundation",
+    "from": "Nov 2024",
+    "to": "Nov 2027",
+    "constellation": {
+      "stars": [
+        [50, 30],
+        [44, 34],
+        [56, 34],
+        [50, 20],
+        [50, 44],
+        [40, 56],
+        [30, 66],
+        [60, 56],
+        [70, 66],
+        [36, 24],
+        [26, 20],
+        [66, 22]
+      ]
+    }
+  },
+  {
+    "no": 6,
+    "title": "Machine Learning Intermediate",
+    "skills": [
+      "Neural Networks",
+      "Machine Learning",
+      "Deep Learning",
+      "TensorFlow",
+      "Natural Language Processing (NLP)",
+      "Time Series",
+      "Image Classification",
+      "Recommender Systems",
+      "Reinforcement Learning",
+      "Generative AI"
+    ],
+    "provider": "DBS Foundation",
+    "from": "Aug 2024",
+    "to": "Aug 2027",
+    "constellation": {
+      "stars": [
+        [50, 30],
+        [44, 22],
+        [34, 20],
+        [26, 28],
+        [24, 40],
+        [30, 50],
+        [42, 54],
+        [52, 48],
+        [64, 44],
+        [74, 38],
+        [58, 58],
+        [50, 66]
+      ]
+    }
+  },
+  {
+    "no": 7,
+    "title": "Learn Machine Learning for Beginners",
+    "skills": [
+      "Data Collection",
+      "Machine Learning",
+      "Data Cleaning",
+      "Data Processing",
+      "Supervised Learning",
+      "Unsupervised Learning",
+      "Support Vector Machine (SVM)",
+      "Cluster Analysis",
+      "K-Means Clustering",
+      "Neural Networks",
+      "TensorFlow"
+    ],
+    "provider": "Dicoding Indonesia",
+    "from": "Mar 2024",
+    "to": "Mar 2027",
+    "constellation": {
+      "stars": [
+        [52, 74],
+        [48, 60],
+        [46, 48],
+        [50, 36],
+        [58, 28],
+        [66, 20],
+        [44, 28],
+        [36, 20],
+        [40, 40],
+        [34, 48],
+        [60, 44],
+        [70, 36]
+      ]
+    }
+  },
+  {
+    "no": 8,
+    "title": "Getting Started with Python Programming",
+    "skills": [
+      "Python (Programming Language)",
+      "Object-Oriented Programming (OOP)",
+      "Unit Testing",
+      "Parser",
+      "Web Scraping",
+      "Machine Learning",
+      "Web Application Development"
+    ],
+    "provider": "Dicoding Indonesia",
+    "from": "Mar 2024",
+    "to": "Mar 2027",
+    "constellation": {
+      "stars": [
+        [50, 24],
+        [64, 34],
+        [50, 44],
+        [36, 34],
+        [60, 56],
+        [40, 56],
+        [70, 44],
+        [30, 44],
+        [50, 64],
+        [44, 72],
+        [56, 72],
+        [50, 80]
+      ]
+    }
+  },
+  {
+    "no": 9,
+    "title": "Learn the Basics of Data Visualization",
+    "skills": [
+      "Spreadsheets",
+      "Google Sheets",
+      "Data Visualization"
+    ],
+    "provider": "Dicoding Indonesia",
+    "from": "Feb 2024",
+    "to": "Feb 2027",
+    "constellation": {
+      "stars": [
+        [24, 24],
+        [32, 20],
+        [40, 26],
+        [46, 34],
+        [52, 44],
+        [58, 54],
+        [62, 64],
+        [64, 74],
+        [70, 80],
+        [76, 72],
+        [30, 32],
+        [20, 40]
+      ]
+    }
+  },
+  {
+    "no": 10,
+    "title": "Learn to Create Back-End Applications for Beginners",
+    "skills": [
+      "Back-End Web Development",
+      "Backend",
+      "Node.js",
+      "RESTful API",
+      "Web Services",
+      "Amazon EC2"
+    ],
+    "provider": "Dicoding Indonesia",
+    "from": "May 2023",
+    "to": "May 2026",
+    "constellation": {
+      "stars": [
+        [44, 36],
+        [40, 50],
+        [28, 62],
+        [40, 68],
+        [52, 56],
+        [48, 46],
+        [24, 48],
+        [16, 54],
+        [20, 64],
+        [60, 50],
+        [70, 44],
+        [56, 72]
+      ]
+    }
+  },
+  {
+    "no": 11,
+    "title": "Learn JavaScript Programming Basics",
+    "skills": [
+      "JavaScript",
+      "Node.js"
+    ],
+    "provider": "Dicoding Indonesia",
+    "from": "May 2023",
+    "to": "May 2026",
+    "constellation": {
+      "stars": [
+        [30, 30],
+        [44, 22],
+        [58, 28],
+        [36, 40],
+        [52, 40],
+        [44, 50],
+        [36, 60],
+        [52, 60],
+        [44, 70],
+        [28, 50],
+        [60, 50],
+        [44, 34]
+      ]
+    }
+  },
+  {
+    "no": 12,
+    "title": "Front End Development Libraries",
+    "skills": [
+      "JavaScript"
+    ],
+    "provider": "FreeCodeCamp",
+    "from": "Jun 2022",
+    "to": null,
+    "constellation": {
+      "stars": [
+        [50, 18],
+        [42, 26],
+        [58, 26],
+        [50, 32],
+        [46, 44],
+        [54, 52],
+        [44, 62],
+        [52, 70],
+        [42, 80],
+        [62, 36],
+        [70, 44],
+        [76, 54]
+      ]
+    }
+  },
+  {
+    "no": 13,
+    "title": "Web Programmer",
+    "skills": [
+      "Pengembangan Web",
+      "Pengembangan Software",
+      "PHP",
+      "Laravel",
+      "MySQL",
+      "Database"
+    ],
+    "provider": "Nurul Fikri Computer Training Center",
+    "from": "Nov 2019",
+    "to": null,
+    "constellation": {
+      "stars": [
+        [36, 22],
+        [28, 30],
+        [22, 40],
+        [28, 50],
+        [38, 44],
+        [48, 40],
+        [58, 46],
+        [66, 38],
+        [74, 44],
+        [80, 36],
+        [40, 28],
+        [48, 24]
+      ]
+    }
+  }
+]

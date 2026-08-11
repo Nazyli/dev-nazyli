@@ -28,9 +28,9 @@ export function Contact() {
   );
 
   const links = [
-    { label: "GitHub", href: "#" },
-    { label: "LinkedIn", href: "#" },
-    { label: "Email", href: "#" },
+    { label: "GitHub", href: "https://github.com/Nazyli" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/evrynazyli/" },
+    { label: "Email", href: "mailto:info@nazyli.com" },
   ];
 
   return (
