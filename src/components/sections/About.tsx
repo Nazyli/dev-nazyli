@@ -60,7 +60,7 @@ export function About() {
             <DataRow k="Role" v="AI Engineer" />
             <DataRow k="Focus" v="Generative AI · Voice AI · Backend" />
             <DataRow k="Sector" v="Intelligent applications" />
-            <DataRow k="Instruments" v="Go · Python · FastAPI · AWS" />
+            <DataRow k="Instruments" v="Go · Java · Python · FastAPI · AWS" />
           </DataPlate>
         </div>
       </div>
