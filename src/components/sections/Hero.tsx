@@ -76,8 +76,11 @@ export function Hero() {
           <DataPlate title="Target identification">
             <DataRow k="Designation" v="EVRY-01" />
             <DataRow k="Classification" v="AI ENGINEER" />
-            <DataRow k="Field" v="Intelligent applications" />
-            <DataRow k="Systems" v="LLM · RAG · Voice AI" />
+            <DataRow k="Since" v="2017" />
+            <DataRow k="Path" v="Web → Backend → AI" />
+            <DataRow k="Projects" v="21" />
+            <DataRow k="Certificates" v="13" />
+            <DataRow k="Companies" v="6" />
           </DataPlate>
         </div>
       </div>
