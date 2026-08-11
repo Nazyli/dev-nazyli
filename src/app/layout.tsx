@@ -19,24 +19,22 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://nazyli.com"),
-  title: "Evry Nazyli — AI Engineer",
+  title: "Evry Nazyli - AI Engineer",
   description:
-    "Portfolio of Evry Nazyli, AI Engineer. A journey through the universe — intelligent systems, LLM applications, and backend engineering.",
+    "Portfolio of Evry Nazyli, AI Engineer. A journey through the universe - intelligent systems, LLM applications, and backend engineering.",
   applicationName: "Nazyli Universe",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://nazyli.com",
     siteName: "Nazyli Universe",
-    title: "Evry Nazyli — AI Engineer",
-    description:
-      "A journey through the universe of Evry Nazyli, AI Engineer.",
+    title: "Evry Nazyli - AI Engineer",
+    description: "A journey through the universe of Evry Nazyli, AI Engineer.",
   },
   twitter: {
     card: "summary",
-    title: "Evry Nazyli — AI Engineer",
-    description:
-      "A journey through the universe of Evry Nazyli, AI Engineer.",
+    title: "Evry Nazyli - AI Engineer",
+    description: "A journey through the universe of Evry Nazyli, AI Engineer.",
   },
 };
 

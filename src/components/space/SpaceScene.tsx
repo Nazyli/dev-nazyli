@@ -2,6 +2,8 @@
 
 import { Canvas } from "@react-three/fiber";
 import { useMemo } from "react";
+import { AccretionDisk } from "./AccretionDisk";
+import { DustClouds } from "./DustClouds";
 import { Earth } from "./Earth";
 import { Nebula } from "./Nebula";
 import { Planet } from "./Planet";
@@ -44,7 +46,9 @@ export function SpaceScene() {
         <directionalLight position={[14, 5, 9]} intensity={3.2} color="#f5efe0" />
         <directionalLight position={[-10, -4, -6]} intensity={0.5} color="#1e213f" />
         <Nebula />
+        <DustClouds />
         <Stars />
+        <AccretionDisk />
         <ShootingStar />
         <Planet position={[3.4, 0.8, -21]} radius={2} />
         <Earth position={[0, 2.2, 32]} radius={5.5} />

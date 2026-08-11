@@ -28,8 +28,7 @@ export const projects: Project[] = [
     id: "simulation-platform",
     index: "01",
     title: "AI Simulation Platform",
-    description:
-      "Workflow-based AI simulation with autonomous AI actors.",
+    description: "Workflow-based AI simulation with autonomous AI actors.",
     tags: ["LLM", "Agents", "Simulation"],
     constellation: {
       stars: [
@@ -55,7 +54,7 @@ export const projects: Project[] = [
     id: "project-02",
     index: "02",
     title: "[TODO] Project 02",
-    description: "Coming soon — placeholder.",
+    description: "Coming soon - placeholder.",
     tags: ["TBD"],
     constellation: {
       stars: [
@@ -89,7 +88,7 @@ export const projects: Project[] = [
     id: "project-03",
     index: "03",
     title: "[TODO] Project 03",
-    description: "Coming soon — placeholder.",
+    description: "Coming soon - placeholder.",
     tags: ["TBD"],
     constellation: {
       stars: [

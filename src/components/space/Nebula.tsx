@@ -1,45 +1,82 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { universeState } from "@/lib/universeState";
+import { makeDustLaneTexture, makeNebulaTexture } from "@/lib/textures";
 
-const NEBULAE: [number, number, number, number, number][] = [
-  [0, 0, -60, 34, 0],
-  [28, 12, -34, 24, 1],
-  [-26, -10, -42, 28, 0],
-  [12, -18, 4, 26, 1],
-  [-20, 14, 22, 20, 1],
-  [34, 6, 26, 22, 0],
+type CloudDef = {
+  position: [number, number, number];
+  scale: number;
+  texture: number;
+  color: string;
+  opacity: number;
+};
+
+const CLOUDS: CloudDef[] = [
+  { position: [-16, 3, -48], scale: 44, texture: 0, color: "#1e2a4a", opacity: 0.3 },
+  { position: [20, -5, -40], scale: 38, texture: 1, color: "#12323e", opacity: 0.26 },
+  { position: [-26, 7, -30], scale: 40, texture: 2, color: "#1e213f", opacity: 0.22 },
+  { position: [14, 9, -16], scale: 34, texture: 0, color: "#12323e", opacity: 0.28 },
+  { position: [-12, -8, -6], scale: 30, texture: 1, color: "#1e2a4a", opacity: 0.24 },
+  { position: [22, 2, 4], scale: 36, texture: 2, color: "#1e213f", opacity: 0.2 },
+  { position: [-18, 6, 14], scale: 32, texture: 0, color: "#12323e", opacity: 0.24 },
+  { position: [10, -3, 24], scale: 28, texture: 1, color: "#1e2a4a", opacity: 0.22 },
+  { position: [-8, 1, 34], scale: 26, texture: 2, color: "#12323e", opacity: 0.26 },
 ];
 
-function makeCloudTexture() {
-  const canvas = document.createElement("canvas");
-  canvas.width = 256;
-  canvas.height = 256;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  const grad = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
-  grad.addColorStop(0, "rgba(255,255,255,1)");
-  grad.addColorStop(0.4, "rgba(255,255,255,0.35)");
-  grad.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 256, 256);
-  return new THREE.CanvasTexture(canvas);
-}
+const DUST_LANES: CloudDef[] = [
+  { position: [-4, 0, -12], scale: 46, texture: 0, color: "#0b0c1a", opacity: 0.55 },
+  { position: [10, 4, 10], scale: 40, texture: 0, color: "#0b0c1a", opacity: 0.5 },
+];
+
+const SEEDS = [10101, 20202, 30303];
+const LANE_SEED = 424242;
 
 export function Nebula() {
-  const texture = useMemo(() => makeCloudTexture(), []);
-  if (!texture) return null;
+  const group = useRef<THREE.Group>(null);
+
+  const cloudTextures = useMemo(() => SEEDS.map((s) => makeNebulaTexture(s)), []);
+  const laneTexture = useMemo(() => makeDustLaneTexture(LANE_SEED), []);
+
+  useFrame((_, delta) => {
+    if (universeState.reducedMotion || !group.current) return;
+    const damp = (a: number, b: number) => THREE.MathUtils.damp(a, b, 2, delta);
+    group.current.position.x = damp(group.current.position.x, universeState.mouseX * 1.4);
+    group.current.position.y = damp(group.current.position.y, universeState.mouseY * 0.9);
+    group.current.rotation.y += delta * 0.004;
+  });
 
   return (
-    <group>
-      {NEBULAE.map(([x, y, z, size, tone], i) => (
-        <sprite key={i} position={[x, y, z]} scale={[size, size, 1]}>
+    <group ref={group}>
+      {CLOUDS.map((c, i) => (
+        <sprite
+          key={`cloud-${i}`}
+          position={c.position}
+          scale={[c.scale, c.scale, 1]}
+        >
           <spriteMaterial
-            map={texture}
-            color={tone === 0 ? "#1e2a4a" : "#12323e"}
+            map={cloudTextures[c.texture]}
+            color={c.color}
             transparent
-            opacity={0.4}
+            opacity={c.opacity}
+            depthWrite={false}
+          />
+        </sprite>
+      ))}
+      {DUST_LANES.map((c, i) => (
+        <sprite
+          key={`lane-${i}`}
+          position={c.position}
+          scale={[c.scale, c.scale, 1]}
+          renderOrder={1}
+        >
+          <spriteMaterial
+            map={laneTexture}
+            color={c.color}
+            transparent
+            opacity={c.opacity}
             depthWrite={false}
           />
         </sprite>

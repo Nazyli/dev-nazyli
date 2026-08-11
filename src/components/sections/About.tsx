@@ -25,7 +25,7 @@ export function About() {
         });
       });
     },
-    { scope: root }
+    { scope: root },
   );
 
   return (
@@ -49,7 +49,7 @@ export function About() {
           </h2>
           <div className="about-reveal mt-10 h-px w-24 bg-gold/40" />
           <p className="about-reveal mt-10 max-w-md text-lg leading-relaxed text-starlight/70">
-            I build systems that reason, remember, and act — turning ideas into
+            I build systems that reason, remember, and act - turning ideas into
             experiences for the real world.
           </p>
         </div>

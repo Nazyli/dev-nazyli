@@ -4,7 +4,7 @@ import * as THREE from "three";
  * Procedural placeholder textures.
  *
  * To swap in a real planetary texture, set the URL constants below (e.g.
- * "/textures/earth.jpg") — the renderers already load through these switches.
+ * "/textures/earth.jpg") - the renderers already load through these switches.
  * A null URL falls back to the generated canvas texture.
  */
 export const EARTH_TEXTURE_URL: string | null = null;
@@ -64,7 +64,7 @@ function makeNoise(seed: number) {
       lerp(
         lerp(grad(aa, fx, fy), grad(ba, fx - 1, fy), u),
         lerp(grad(ab, fx, fy - 1), grad(bb, fx - 1, fy - 1), u),
-        v
+        v,
       ) *
         0.5 +
       0.5
@@ -76,7 +76,7 @@ function fbm(
   noise: (x: number, y: number) => number,
   x: number,
   y: number,
-  octaves: number
+  octaves: number,
 ) {
   let amp = 0.5;
   let freq = 1;
@@ -264,6 +264,72 @@ function makePlanetTexture(): THREE.CanvasTexture {
   return finalize(new THREE.CanvasTexture(canvas));
 }
 
+function makeNebulaTexture(seed: number): THREE.CanvasTexture {
+  const W = 512;
+  const H = 512;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("2d context unavailable");
+  const img = ctx.createImageData(W, H);
+  const data = img.data;
+  const noise = makeNoise(seed);
+  const detail = makeNoise(seed ^ 0x9e3779b9);
+
+  for (let y = 0; y < H; y++) {
+    const fy = y / H;
+    for (let x = 0; x < W; x++) {
+      const fx = x / W;
+      const dx = fx - 0.5;
+      const dy = fy - 0.5;
+      const falloff = Math.exp(-(dx * dx + dy * dy) * 4.6);
+      const v = fbm(noise, fx * 3.4 + 40, fy * 3.4 + 40, 5);
+      const density = clamp((v - 0.52) * 5, 0, 1) * falloff;
+      const lum = 0.6 + 0.4 * fbm(detail, fx * 6 + 7, fy * 6 + 9, 4);
+      const i = (y * W + x) * 4;
+      const c = clamp(245 * lum, 0, 255);
+      data[i] = c;
+      data[i + 1] = c;
+      data[i + 2] = clamp(224 * lum, 0, 255);
+      data[i + 3] = clamp(density * 255, 0, 255);
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  return finalize(new THREE.CanvasTexture(canvas));
+}
+
+function makeDustLaneTexture(seed: number): THREE.CanvasTexture {
+  const W = 512;
+  const H = 512;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("2d context unavailable");
+  const img = ctx.createImageData(W, H);
+  const data = img.data;
+  const noise = makeNoise(seed);
+
+  for (let y = 0; y < H; y++) {
+    const fy = y / H;
+    for (let x = 0; x < W; x++) {
+      const fx = x / W;
+      const v = fbm(noise, fx * 2.6 + 3, fy * 2.6 + 3, 5);
+      const lane = clamp((v - 0.6) * 9, 0, 1);
+      const bright = clamp(0.62 - lane * 0.5, 0, 1);
+      const i = (y * W + x) * 4;
+      const c = clamp(bright * 255, 0, 255);
+      data[i] = c;
+      data[i + 1] = c;
+      data[i + 2] = clamp(bright * 255 + 8, 0, 255);
+      data[i + 3] = clamp(lane * 255, 0, 255);
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  return finalize(new THREE.CanvasTexture(canvas));
+}
+
 function makeRingTexture(): THREE.CanvasTexture {
   const SIZE = 2048;
   const R_INNER = 1.32;
@@ -316,10 +382,82 @@ function makeRingTexture(): THREE.CanvasTexture {
   return finalize(new THREE.CanvasTexture(canvas));
 }
 
+function makeAccretionDiskTexture(size = 1024): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("2d context unavailable");
+  const img = ctx.createImageData(size, size);
+  const data = img.data;
+  const noise = makeNoise(5150);
+  const detail = makeNoise(6262);
+  const half = size / 2;
+  const INNER = 1.4;
+  const OUTER = 6.0;
+  const innerFrac = INNER / OUTER;
+
+  const sstep = (a: number, b: number, x: number) => {
+    const t = clamp((x - a) / (b - a), 0, 1);
+    return t * t * (3 - 2 * t);
+  };
+
+  for (let y = 0; y < size; y++) {
+    const dy = (y - half) / half;
+    for (let x = 0; x < size; x++) {
+      const dx = (x - half) / half;
+      const r = Math.sqrt(dx * dx + dy * dy);
+      const i = (y * size + x) * 4;
+      if (r < innerFrac * 0.8 || r > 1) {
+        data[i] = 0;
+        data[i + 1] = 0;
+        data[i + 2] = 0;
+        data[i + 3] = 0;
+        continue;
+      }
+      const theta = Math.atan2(dy, dx);
+
+      const swirl = 0.18 - 1.15 * r;
+      const ca = Math.cos(swirl);
+      const sa = Math.sin(swirl);
+      const sx = dx * ca - dy * sa;
+      const sy = dx * sa + dy * ca;
+
+      const n = fbm(noise, sx * 2.4 + 7, sy * 2.4 + 9, 5);
+      const d = fbm(detail, sx * 8 + 3, sy * 8 + 5, 3);
+
+      const innerFade = sstep(innerFrac, innerFrac + 0.16, r);
+      const outerFade = 1 - sstep(0.72, 1, r);
+      const dopp = 1 + 0.32 * Math.sin(theta);
+      const bands = 0.62 + 0.38 * Math.sin(n * 6.283 + r * 9);
+      const density = 0.4 + 0.6 * d;
+
+      const baseR = lerp(20, 52, n);
+      const baseG = lerp(34, 74, n);
+      const baseB = lerp(72, 110, n);
+      const knot = Math.max(n - 0.62, 0) * 4;
+      const r8 = baseR + 130 * knot * knot;
+      const g8 = baseG + 96 * knot * knot;
+      const b8 = baseB + 42 * knot * knot;
+      const bright = dopp * bands * 0.85;
+
+      data[i] = clamp(r8 * bright, 0, 255);
+      data[i + 1] = clamp(g8 * bright, 0, 255);
+      data[i + 2] = clamp(b8 * bright, 0, 255);
+      data[i + 3] = clamp(innerFade * outerFade * density * 255, 0, 255);
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  return finalize(new THREE.CanvasTexture(canvas));
+}
+
 export {
   makeEarthTexture,
   makeEarthBumpTexture,
   makeCloudTexture,
   makePlanetTexture,
   makeRingTexture,
+  makeNebulaTexture,
+  makeDustLaneTexture,
+  makeAccretionDiskTexture,
 };

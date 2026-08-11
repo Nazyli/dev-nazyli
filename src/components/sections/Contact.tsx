@@ -24,7 +24,7 @@ export function Contact() {
         });
       });
     },
-    { scope: root }
+    { scope: root },
   );
 
   const links = [
@@ -72,7 +72,7 @@ export function Contact() {
 
       <footer className="contact-reveal absolute bottom-8 left-0 right-0">
         <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-indigo">
-          Evry Nazyli — 2026
+          Evry Nazyli - 2026
         </p>
       </footer>
     </section>

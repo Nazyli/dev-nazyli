@@ -104,11 +104,13 @@ export function Projects() {
     const mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       const slides = projects.length;
-      const travelPct = (slides - 1) * 100;
+      const sectionPct = ((slides - 1) / slides) * 100;
 
       projects.forEach((_, i) => {
         const path = pathRefs.current[i];
         if (!path) return;
+        const startPct = (i / slides) * sectionPct;
+        const endPct = ((i + 1) / slides) * sectionPct;
         gsap.fromTo(
           path,
           { strokeDashoffset: 1 },
@@ -117,8 +119,8 @@ export function Projects() {
             ease: "none",
             scrollTrigger: {
               trigger: root.current,
-              start: `${(i * travelPct) / slides}% top`,
-              end: `${((i + 1) * travelPct) / slides}% top`,
+              start: `${startPct}% top`,
+              end: `${endPct}% top`,
               scrub: true,
             },
           }
