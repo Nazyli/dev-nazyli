@@ -81,7 +81,8 @@ Lenis (smooth scroll)
 
 ### Key files
 
-- `src/hooks/useScrollAnimation.ts` — Lenis + ScrollTrigger sync, master scrub, scoped `gsap.context` with full cleanup.
+- `src/lib/gsap.ts` — registers `ScrollTrigger` + `useGSAP` once and re-exports `gsap`; every GSAP consumer imports from here (single registration point).
+- `src/hooks/useScrollAnimation.ts` — Lenis + ScrollTrigger sync, master scrub, scoped cleanup.
 - `src/lib/universeState.ts` — mutable singleton `{ progress, mouseX, mouseY, reducedMotion }`. GSAP writes, R3F reads in `useFrame`. **Not React state** (avoid re-render storms).
 - `src/lib/cameraPath.ts` — `CatmullRomCurve3` keyframes matching the section journey (Hero → About → Expertise → Projects → Experience → Contact/Earth).
 - `src/components/space/SpaceScene.tsx` — fixed full-screen `<Canvas>`, `dpr={[1, 1.75]}`, no shadows, low-poly. Contains Stars, celestial bodies, SpaceCamera. Sits behind all DOM (`z-0`).
@@ -125,6 +126,7 @@ src/
 ├── hooks/
 │   └── useScrollAnimation.ts
 ├── lib/
+│   ├── gsap.ts           # single GSAP registration point (ScrollTrigger + useGSAP)
 │   ├── universeState.ts
 │   └── cameraPath.ts
 └── data/
