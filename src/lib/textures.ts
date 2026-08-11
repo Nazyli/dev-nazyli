@@ -283,9 +283,11 @@ function makeNebulaTexture(seed: number): THREE.CanvasTexture {
       const fx = x / W;
       const dx = fx - 0.5;
       const dy = fy - 0.5;
-      const falloff = Math.exp(-(dx * dx + dy * dy) * 4.6);
+      const r2 = dx * dx + dy * dy;
+      const falloff = Math.exp(-r2 * 4.6);
+      const rim = clamp(1 - r2 * 4.6, 0, 1);
       const v = fbm(noise, fx * 3.4 + 40, fy * 3.4 + 40, 5);
-      const density = clamp((v - 0.52) * 5, 0, 1) * falloff;
+      const density = clamp((v - 0.52) * 5, 0, 1) * falloff * rim;
       const lum = 0.6 + 0.4 * fbm(detail, fx * 6 + 7, fy * 6 + 9, 4);
       const i = (y * W + x) * 4;
       const c = clamp(245 * lum, 0, 255);
@@ -315,6 +317,8 @@ function makeDustLaneTexture(seed: number): THREE.CanvasTexture {
     const fy = y / H;
     for (let x = 0; x < W; x++) {
       const fx = x / W;
+      const r2 = (fx - 0.5) * (fx - 0.5) + (fy - 0.5) * (fy - 0.5);
+      const rim = clamp(1 - r2 * 4.6, 0, 1);
       const v = fbm(noise, fx * 2.6 + 3, fy * 2.6 + 3, 5);
       const lane = clamp((v - 0.6) * 9, 0, 1);
       const bright = clamp(0.62 - lane * 0.5, 0, 1);
@@ -323,7 +327,7 @@ function makeDustLaneTexture(seed: number): THREE.CanvasTexture {
       data[i] = c;
       data[i + 1] = c;
       data[i + 2] = clamp(bright * 255 + 8, 0, 255);
-      data[i + 3] = clamp(lane * 255, 0, 255);
+      data[i + 3] = clamp(lane * 255 * rim, 0, 255);
     }
   }
   ctx.putImageData(img, 0, 0);

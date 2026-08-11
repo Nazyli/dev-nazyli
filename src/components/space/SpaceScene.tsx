@@ -42,7 +42,7 @@ export function SpaceScene() {
         gl={{ antialias: true, powerPreference: "high-performance" }}
         camera={{ fov: 55, near: 0.1, far: 500, position: [0, 0, -46] }}
       >
-        <ambientLight intensity={0.22} />
+        <ambientLight intensity={0.3} />
         <directionalLight position={[14, 5, 9]} intensity={3.2} color="#f5efe0" />
         <directionalLight position={[-10, -4, -6]} intensity={0.5} color="#1e213f" />
         <Nebula />

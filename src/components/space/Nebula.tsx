@@ -27,8 +27,26 @@ const CLOUDS: CloudDef[] = [
 ];
 
 const DUST_LANES: CloudDef[] = [
-  { position: [-4, 0, -12], scale: 46, texture: 0, color: "#0b0c1a", opacity: 0.55 },
-  { position: [10, 4, 10], scale: 40, texture: 0, color: "#0b0c1a", opacity: 0.5 },
+  { position: [-4, 0, -12], scale: 46, texture: 0, color: "#0b0c1a", opacity: 0.4 },
+  { position: [10, 4, 10], scale: 40, texture: 0, color: "#0b0c1a", opacity: 0.36 },
+];
+
+const EMISSION: CloudDef[] = [
+  { position: [-9, -1, -46], scale: 38, texture: 0, color: "#ff5f8a", opacity: 0.5 },
+  { position: [14, 4, -38], scale: 34, texture: 1, color: "#e0557e", opacity: 0.42 },
+  { position: [-20, 5, -30], scale: 40, texture: 2, color: "#c94672", opacity: 0.34 },
+  { position: [-12, 2, 12], scale: 36, texture: 0, color: "#d9578a", opacity: 0.3 },
+  { position: [8, 6, 18], scale: 32, texture: 1, color: "#f0637f", opacity: 0.26 },
+];
+
+const REFLECTION: CloudDef[] = [
+  { position: [0, 0, -44], scale: 56, texture: 1, color: "#3a4a8a", opacity: 0.4 },
+  { position: [8, 3, -44], scale: 34, texture: 1, color: "#6fa8ff", opacity: 0.5 },
+  { position: [-6, 6, -24], scale: 36, texture: 0, color: "#66d9e8", opacity: 0.45 },
+  { position: [16, -3, -12], scale: 32, texture: 2, color: "#5b8dff", opacity: 0.4 },
+  { position: [2, 5, 6], scale: 34, texture: 1, color: "#66d9e8", opacity: 0.35 },
+  { position: [-10, 3, 22], scale: 30, texture: 0, color: "#6fa8ff", opacity: 0.3 },
+  { position: [4, 2, 30], scale: 36, texture: 2, color: "#66d9e8", opacity: 0.3 },
 ];
 
 const SEEDS = [10101, 20202, 30303];
@@ -78,6 +96,40 @@ export function Nebula() {
             transparent
             opacity={c.opacity}
             depthWrite={false}
+          />
+        </sprite>
+      ))}
+      {EMISSION.map((c, i) => (
+        <sprite
+          key={`emission-${i}`}
+          position={c.position}
+          scale={[c.scale, c.scale, 1]}
+          renderOrder={2}
+        >
+          <spriteMaterial
+            map={cloudTextures[c.texture]}
+            color={c.color}
+            transparent
+            opacity={c.opacity}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </sprite>
+      ))}
+      {REFLECTION.map((c, i) => (
+        <sprite
+          key={`reflection-${i}`}
+          position={c.position}
+          scale={[c.scale, c.scale, 1]}
+          renderOrder={2}
+        >
+          <spriteMaterial
+            map={cloudTextures[c.texture]}
+            color={c.color}
+            transparent
+            opacity={c.opacity}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
           />
         </sprite>
       ))}

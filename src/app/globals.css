@@ -151,8 +151,8 @@
 .obs-vignette {
   background: radial-gradient(
     ellipse 130% 100% at 50% 42%,
-    transparent 58%,
-    rgb(3 4 10 / 0.55) 100%
+    transparent 62%,
+    rgb(3 4 10 / 0.45) 100%
   );
 }
 

@@ -99,10 +99,10 @@ export function Stars() {
         <pointsMaterial
           map={sprite}
           color="#f5efe0"
-          size={0.4}
+          size={0.5}
           sizeAttenuation
           transparent
-          opacity={0.9}
+          opacity={1}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />
@@ -111,7 +111,7 @@ export function Stars() {
         <pointsMaterial
           map={sprite}
           color="#d9b36a"
-          size={0.85}
+          size={0.95}
           sizeAttenuation
           transparent
           opacity={0.95}
