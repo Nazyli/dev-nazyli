@@ -1,6 +1,7 @@
 import { ScrollProvider } from "@/components/providers/ScrollProvider";
 import { SpaceSceneDynamic } from "@/components/space/SpaceSceneDynamic";
 import { CursorReticle } from "@/components/ui/CursorReticle";
+import { SurveyProbe } from "@/components/ui/SurveyProbe";
 import { ObservatoryChrome } from "@/components/ui/ObservatoryChrome";
 import { Hero } from "@/components/sections/Hero";
 import { About } from "@/components/sections/About";
@@ -23,6 +24,7 @@ export default function Home() {
         <Contact />
       </main>
       <ObservatoryChrome />
+      <SurveyProbe />
       <CursorReticle />
     </ScrollProvider>
   );

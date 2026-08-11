@@ -110,13 +110,48 @@ export function Expertise() {
           ))}
         </svg>
 
-        <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-          <p className="font-mono text-[9px] uppercase tracking-[0.35em] text-starlight/60">
-            Core focus
-          </p>
-          <p className="mt-2 font-display text-lg font-medium tracking-tight text-starlight">
-            AI ENGINEERING
-          </p>
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div
+            className={`flex items-center justify-center transition-opacity duration-300 ${
+              active ? "opacity-0" : "opacity-100"
+            }`}
+          >
+            <div className="text-center">
+              <p className="font-mono text-[9px] uppercase tracking-[0.35em] text-starlight/60">
+                Core focus
+              </p>
+              <p className="mt-2 font-display text-lg font-medium tracking-tight text-starlight">
+                AI ENGINEERING
+              </p>
+            </div>
+          </div>
+          <div
+            className={`absolute flex items-center justify-center transition-opacity duration-300 ${
+              active ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            {active && (
+              <DataPlate title="Object readout" className="w-[min(76vw,340px)]">
+                <DataRow k="Object" v={active.name} />
+                <DataRow k="Class" v={active.class} />
+                <DataRow
+                  k="Stack"
+                  v={
+                    <span className="flex flex-wrap justify-end gap-1.5">
+                      {active.tech.map((tech) => (
+                        <span
+                          key={tech}
+                          className="border border-indigo/40 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.12em] text-starlight/80"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </span>
+                  }
+                />
+              </DataPlate>
+            )}
+          </div>
         </div>
 
         {skills.map((skill) => (
@@ -130,44 +165,9 @@ export function Expertise() {
         ))}
       </div>
 
-      <div className="relative mt-12 h-40 w-full max-w-md">
-        <div
-          className={`pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
-            active ? "opacity-0" : "opacity-100"
-          }`}
-        >
-          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/75">
-            Awaiting object selection · hover a planet
-          </p>
-        </div>
-        <div
-          className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ${
-            active ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          {active && (
-            <DataPlate title="Object readout">
-              <DataRow k="Object" v={active.name} />
-              <DataRow k="Class" v={active.class} />
-              <DataRow
-                k="Stack"
-                v={
-                  <span className="flex flex-wrap justify-end gap-1.5">
-                    {active.tech.map((tech) => (
-                      <span
-                        key={tech}
-                        className="border border-indigo/40 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.12em] text-starlight/80"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </span>
-                }
-              />
-            </DataPlate>
-          )}
-        </div>
-      </div>
+      <p className="pointer-events-none mt-8 font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/75">
+        Awaiting object selection · hover a planet
+      </p>
     </section>
   );
 }
