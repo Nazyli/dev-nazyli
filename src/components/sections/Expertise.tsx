@@ -149,7 +149,21 @@ export function Expertise() {
             <DataPlate title="Object readout">
               <DataRow k="Object" v={active.name} />
               <DataRow k="Class" v={active.class} />
-              <DataRow k="Notes" v={active.detail} />
+              <DataRow
+                k="Stack"
+                v={
+                  <span className="flex flex-wrap justify-end gap-1.5">
+                    {active.tech.map((tech) => (
+                      <span
+                        key={tech}
+                        className="border border-indigo/40 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.12em] text-starlight/80"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </span>
+                }
+              />
             </DataPlate>
           )}
         </div>

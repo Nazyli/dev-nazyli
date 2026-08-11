@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 type DataPlateProps = {
   title: string;
   children: React.ReactNode;
@@ -6,7 +8,7 @@ type DataPlateProps = {
 
 type DataRowProps = {
   k: string;
-  v: string;
+  v: ReactNode;
 };
 
 export function DataPlate({ title, children, className }: DataPlateProps) {
