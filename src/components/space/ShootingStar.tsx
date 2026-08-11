@@ -5,8 +5,8 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
 
-const LIFE = 1.1;
-const TRAVEL = 30;
+const LIFE = 1.3;
+const TRAVEL = 26;
 const UP = new THREE.Vector3(0, 1, 0);
 
 const temp = new THREE.Vector3();
@@ -19,16 +19,28 @@ const yAxis = new THREE.Vector3();
 
 function makeStreakTexture() {
   const canvas = document.createElement("canvas");
-  canvas.width = 256;
-  canvas.height = 8;
+  const W = 128;
+  const H = 32;
+  canvas.width = W;
+  canvas.height = H;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
-  const grad = ctx.createLinearGradient(0, 0, 256, 0);
-  grad.addColorStop(0, "rgba(245, 239, 224, 0)");
-  grad.addColorStop(0.6, "rgba(245, 239, 224, 0.35)");
-  grad.addColorStop(1, "rgba(245, 239, 224, 1)");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 256, 8);
+  ctx.clearRect(0, 0, W, H);
+
+  const headX = 112;
+  for (let x = headX; x >= 2; x -= 2) {
+    const t = x / headX;
+    const radius = 3 + 13 * t * t;
+    const alpha = 0.85 * t * t;
+    const grad = ctx.createRadialGradient(x, H / 2, 0, x, H / 2, radius);
+    grad.addColorStop(0, `rgba(245, 239, 224, ${alpha})`);
+    grad.addColorStop(1, "rgba(245, 239, 224, 0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, H / 2, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   return texture;
@@ -108,7 +120,7 @@ export function ShootingStar() {
 
   return (
     <mesh ref={mesh} visible={false}>
-      <planeGeometry args={[2.6, 0.07]} />
+      <planeGeometry args={[3.4, 0.85]} />
       <meshBasicMaterial
         map={texture}
         transparent
