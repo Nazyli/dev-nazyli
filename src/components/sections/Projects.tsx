@@ -100,6 +100,10 @@ function ConstellationSvg({
             cy={y}
             r={s % 2 === 0 ? 1.8 : 1.3}
             fill={`url(#${gradientId}-core)`}
+            style={{
+              filter:
+                "drop-shadow(0 0 2px color-mix(in srgb, var(--color-gold) 85%, transparent))",
+            }}
           />
         ))}
       </svg>
