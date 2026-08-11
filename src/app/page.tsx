@@ -1,5 +1,7 @@
 import { ScrollProvider } from "@/components/providers/ScrollProvider";
 import { SpaceSceneDynamic } from "@/components/space/SpaceSceneDynamic";
+import { CursorReticle } from "@/components/ui/CursorReticle";
+import { ObservatoryChrome } from "@/components/ui/ObservatoryChrome";
 import { Hero } from "@/components/sections/Hero";
 import { About } from "@/components/sections/About";
 import { Expertise } from "@/components/sections/Expertise";
@@ -11,6 +13,7 @@ export default function Home() {
   return (
     <ScrollProvider>
       <SpaceSceneDynamic />
+      <div aria-hidden className="obs-vignette pointer-events-none fixed inset-0 z-[5]" />
       <main id="main" className="relative z-10">
         <Hero />
         <About />
@@ -19,6 +22,8 @@ export default function Home() {
         <Experience />
         <Contact />
       </main>
+      <ObservatoryChrome />
+      <CursorReticle />
     </ScrollProvider>
   );
 }

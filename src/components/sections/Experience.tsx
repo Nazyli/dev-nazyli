@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 import { experience } from "@/data/experience";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export function Experience() {
   const root = useRef<HTMLElement>(null);
@@ -62,15 +63,19 @@ export function Experience() {
 
   return (
     <section
+      id="s-experience"
       ref={root}
       aria-label="Experience"
       className="relative flex min-h-screen flex-col items-center justify-center px-6 py-24"
     >
-      <div className="mb-20 text-center">
-        <p className="exp-reveal font-mono text-xs uppercase tracking-[0.35em] text-gold">
-          04 · Experience
-        </p>
-        <h2 className="exp-reveal mt-4 font-display text-3xl font-medium tracking-tight text-starlight sm:text-4xl">
+      <div className="mb-20 flex flex-col items-center text-center">
+        <SectionHeading
+          index="04"
+          label="Experience"
+          descriptor="Mission log"
+          align="center"
+        />
+        <h2 className="mt-4 font-display text-3xl font-medium tracking-tight text-starlight sm:text-4xl">
           A journey through systems.
         </h2>
       </div>
@@ -90,7 +95,10 @@ export function Experience() {
               key={entry.id}
               className="exp-entry relative mb-20 pl-12 last:mb-0 md:grid md:grid-cols-2 md:gap-16 md:pl-0"
             >
-              <span className="exp-node absolute left-[19px] top-2 h-2 w-2 rounded-full border border-gold bg-void md:left-1/2 md:-translate-x-1/2" />
+              <span className="exp-node absolute left-[19px] top-1 h-4 w-4 md:left-1/2 md:-translate-x-1/2">
+                <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-gold" />
+                <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-gold" />
+              </span>
               <div
                 className={
                   onLeft ? "md:col-start-1 md:text-right" : "md:col-start-2"

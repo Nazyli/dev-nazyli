@@ -5,72 +5,92 @@ import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { buildConstellationPath, projects } from "@/data/projects";
 import type { Project } from "@/data/projects";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 
 function ProjectCard({ project }: { project: Project }) {
   return (
-    <div className="border border-indigo/40 bg-abyss/70 p-6">
-      <p className="font-mono text-xs uppercase tracking-[0.35em] text-gold">
-        {project.index}
-      </p>
-      <h3 className="mt-4 font-display text-2xl font-medium tracking-tight text-starlight">
-        {project.title}
-      </h3>
-      <p className="mt-3 text-sm leading-relaxed text-starlight/70">
-        {project.description}
-      </p>
-      <ul className="mt-5 flex flex-wrap gap-2">
-        {project.tags.map((tag) => (
-          <li
-            key={tag}
-            className="border border-indigo/50 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-starlight/60"
+    <article className="border border-indigo/30 bg-abyss/50">
+      <header className="flex items-center justify-between border-b border-indigo/30 bg-indigo/10 px-4 py-2">
+        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-indigo">
+          Observation record
+        </p>
+        <p className="font-mono text-[10px] tracking-[0.25em] text-gold">
+          REC-{project.index}
+        </p>
+      </header>
+      <div className="p-5">
+        <h3 className="font-display text-2xl font-medium tracking-tight text-starlight">
+          {project.title}
+        </h3>
+        <div className="mt-4 flex items-baseline justify-between gap-6 border-t border-indigo/15 pt-4">
+          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-indigo">
+            Bands
+          </span>
+          <span className="text-right font-mono text-[10px] uppercase tracking-[0.15em] text-starlight/70">
+            {project.tags.join(" · ")}
+          </span>
+        </div>
+        <p className="mt-4 text-sm leading-relaxed text-starlight/70">
+          {project.description}
+        </p>
+        {project.link && (
+          <a
+            href={project.link}
+            className="mt-6 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.25em] text-accent"
           >
-            {tag}
-          </li>
-        ))}
-      </ul>
-      {project.link && (
-        <a
-          href={project.link}
-          className="mt-6 inline-block font-mono text-xs uppercase tracking-[0.25em] text-accent"
-        >
-          Explore project →
-        </a>
-      )}
-    </div>
+            Explore project <span aria-hidden>→</span>
+          </a>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function CatalogLine({ project }: { project: Project }) {
+  return (
+    <p className="hidden font-mono text-[9px] uppercase tracking-[0.3em] text-indigo sm:block">
+      STARS {project.constellation.stars.length} · LINKS{" "}
+      {project.constellation.lines.length} · EPOCH 2026
+    </p>
   );
 }
 
 function ConstellationSvg({
   project,
   staticDraw = false,
+  pathRef,
 }: {
   project: Project;
   staticDraw?: boolean;
+  pathRef?: (el: SVGPathElement | null) => void;
 }) {
   return (
-    <svg viewBox="0 0 100 100" className="h-[min(52vmin,380px)] w-[min(52vmin,380px)]">
-      <path
-        d={buildConstellationPath(project)}
-        pathLength={1}
-        style={{ strokeDasharray: 1, strokeDashoffset: staticDraw ? 0 : 1 }}
-        className="fill-none"
-        stroke="#66d9e8"
-        strokeOpacity={0.55}
-        strokeWidth={1}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      />
-      {project.constellation.stars.map(([x, y], s) => (
-        <circle
-          key={s}
-          cx={x}
-          cy={y}
-          r={s % 2 === 0 ? 1.6 : 1.1}
-          fill="#d9b36a"
+    <div className="flex flex-col items-center gap-6">
+      <svg viewBox="0 0 100 100" className="h-[min(46vmin,340px)] w-[min(46vmin,340px)]">
+        <path
+          ref={pathRef}
+          d={buildConstellationPath(project)}
+          pathLength={1}
+          style={{ strokeDasharray: 1, strokeDashoffset: staticDraw ? 0 : 1 }}
+          className="fill-none stroke-accent"
+          strokeOpacity={0.55}
+          strokeWidth={1}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
         />
-      ))}
-    </svg>
+        {project.constellation.stars.map(([x, y], s) => (
+          <circle
+            key={s}
+            cx={x}
+            cy={y}
+            r={s % 2 === 0 ? 1.6 : 1.1}
+            className="fill-gold"
+          />
+        ))}
+      </svg>
+      <CatalogLine project={project} />
+    </div>
   );
 }
 
@@ -123,22 +143,36 @@ export function Projects() {
 
   if (reduced) {
     return (
-      <div role="region" aria-label="Projects" className="relative">
-        {projects.map((project) => (
-          <div
-            key={project.id}
-            className="flex min-h-screen flex-col items-center justify-center gap-10 px-6"
-          >
-            <ConstellationSvg project={project} staticDraw />
-            <ProjectCard project={project} />
+      <div id="s-projects" role="region" aria-label="Projects" className="relative">
+        <div className="flex min-h-screen flex-col items-center justify-center gap-16 px-6 pt-24">
+          <div className="text-center">
+            <SectionHeading
+              index="03"
+              label="Projects"
+              descriptor="Constellation log"
+              align="center"
+            />
+            <h2 className="mt-3 font-display text-3xl font-medium tracking-tight text-starlight">
+              Constellations of work.
+            </h2>
           </div>
-        ))}
+          {projects.map((project) => (
+            <div
+              key={project.id}
+              className="flex flex-col items-center justify-center gap-10"
+            >
+              <ConstellationSvg project={project} staticDraw />
+              <ProjectCard project={project} />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
     <div
+      id="s-projects"
       ref={root}
       role="region"
       aria-label="Projects"
@@ -147,9 +181,11 @@ export function Projects() {
     >
       <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden px-6">
         <div className="absolute left-6 top-16 md:left-24">
-          <p className="font-mono text-xs uppercase tracking-[0.35em] text-gold">
-            03 · Projects
-          </p>
+          <SectionHeading
+            index="03"
+            label="Projects"
+            descriptor="Constellation log"
+          />
           <h2 className="mt-3 font-display text-3xl font-medium tracking-tight text-starlight">
             Constellations of work.
           </h2>
@@ -163,32 +199,12 @@ export function Projects() {
               slide === i ? "opacity-100" : "opacity-0"
             }`}
           >
-            <svg viewBox="0 0 100 100" className="h-[min(52vmin,380px)] w-[min(52vmin,380px)]">
-              <path
-                ref={(el) => {
-                  pathRefs.current[i] = el;
-                }}
-                d={buildConstellationPath(project)}
-                pathLength={1}
-                style={{ strokeDasharray: 1, strokeDashoffset: 1 }}
-                className="fill-none"
-                stroke="#66d9e8"
-                strokeOpacity={0.55}
-                strokeWidth={1}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                vectorEffect="non-scaling-stroke"
-              />
-              {project.constellation.stars.map(([x, y], s) => (
-                <circle
-                  key={s}
-                  cx={x}
-                  cy={y}
-                  r={s % 2 === 0 ? 1.6 : 1.1}
-                  fill="#d9b36a"
-                />
-              ))}
-            </svg>
+            <ConstellationSvg
+              project={project}
+              pathRef={(el) => {
+                pathRefs.current[i] = el;
+              }}
+            />
           </div>
         ))}
 

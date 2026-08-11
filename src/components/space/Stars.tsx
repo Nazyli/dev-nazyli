@@ -3,9 +3,11 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { universeState } from "@/lib/universeState";
 
 const DISTANT_COUNT = 1600;
 const BRIGHT_COUNT = 60;
+const GALAXY_COUNT = 1400;
 
 function makeStarSprite() {
   const canvas = document.createElement("canvas");
@@ -42,6 +44,17 @@ function randomSpherePositions(
   }
 }
 
+function randomDiscPositions(count: number, out: Float32Array) {
+  for (let i = 0; i < count; i++) {
+    const radius = 30 + Math.random() * 32;
+    const theta = Math.random() * Math.PI * 2;
+    const i3 = i * 3;
+    out[i3] = radius * Math.cos(theta);
+    out[i3 + 1] = (Math.random() - 0.5) * 1.4;
+    out[i3 + 2] = radius * Math.sin(theta);
+  }
+}
+
 export function Stars() {
   const group = useRef<THREE.Group>(null);
 
@@ -63,7 +76,16 @@ export function Stars() {
     return geometry;
   }, []);
 
+  const galaxyGeometry = useMemo(() => {
+    const positions = new Float32Array(GALAXY_COUNT * 3);
+    randomDiscPositions(GALAXY_COUNT, positions);
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    return geometry;
+  }, []);
+
   useFrame((_, delta) => {
+    if (universeState.reducedMotion) return;
     if (group.current) {
       group.current.rotation.y += delta * 0.004;
     }
@@ -93,6 +115,18 @@ export function Stars() {
           sizeAttenuation
           transparent
           opacity={0.95}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </points>
+      <points geometry={galaxyGeometry} rotation={[0.6, 0, 0]}>
+        <pointsMaterial
+          map={sprite}
+          color="#f5efe0"
+          size={0.3}
+          sizeAttenuation
+          transparent
+          opacity={0.4}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />

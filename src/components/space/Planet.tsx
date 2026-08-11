@@ -1,8 +1,14 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { universeState } from "@/lib/universeState";
+import {
+  PLANET_TEXTURE_URL,
+  makePlanetTexture,
+  makeRingTexture,
+} from "@/lib/textures";
 
 type PlanetProps = {
   position: [number, number, number];
@@ -11,37 +17,39 @@ type PlanetProps = {
 
 export function Planet({ position, radius = 2 }: PlanetProps) {
   const body = useRef<THREE.Mesh>(null);
-  const ring = useRef<THREE.Mesh>(null);
+
+  const map = useMemo(
+    () => (PLANET_TEXTURE_URL ? null : makePlanetTexture()),
+    []
+  );
+  const ringMap = useMemo(() => makeRingTexture(), []);
 
   useFrame((_, delta) => {
+    if (universeState.reducedMotion) return;
     if (body.current) {
-      body.current.rotation.y += delta * 0.06;
-    }
-    if (ring.current) {
-      ring.current.rotation.z += delta * 0.03;
+      body.current.rotation.y += delta * 0.03;
     }
   });
 
   return (
-    <group position={position}>
-      <mesh ref={body} rotation={[0.4, 0, 0]}>
-        <icosahedronGeometry args={[radius, 5]} />
+    <group position={position} rotation={[-1.08, 0.22, 0]}>
+      <mesh ref={body}>
+        <sphereGeometry args={[radius, 64, 64]} />
         <meshStandardMaterial
-          color="#262b4f"
-          roughness={0.85}
-          metalness={0.15}
-          emissive="#10142b"
-          emissiveIntensity={0.6}
+          map={map ?? undefined}
+          roughness={0.92}
+          metalness={0.02}
         />
       </mesh>
-      <mesh ref={ring} rotation={[Math.PI / 2.4, 0.2, 0]}>
-        <torusGeometry args={[radius * 1.55, 0.03, 8, 96]} />
+      <mesh>
+        <ringGeometry args={[radius * 1.32, radius * 2.35, 128]} />
         <meshStandardMaterial
-          color="#d9b36a"
-          roughness={0.6}
-          metalness={0.4}
-          emissive="#8a6d2e"
-          emissiveIntensity={0.35}
+          map={ringMap}
+          transparent
+          side={THREE.DoubleSide}
+          depthWrite={false}
+          roughness={0.85}
+          metalness={0.1}
         />
       </mesh>
     </group>

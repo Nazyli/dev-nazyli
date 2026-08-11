@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { scrollController } from "@/lib/scrollController";
 import { universeState } from "@/lib/universeState";
 
 export function useScrollAnimation() {
@@ -16,6 +17,7 @@ export function useScrollAnimation() {
       duration: 1.15,
       smoothWheel: !reduced,
     });
+    scrollController.lenis = lenis;
 
     lenis.on("scroll", ScrollTrigger.update);
 
@@ -51,6 +53,7 @@ export function useScrollAnimation() {
       mm.revert();
       master.kill();
       gsap.ticker.remove(tick);
+      scrollController.lenis = null;
       lenis.destroy();
     };
   }, []);
