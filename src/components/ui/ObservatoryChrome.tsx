@@ -109,7 +109,7 @@ export function ObservatoryChrome() {
 
         <p
           aria-hidden
-          className="pointer-events-none absolute left-1/2 hidden -translate-x-1/2 whitespace-nowrap text-indigo md:block"
+          className="pointer-events-none absolute left-1/2 hidden -translate-x-1/2 whitespace-nowrap text-starlight/70 md:block"
         >
           {SECTIONS[active].target}
         </p>

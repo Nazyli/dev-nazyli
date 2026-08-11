@@ -23,7 +23,7 @@ export function SectionHeading({
         {index} · {label}
       </p>
       {descriptor && (
-        <span className="hidden font-mono text-[10px] uppercase tracking-[0.3em] text-indigo sm:inline">
+        <span className="hidden font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/70 sm:inline">
           {descriptor}
         </span>
       )}
