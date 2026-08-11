@@ -17,18 +17,16 @@ export const experience: ExperienceEntry[] = [
   },
   {
     id: "software-engineer",
-    period: "2025",
-    role: "Software Engineer",
-    company: "[TODO] Company",
-    description:
-      "Built and scaled backend systems that put products into production.",
+    period: "20XX",
+    role: "Details withheld",
+    company: "Confidential",
+    description: "Entry classified - full record unavailable.",
   },
   {
     id: "early-role",
-    period: "2024",
-    role: "[TODO] Early role",
-    company: "[TODO] Company",
-    description:
-      "Foundation in software engineering - placeholder until real data arrives.",
+    period: "20XX",
+    role: "Details withheld",
+    company: "Confidential",
+    description: "Entry classified - full record unavailable.",
   },
 ];
