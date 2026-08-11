@@ -66,7 +66,7 @@ function ConstellationSvg({
 }) {
   return (
     <div className="flex flex-col items-center gap-6">
-      <svg viewBox="0 0 100 100" className="h-[min(46vmin,340px)] w-[min(46vmin,340px)]">
+      <svg viewBox="0 0 100 100" className="h-[min(46vmin,340px)] w-[min(46vmin,340px)] md:h-[min(70vmin,640px)] md:w-[min(70vmin,640px)]">
         <path
           ref={pathRef}
           d={buildConstellationPath(project)}
