@@ -21,7 +21,9 @@ function subscribeClock(callback: () => void) {
   clockListeners.add(callback);
   if (!clockStarted) {
     clockStarted = true;
-    const format = () => new Date().toISOString().slice(11, 19) + "Z";
+    const format = () =>
+      new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(11, 19) +
+      " WIB";
     clockValue = format();
     setInterval(() => {
       clockValue = format();
@@ -41,12 +43,12 @@ function getServerClockSnapshot() {
   return null;
 }
 
-function useUtcClock() {
+function useJakartaClock() {
   return useSyncExternalStore(subscribeClock, getClockSnapshot, getServerClockSnapshot);
 }
 
 export function ObservatoryChrome() {
-  const clock = useUtcClock();
+  const clock = useJakartaClock();
   const [active, setActive] = useState(0);
   const ratios = useRef<number[]>(SECTIONS.map(() => 0));
 
@@ -112,7 +114,7 @@ export function ObservatoryChrome() {
           {SECTIONS[active].target}
         </p>
 
-        <p className="tabular-nums text-starlight/60">{clock ?? "--:--:--Z"}</p>
+        <p className="tabular-nums text-starlight/60">{clock ?? "--:--:-- WIB"}</p>
       </header>
 
       <nav
