@@ -72,22 +72,12 @@ function ConstellationSvg({
         <defs>
           <radialGradient id={`${gradientId}-core`} cx="35%" cy="35%" r="75%">
             <stop offset="0%" style={{ stopColor: "var(--color-starlight)" }} />
-            <stop offset="60%" style={{ stopColor: "var(--color-gold)" }} />
+            <stop offset="55%" style={{ stopColor: "var(--color-gold)" }} />
             <stop
               offset="100%"
               style={{
-                stopColor: "color-mix(in srgb, var(--color-gold) 35%, #000)",
+                stopColor: "color-mix(in srgb, var(--color-gold) 55%, #000)",
               }}
-            />
-          </radialGradient>
-          <radialGradient id={`${gradientId}-halo`} cx="50%" cy="50%" r="50%">
-            <stop
-              offset="0%"
-              style={{ stopColor: "var(--color-gold)", stopOpacity: 0.55 }}
-            />
-            <stop
-              offset="100%"
-              style={{ stopColor: "var(--color-gold)", stopOpacity: 0 }}
             />
           </radialGradient>
         </defs>
@@ -104,15 +94,13 @@ function ConstellationSvg({
           vectorEffect="non-scaling-stroke"
         />
         {project.constellation.stars.map(([x, y], s) => (
-          <g key={s}>
-            <circle cx={x} cy={y} r={3.6} fill={`url(#${gradientId}-halo)`} />
-            <circle
-              cx={x}
-              cy={y}
-              r={s % 2 === 0 ? 1.6 : 1.1}
-              fill={`url(#${gradientId}-core)`}
-            />
-          </g>
+          <circle
+            key={s}
+            cx={x}
+            cy={y}
+            r={s % 2 === 0 ? 1.8 : 1.3}
+            fill={`url(#${gradientId}-core)`}
+          />
         ))}
       </svg>
       <CatalogLine project={project} />
