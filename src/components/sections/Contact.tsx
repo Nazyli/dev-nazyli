@@ -61,7 +61,7 @@ export function Contact() {
               href={link.href}
               className="group flex flex-col items-center gap-2 font-mono text-xs uppercase tracking-[0.3em] text-starlight/70 transition-colors duration-300 hover:text-accent focus-visible:text-accent"
             >
-              <span className="font-mono text-[9px] tracking-[0.3em] text-indigo transition-colors duration-300 group-hover:text-gold">
+              <span className="font-mono text-[9px] tracking-[0.3em] text-starlight/60 transition-colors duration-300 group-hover:text-gold">
                 CH-0{i + 1}
               </span>
               {link.label}
@@ -71,7 +71,7 @@ export function Contact() {
       </ul>
 
       <footer className="contact-reveal absolute bottom-8 left-0 right-0">
-        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-indigo">
+        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/50">
           Evry Nazyli - 2026
         </p>
       </footer>

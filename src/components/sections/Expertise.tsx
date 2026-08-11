@@ -111,7 +111,7 @@ export function Expertise() {
         </svg>
 
         <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-          <p className="font-mono text-[9px] uppercase tracking-[0.35em] text-indigo">
+          <p className="font-mono text-[9px] uppercase tracking-[0.35em] text-starlight/60">
             Core focus
           </p>
           <p className="mt-2 font-display text-lg font-medium tracking-tight text-starlight">
@@ -136,7 +136,7 @@ export function Expertise() {
             active ? "opacity-0" : "opacity-100"
           }`}
         >
-          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-indigo">
+          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/50">
             Awaiting object selection · hover a planet
           </p>
         </div>

@@ -9,9 +9,9 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 
 function ProjectCard({ project }: { project: Project }) {
   return (
-    <article className="border border-indigo/30 bg-abyss/50">
-      <header className="flex items-center justify-between border-b border-indigo/30 bg-indigo/10 px-4 py-2">
-        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-indigo">
+    <article className="border border-starlight/25 bg-abyss/50">
+      <header className="flex items-center justify-between border-b border-starlight/15 bg-indigo/10 px-4 py-2">
+        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/60">
           Observation record
         </p>
         <p className="font-mono text-[10px] tracking-[0.25em] text-gold">
@@ -23,7 +23,7 @@ function ProjectCard({ project }: { project: Project }) {
           {project.title}
         </h3>
         <div className="mt-4 flex items-baseline justify-between gap-6 border-t border-indigo/15 pt-4">
-          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-indigo">
+          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-starlight/60">
             Bands
           </span>
           <span className="text-right font-mono text-[10px] uppercase tracking-[0.15em] text-starlight/70">
@@ -48,7 +48,7 @@ function ProjectCard({ project }: { project: Project }) {
 
 function CatalogLine({ project }: { project: Project }) {
   return (
-    <p className="hidden font-mono text-[9px] uppercase tracking-[0.3em] text-indigo sm:block">
+    <p className="hidden font-mono text-[9px] uppercase tracking-[0.3em] text-starlight/50 sm:block">
       STARS {project.constellation.stars.length} · LINKS{" "}
       {project.constellation.lines.length} · EPOCH 2026
     </p>
