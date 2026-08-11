@@ -37,6 +37,7 @@ export function Expertise() {
   return (
     <section
       ref={root}
+      aria-label="Expertise"
       className="relative flex min-h-screen flex-col items-center justify-center px-6 py-20"
     >
       <div className="mb-12 text-center">

@@ -11,7 +11,7 @@ export default function Home() {
   return (
     <ScrollProvider>
       <SpaceSceneDynamic />
-      <main className="relative z-10">
+      <main id="main" className="relative z-10">
         <Hero />
         <About />
         <Expertise />

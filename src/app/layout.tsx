@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
@@ -18,9 +18,30 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://nazyli.com"),
   title: "Evry Nazyli — AI Engineer",
   description:
-    "Portfolio of Evry Nazyli, AI Engineer. A journey through the universe.",
+    "Portfolio of Evry Nazyli, AI Engineer. A journey through the universe — intelligent systems, LLM applications, and backend engineering.",
+  applicationName: "Nazyli Universe",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://nazyli.com",
+    siteName: "Nazyli Universe",
+    title: "Evry Nazyli — AI Engineer",
+    description:
+      "A journey through the universe of Evry Nazyli, AI Engineer.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Evry Nazyli — AI Engineer",
+    description:
+      "A journey through the universe of Evry Nazyli, AI Engineer.",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#05060F",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -29,7 +50,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable} antialiased`}
     >
-      <body className="min-h-dvh bg-void text-starlight">{children}</body>
+      <body className="min-h-dvh bg-void text-starlight">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-abyss focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase focus:tracking-[0.25em] focus:text-accent"
+        >
+          Skip to content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

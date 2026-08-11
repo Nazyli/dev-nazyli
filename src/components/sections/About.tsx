@@ -29,6 +29,7 @@ export function About() {
   return (
     <section
       ref={root}
+      aria-label="About"
       className="relative flex min-h-screen items-center px-6 sm:px-16 lg:px-24"
     >
       <div className="max-w-2xl">

@@ -35,6 +35,7 @@ export function Contact() {
   return (
     <section
       ref={root}
+      aria-label="Contact"
       className="relative flex min-h-screen flex-col items-center justify-center px-6 text-center"
     >
       <p className="contact-reveal font-mono text-xs uppercase tracking-[0.35em] text-gold">

@@ -17,6 +17,7 @@
   body {
     background-color: var(--color-void);
     color: var(--color-starlight);
+    overflow-x: hidden;
   }
 }
 

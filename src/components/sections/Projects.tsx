@@ -123,7 +123,7 @@ export function Projects() {
 
   if (reduced) {
     return (
-      <div className="relative">
+      <div role="region" aria-label="Projects" className="relative">
         {projects.map((project) => (
           <div
             key={project.id}
@@ -138,7 +138,13 @@ export function Projects() {
   }
 
   return (
-    <div ref={root} style={{ height: `${projects.length * 100}vh` }} className="relative">
+    <div
+      ref={root}
+      role="region"
+      aria-label="Projects"
+      style={{ height: `${projects.length * 100}vh` }}
+      className="relative"
+    >
       <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden px-6">
         <div className="absolute left-6 top-16 md:left-24">
           <p className="font-mono text-xs uppercase tracking-[0.35em] text-gold">

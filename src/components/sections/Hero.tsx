@@ -43,6 +43,7 @@ export function Hero() {
   return (
     <section
       ref={root}
+      aria-label="Introduction"
       className="relative flex min-h-screen items-center justify-center px-6 text-center"
     >
       <div className="hero-fade space-y-7">
@@ -60,7 +61,7 @@ export function Hero() {
         <p className="hero-reveal mx-auto max-w-md text-lg leading-relaxed text-starlight/70">
           Building intelligent systems for the real world.
         </p>
-        <p className="hero-reveal font-mono text-xs uppercase tracking-[0.3em] text-starlight/40">
+        <p className="hero-reveal font-mono text-xs uppercase tracking-[0.3em] text-starlight/50">
           Scroll to explore
         </p>
       </div>

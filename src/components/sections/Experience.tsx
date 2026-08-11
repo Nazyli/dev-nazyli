@@ -63,6 +63,7 @@ export function Experience() {
   return (
     <section
       ref={root}
+      aria-label="Experience"
       className="relative flex min-h-screen flex-col items-center justify-center px-6 py-24"
     >
       <div className="mb-20 text-center">

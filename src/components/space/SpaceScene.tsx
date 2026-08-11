@@ -4,6 +4,7 @@ import { Canvas } from "@react-three/fiber";
 import { useMemo } from "react";
 import { Earth } from "./Earth";
 import { Planet } from "./Planet";
+import { ShootingStar } from "./ShootingStar";
 import { SpaceCamera } from "./SpaceCamera";
 import { Stars } from "./Stars";
 
@@ -41,6 +42,7 @@ export function SpaceScene() {
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 6, 8]} intensity={2.5} color="#f5efe0" />
         <Stars />
+        <ShootingStar />
         <Planet position={[3.4, 0.8, -21]} radius={2} />
         <Earth position={[0, 2.2, 32]} radius={5.5} />
         <SpaceCamera />
