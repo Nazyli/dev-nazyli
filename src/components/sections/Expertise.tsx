@@ -59,16 +59,16 @@ export function Expertise() {
       </div>
 
       <div
-        className="expertise-reveal relative aspect-square w-[min(74vw,440px)]"
-        style={{ "--solar": "min(74vw, 440px)" } as CSSProperties}
+        className="expertise-reveal relative aspect-square w-[min(88vw,620px)]"
+        style={{ "--solar": "min(88vw, 620px)" } as CSSProperties}
       >
         <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full">
           <circle
             cx="50"
             cy="50"
             r="49"
-            className="fill-none stroke-starlight/5"
-            strokeWidth="0.6"
+            className="fill-none stroke-starlight/15"
+            strokeWidth="0.8"
             vectorEffect="non-scaling-stroke"
           />
           {radiusRatios.map((ratio) => (
@@ -77,7 +77,7 @@ export function Expertise() {
                 cx="50"
                 cy="50"
                 r={ratio * 50}
-                className="fill-none stroke-indigo/50"
+                className="fill-none stroke-starlight/25"
                 strokeWidth="0.7"
                 vectorEffect="non-scaling-stroke"
               />
@@ -85,9 +85,9 @@ export function Expertise() {
                 cx="50"
                 cy="50"
                 r={ratio * 50}
-                className="fill-none stroke-indigo/70"
+                className="fill-none stroke-starlight/50"
                 strokeWidth="1"
-                strokeDasharray="0.6 2.6"
+                strokeDasharray="0.8 2.4"
                 vectorEffect="non-scaling-stroke"
               />
               {TICKS.map((angle) => {
@@ -100,8 +100,8 @@ export function Expertise() {
                     y1={50 + Math.sin(rad) * r}
                     x2={50 + Math.cos(rad) * (r + 1.6)}
                     y2={50 + Math.sin(rad) * (r + 1.6)}
-                    className="stroke-indigo/50"
-                    strokeWidth="0.6"
+                    className="stroke-starlight/55"
+                    strokeWidth="0.8"
                     vectorEffect="non-scaling-stroke"
                   />
                 );

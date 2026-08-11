@@ -83,10 +83,20 @@ export function SkillPlanet({
           className="group flex -translate-x-1/2 -translate-y-1/2 flex-col items-center outline-none"
         >
           <span
-            className={`block h-2.5 w-2.5 rounded-full bg-gold transition-transform duration-300 group-focus-visible:scale-150 ${
+            className={`relative block h-3.5 w-3.5 transition-transform duration-300 group-focus-visible:scale-150 ${
               isActive ? "scale-150" : ""
             }`}
-          />
+          >
+            <span
+              className={`planet planet-${skill.tone} planet-glow-${skill.tone} h-full w-full`}
+            />
+            {skill.ringed && (
+              <span
+                aria-hidden
+                className={`planet-ring planet-ring-${skill.tone}`}
+              />
+            )}
+          </span>
           <span
             ref={labelRef}
             className={`mt-1.5 whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.2em] transition-colors duration-300 ${

@@ -73,6 +73,80 @@
   opacity: 1;
 }
 
+/* Orbiting planets in the expertise solar system */
+.planet {
+  display: block;
+  border-radius: 9999px;
+}
+
+.planet-gold {
+  background: radial-gradient(
+    circle at 32% 28%,
+    #fbf4e0 0%,
+    #e9cd92 26%,
+    var(--color-gold) 46%,
+    #8f6f35 72%,
+    #43341a 100%
+  );
+}
+
+.planet-cyan {
+  background: radial-gradient(
+    circle at 32% 28%,
+    #eafbff 0%,
+    #a8e8f2 26%,
+    var(--color-accent) 46%,
+    #2e7f8c 72%,
+    #123a40 100%
+  );
+}
+
+.planet-star {
+  background: radial-gradient(
+    circle at 32% 28%,
+    #ffffff 0%,
+    var(--color-starlight) 34%,
+    #c9bc9a 58%,
+    #6e6350 80%,
+    #2e2a22 100%
+  );
+}
+
+.planet-glow-gold {
+  box-shadow: 0 0 12px 3px color-mix(in srgb, var(--color-gold) 45%, transparent);
+}
+
+.planet-glow-cyan {
+  box-shadow: 0 0 12px 3px color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+
+.planet-glow-star {
+  box-shadow: 0 0 12px 3px color-mix(in srgb, var(--color-starlight) 40%, transparent);
+}
+
+.planet-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  width: 190%;
+  height: 78%;
+  border-radius: 50%;
+  border: 1px solid;
+}
+
+.planet-ring-gold {
+  border-color: color-mix(in srgb, var(--color-gold) 60%, transparent);
+}
+
+.planet-ring-cyan {
+  border-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
+}
+
+.planet-ring-star {
+  border-color: color-mix(in srgb, var(--color-starlight) 50%, transparent);
+}
+
 /* Subtle eyepiece vignette — deepens the space image without glow */
 .obs-vignette {
   background: radial-gradient(
