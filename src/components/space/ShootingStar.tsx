@@ -27,11 +27,11 @@ function makeStreakTexture() {
   if (!ctx) return null;
   ctx.clearRect(0, 0, W, H);
 
-  const headX = 112;
+  const headX = 110;
   for (let x = headX; x >= 2; x -= 2) {
     const t = x / headX;
-    const radius = 3 + 13 * t * t;
-    const alpha = 0.85 * t * t;
+    const radius = 2 + 6 * t * t;
+    const alpha = 0.9 * t * t;
     const grad = ctx.createRadialGradient(x, H / 2, 0, x, H / 2, radius);
     grad.addColorStop(0, `rgba(245, 239, 224, ${alpha})`);
     grad.addColorStop(1, "rgba(245, 239, 224, 0)");
@@ -120,7 +120,7 @@ export function ShootingStar() {
 
   return (
     <mesh ref={mesh} visible={false}>
-      <planeGeometry args={[3.4, 0.85]} />
+      <planeGeometry args={[2.8, 0.24]} />
       <meshBasicMaterial
         map={texture}
         transparent
