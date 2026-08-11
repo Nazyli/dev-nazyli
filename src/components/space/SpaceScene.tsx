@@ -2,6 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { useMemo } from "react";
+import { Planet } from "./Planet";
 import { SpaceCamera } from "./SpaceCamera";
 import { Stars } from "./Stars";
 
@@ -36,7 +37,10 @@ export function SpaceScene() {
         gl={{ antialias: true, powerPreference: "high-performance" }}
         camera={{ fov: 55, near: 0.1, far: 500, position: [0, 0, -46] }}
       >
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[10, 6, 8]} intensity={2.5} color="#f5efe0" />
         <Stars />
+        <Planet position={[3.4, 0.8, -21]} radius={2} />
         <SpaceCamera />
       </Canvas>
     </div>
