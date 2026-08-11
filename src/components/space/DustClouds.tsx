@@ -65,7 +65,7 @@ export function DustClouds() {
 
   useFrame((_, delta) => {
     if (universeState.reducedMotion || !group.current) return;
-    group.current.rotation.y += delta * 0.002;
+    group.current.rotation.y += delta * 0.01;
   });
 
   if (!sprite) return null;
