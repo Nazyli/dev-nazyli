@@ -11,20 +11,6 @@ export function Hero() {
     () => {
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        gsap.from(".hero-line", {
-          yPercent: 120,
-          duration: 1.2,
-          ease: "power4.out",
-          delay: 0.3,
-        });
-        gsap.from(".hero-reveal", {
-          y: 24,
-          opacity: 0,
-          duration: 1,
-          stagger: 0.12,
-          ease: "power3.out",
-          delay: 0.5,
-        });
         gsap.to(".hero-fade", {
           opacity: 0,
           y: -60,
@@ -78,7 +64,7 @@ export function Hero() {
             <DataRow k="Path" v="Web → Backend → AI" />
             <DataRow k="Projects" v="21" />
             <DataRow k="Certificates" v="13" />
-            <DataRow k="Experience" v="6 yrs" />
+            <DataRow k="Experience" v="9 yrs" />
           </DataPlate>
         </div>
       </div>

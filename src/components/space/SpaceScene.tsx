@@ -1,7 +1,8 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
-import { useMemo } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { useMemo, useRef } from "react";
+import { supportsWebGL } from "@/lib/webgl";
 import { AccretionDisk } from "./AccretionDisk";
 import { DustClouds } from "./DustClouds";
 import { Earth } from "./Earth";
@@ -11,19 +12,22 @@ import { ShootingStar } from "./ShootingStar";
 import { SpaceCamera } from "./SpaceCamera";
 import { Stars } from "./Stars";
 
-function supportsWebGL(): boolean {
-  try {
-    const canvas = document.createElement("canvas");
-    return Boolean(
-      window.WebGLRenderingContext &&
-        (canvas.getContext("webgl2") || canvas.getContext("webgl"))
-    );
-  } catch {
-    return false;
-  }
+function ReadySignal({ onReady }: { onReady?: () => void }) {
+  const frame = useRef(0);
+  const fired = useRef(false);
+
+  useFrame(() => {
+    frame.current += 1;
+    if (frame.current >= 3 && !fired.current) {
+      fired.current = true;
+      onReady?.();
+    }
+  });
+
+  return null;
 }
 
-export function SpaceScene() {
+export function SpaceScene({ onReady }: { onReady?: () => void }) {
   const webgl = useMemo(() => supportsWebGL(), []);
 
   if (!webgl) {
@@ -53,6 +57,7 @@ export function SpaceScene() {
         <Planet position={[3.4, 0.8, -21]} radius={2} />
         <Earth position={[0, 2.2, 32]} radius={5.5} />
         <SpaceCamera />
+        <ReadySignal onReady={onReady} />
       </Canvas>
     </div>
   );

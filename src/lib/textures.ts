@@ -107,8 +107,8 @@ function finalize(texture: THREE.CanvasTexture): THREE.CanvasTexture {
 }
 
 function makeEarthTexture(): THREE.CanvasTexture {
-  const W = 1024;
-  const H = 512;
+  const W = 768;
+  const H = 384;
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
@@ -156,8 +156,8 @@ function makeEarthTexture(): THREE.CanvasTexture {
 }
 
 function makeEarthBumpTexture(): THREE.CanvasTexture {
-  const W = 512;
-  const H = 256;
+  const W = 256;
+  const H = 128;
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
@@ -187,8 +187,8 @@ function makeEarthBumpTexture(): THREE.CanvasTexture {
 }
 
 function makeCloudTexture(): THREE.CanvasTexture {
-  const W = 1024;
-  const H = 512;
+  const W = 768;
+  const H = 384;
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
@@ -220,8 +220,8 @@ function gauss(t: number, c: number, w: number) {
 }
 
 function makePlanetTexture(): THREE.CanvasTexture {
-  const W = 2048;
-  const H = 1024;
+  const W = 1024;
+  const H = 512;
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
@@ -335,7 +335,7 @@ function makeDustLaneTexture(seed: number): THREE.CanvasTexture {
 }
 
 function makeRingTexture(): THREE.CanvasTexture {
-  const SIZE = 2048;
+  const SIZE = 1024;
   const R_INNER = 1.32;
   const R_OUTER = 2.35;
   const rInner = R_INNER / R_OUTER;
@@ -386,7 +386,7 @@ function makeRingTexture(): THREE.CanvasTexture {
   return finalize(new THREE.CanvasTexture(canvas));
 }
 
-function makeAccretionDiskTexture(size = 1024): THREE.CanvasTexture {
+function makeAccretionDiskTexture(size = 768): THREE.CanvasTexture {
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
