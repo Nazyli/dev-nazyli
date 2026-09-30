@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  memo,
   useEffect,
   useRef,
   useState,
@@ -56,8 +57,13 @@ function useJakartaClock() {
   return useSyncExternalStore(subscribeClock, getClockSnapshot, getServerClockSnapshot);
 }
 
-export function ObservatoryChrome() {
+const JakartaClock = memo(function JakartaClock() {
   const clock = useJakartaClock();
+
+  return <p className="tabular-nums text-starlight/60">{clock ?? "--:--:-- WIB"}</p>;
+});
+
+export function ObservatoryChrome() {
   const [active, setActive] = useState(0);
   const journeyProgress = useRef<HTMLDivElement>(null);
   const pendingInitialRoute = useRef<string | null>(null);
@@ -202,7 +208,7 @@ export function ObservatoryChrome() {
           {SECTIONS[active].target}
         </p>
 
-        <p className="tabular-nums text-starlight/60">{clock ?? "--:--:-- WIB"}</p>
+        <JakartaClock />
         <div
           ref={journeyProgress}
           role="progressbar"
