@@ -1,8 +1,9 @@
 "use client";
 
-import { type MouseEvent, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { buildConstellationPath, publishedProjects } from "@/data/projects";
+import { getProjectIndexFromHash, updateProjectHash } from "@/lib/projectNavigation";
 import { scrollController } from "@/lib/scrollController";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
@@ -11,27 +12,26 @@ export function Projects() {
   const projectTimeline = useRef<gsap.core.Timeline | null>(null);
   const activeProjectRef = useRef(0);
   const [activeProject, setActiveProject] = useState(0);
-  const selectProject = (event: MouseEvent<HTMLAnchorElement>, index: number) => {
-    event.preventDefault();
+  const navigateToProject = useCallback((index: number, updateHistory = true) => {
+    const project = publishedProjects[index];
+    if (!project) return;
+
+    if (updateHistory) updateProjectHash(index);
     const isPinnedDesktop = window.matchMedia(
       "(prefers-reduced-motion: no-preference) and (min-width: 1024px)",
     ).matches;
-    if (activeProjectRef.current !== index) {
-      activeProjectRef.current = index;
-      setActiveProject(index);
-    }
+    activeProjectRef.current = index;
+    setActiveProject(index);
+
     const section = root.current;
     if (!section) return;
     if (!isPinnedDesktop) {
-      const project = publishedProjects[index];
-      document
-        .getElementById(`project-${project.id}`)
-        ?.scrollIntoView({
-          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-            ? "auto"
-            : "smooth",
-          block: "center",
-        });
+      document.getElementById(`project-${project.id}`)?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "center",
+      });
       return;
     }
     const label = `project-${String(index + 1).padStart(2, "0")}`;
@@ -52,6 +52,23 @@ export function Projects() {
     } else {
       window.scrollTo({ top: destination, behavior: "smooth" });
     }
+  }, []);
+
+  useEffect(() => {
+    const navigateFromHash = () => {
+      const index = getProjectIndexFromHash(window.location.hash);
+      if (index >= 0) navigateToProject(index, false);
+    };
+
+    if (getProjectIndexFromHash(window.location.hash) >= 0) {
+      requestAnimationFrame(() => requestAnimationFrame(navigateFromHash));
+    }
+    window.addEventListener("popstate", navigateFromHash);
+    return () => window.removeEventListener("popstate", navigateFromHash);
+  }, [navigateToProject]);
+
+  const selectProject = (index: number) => {
+    navigateToProject(index);
   };
 
   useGSAP(
@@ -138,6 +155,9 @@ export function Projects() {
                 if (activeProjectRef.current !== activeIndex) {
                   activeProjectRef.current = activeIndex;
                   setActiveProject(activeIndex);
+                  if (getProjectIndexFromHash(window.location.hash) >= 0) {
+                    updateProjectHash(activeIndex, true);
+                  }
                 }
               },
             },
@@ -302,7 +322,7 @@ export function Projects() {
                     data-project-index={index}
                     aria-label={`Go to project ${index + 1}: ${project.title}`}
                     aria-current={activeProject === index ? "step" : undefined}
-                    onClick={(event) => selectProject(event, index)}
+                    onClick={() => selectProject(index)}
                     className="flex min-h-11 items-center border border-indigo/70 px-3 font-mono text-[10px] uppercase tracking-[0.18em] text-starlight/65 transition-colors hover:border-accent/60 hover:text-accent focus-visible:text-accent aria-[current=step]:border-gold/60 aria-[current=step]:text-gold"
                   >
                     {String(index + 1).padStart(2, "0")}

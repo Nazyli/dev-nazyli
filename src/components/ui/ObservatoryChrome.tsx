@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { navigateToSection } from "@/lib/sectionNavigation";
+import { getProjectIndexFromHash } from "@/lib/projectNavigation";
 
 const SECTIONS = [
   { id: "s-hero", index: "01", label: "Deep Field", mobile: "Deep", compact: "Deep", target: "TGT 01 · DEEP FIELD" },
@@ -121,7 +122,9 @@ export function ObservatoryChrome() {
         pendingInitialRoute.current = null;
         setActive((current) => (current === best ? current : best));
 
-        if (window.location.hash !== `#${id}`) {
+        const preserveProjectHash =
+          id === "s-projects" && getProjectIndexFromHash(window.location.hash) >= 0;
+        if (window.location.hash !== `#${id}` && !preserveProjectHash) {
           window.history.replaceState(
             typeof window.history.state === "object" &&
               window.history.state !== null
@@ -146,7 +149,10 @@ export function ObservatoryChrome() {
 
   useEffect(() => {
     const onPopState = () => {
-      const id = window.location.hash.slice(1);
+      const hash = window.location.hash;
+      if (getProjectIndexFromHash(hash) >= 0) return;
+
+      const id = hash.slice(1);
       navigateToSection(
         SECTIONS.some((section) => section.id === id) ? id : "s-hero",
         false,
@@ -160,6 +166,8 @@ export function ObservatoryChrome() {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => navigateToSection(initialId, false));
       });
+    } else if (getProjectIndexFromHash(initialId) >= 0) {
+      pendingInitialRoute.current = "s-projects";
     }
 
     window.addEventListener("popstate", onPopState);
