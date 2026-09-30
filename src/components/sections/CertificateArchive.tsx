@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { buildConstellationPath } from "@/data/certificates";
+import {
+  buildConstellationPath,
+  getCertificateStatus,
+} from "@/data/certificates";
 import type { Certificate } from "@/data/certificates";
 
 function ConstellationMark({ certificate }: { certificate: Certificate }) {
@@ -107,6 +110,7 @@ export function CertificateArchive({
             const recordIndex = certificates.findIndex(
               (record) => record.no === certificate.no,
             );
+            const status = getCertificateStatus(certificate.to);
 
             return (
               <details
@@ -130,6 +134,15 @@ export function CertificateArchive({
                       <span>
                         {certificate.from} &mdash; {certificate.to ?? "Expiry not listed"}
                       </span>
+                      {status && (
+                        <span
+                          className={
+                            status === "current" ? "text-gold" : "text-starlight/45"
+                          }
+                        >
+                          {status}
+                        </span>
+                      )}
                     </span>
                   </span>
                   <svg
