@@ -4,7 +4,7 @@
 
 **Goal:** Add a searchable, keyboard accessible dialog for navigating portfolio sections and published records.
 
-**Architecture:** Build a focused client component that composes search items from existing data modules and navigation helpers. Mount its trigger in the observatory header; use native dialog links and existing hash navigation.
+**Architecture:** Build a focused client component that composes searchable items from existing data modules and navigation helpers. Match all query terms against titles and relevant record metadata. Mount its trigger in the observatory header; use native dialog links and existing hash navigation.
 
 **Tech Stack:** Next.js 16 App Router, React, TypeScript, Tailwind CSS v4.
 
@@ -40,7 +40,7 @@
 - Consumes section, skill, project, and certificate records plus `navigateToSection`, `navigateToSkill`, and existing hash patterns.
 - Produces an accessible header trigger and searchable native dialog.
 
-- [x] Build item index from published data; section and skill items use current navigation helpers, project items activate the existing project index, and credential items dispatch into the archive navigation handler.
+- [x] Build item index from published data and all relevant project/credential metadata; section and skill items use current navigation helpers, project items activate the existing project index, and credential items dispatch into the archive navigation handler.
 - [x] Add case-insensitive filtering, live result announcements, shortcut metadata, empty state, native open/close behavior, `/` and `Ctrl/Cmd+K`, arrow traversal, Enter activation, and Lenis-safe nested scrolling.
 - [x] Mount the trigger in the observatory header; keep modal layout responsive and token based.
 - [x] Run `rtk npm run lint` and `rtk npm run build`; inspect the rendered trigger in the browser and verify keyboard/hash paths against their handlers.

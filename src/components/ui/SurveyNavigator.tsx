@@ -25,6 +25,7 @@ type NavigatorItem = {
   id: string;
   label: string;
   detail: string;
+  searchText: string;
   kind: string;
   href: string;
 } & (
@@ -39,6 +40,7 @@ const ITEMS = [
     id: section.id,
     label: section.label,
     detail: section.detail,
+    searchText: "",
     kind: "Section",
     href: `#${section.id}`,
     target: "section" as const,
@@ -48,6 +50,7 @@ const ITEMS = [
     id: `skill-${skill.id}`,
     label: skill.name,
     detail: skill.tech.join(" · "),
+    searchText: skill.class,
     kind: "Expertise",
     href: `#skill-${skill.id}`,
     target: "skill" as const,
@@ -56,7 +59,18 @@ const ITEMS = [
   ...publishedProjects.map((project, index) => ({
     id: `project-${project.id}`,
     label: project.title,
-    detail: `Project ${String(index + 1).padStart(2, "0")}`,
+    detail: `Project ${String(index + 1).padStart(2, "0")} · ${String(project.period ?? project.year ?? "")}`,
+    searchText: [
+      project.description,
+      project.period,
+      project.year,
+      project.role,
+      project.contribution,
+      ...(project.tags ?? []),
+      ...(project.technologies ?? []),
+    ]
+      .filter(Boolean)
+      .join(" "),
     kind: "Project",
     href: `#project-${project.id}`,
     target: "project" as const,
@@ -66,6 +80,9 @@ const ITEMS = [
     id: `credential-${certificate.no}`,
     label: certificate.title,
     detail: certificate.provider,
+    searchText: [certificate.from, certificate.to, ...certificate.skills]
+      .filter(Boolean)
+      .join(" "),
     kind: "Credential",
     href: `#credential-${certificate.no}`,
     target: "credential" as const,
@@ -81,13 +98,15 @@ export function SurveyNavigator() {
   const resultLinks = useRef<HTMLAnchorElement[]>([]);
 
   const results = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) return ITEMS;
+    const searchTerms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    if (searchTerms.length === 0) return ITEMS;
 
     return ITEMS.filter((item) =>
-      `${item.label} ${item.detail} ${item.kind}`
-        .toLowerCase()
-        .includes(normalizedQuery),
+      searchTerms.every((term) =>
+        `${item.label} ${item.detail} ${item.searchText} ${item.kind}`
+          .toLowerCase()
+          .includes(term),
+      ),
     );
   }, [query]);
 
