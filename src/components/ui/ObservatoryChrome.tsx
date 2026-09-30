@@ -24,24 +24,43 @@ const SECTIONS = [
 ];
 
 let clockValue: string | null = null;
-let clockStarted = false;
 const clockListeners = new Set<() => void>();
+let clockInterval: ReturnType<typeof setInterval> | null = null;
+
+function updateClock() {
+  clockValue =
+    new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(11, 19) + " WIB";
+  clockListeners.forEach((listener) => listener());
+}
+
+function syncClock() {
+  if (document.visibilityState === "hidden" || clockListeners.size === 0) {
+    if (clockInterval !== null) {
+      clearInterval(clockInterval);
+      clockInterval = null;
+    }
+    return;
+  }
+
+  if (clockInterval !== null) return;
+
+  updateClock();
+  clockInterval = setInterval(updateClock, 1000);
+}
 
 function subscribeClock(callback: () => void) {
   clockListeners.add(callback);
-  if (!clockStarted) {
-    clockStarted = true;
-    const format = () =>
-      new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(11, 19) +
-      " WIB";
-    clockValue = format();
-    setInterval(() => {
-      clockValue = format();
-      clockListeners.forEach((listener) => listener());
-    }, 1000);
+  if (clockListeners.size === 1) {
+    document.addEventListener("visibilitychange", syncClock);
   }
+  syncClock();
+
   return () => {
     clockListeners.delete(callback);
+    if (clockListeners.size === 0) {
+      document.removeEventListener("visibilitychange", syncClock);
+      syncClock();
+    }
   };
 }
 
