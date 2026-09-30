@@ -90,9 +90,13 @@ export function ObservatoryChrome() {
   useEffect(() => {
     const progress = journeyProgress.current;
     if (!progress) return;
+    const sections = SECTIONS.map((section) =>
+      document.getElementById(section.id),
+    ).filter((element): element is HTMLElement => element !== null);
+    if (sections.length === 0) return;
 
     let frame = 0;
-    const updateProgress = () => {
+    const updateNavigation = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         const scrollableHeight =
@@ -108,35 +112,11 @@ export function ObservatoryChrome() {
         progress.setAttribute("aria-valuetext", `${value}% complete`);
         const fill = progress.firstElementChild;
         if (fill instanceof HTMLElement) fill.style.width = `${value}%`;
-      });
-    };
-
-    updateProgress();
-    window.addEventListener("scroll", updateProgress, { passive: true });
-    window.addEventListener("resize", updateProgress);
-
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", updateProgress);
-      window.removeEventListener("resize", updateProgress);
-    };
-  }, []);
-
-  useEffect(() => {
-    const els = SECTIONS.map((s) => document.getElementById(s.id)).filter(
-      (el): el is HTMLElement => el !== null
-    );
-    if (els.length === 0) return;
-
-    let frame = 0;
-    const updateActive = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
         const center = window.innerHeight / 2;
         let best = 0;
         let bestDistance = Number.POSITIVE_INFINITY;
 
-        els.forEach((element, index) => {
+        sections.forEach((element, index) => {
           const rect = element.getBoundingClientRect();
           const distance =
             rect.top <= center && rect.bottom >= center
@@ -170,13 +150,13 @@ export function ObservatoryChrome() {
       });
     };
 
-    updateActive();
-    window.addEventListener("scroll", updateActive, { passive: true });
-    window.addEventListener("resize", updateActive);
+    updateNavigation();
+    window.addEventListener("scroll", updateNavigation, { passive: true });
+    window.addEventListener("resize", updateNavigation);
     return () => {
       cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", updateActive);
-      window.removeEventListener("resize", updateActive);
+      window.removeEventListener("scroll", updateNavigation);
+      window.removeEventListener("resize", updateNavigation);
     };
   }, []);
 
