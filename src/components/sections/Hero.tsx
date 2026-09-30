@@ -79,9 +79,25 @@ export function Hero() {
               Contact Evry
             </Link>
           </div>
-          <p className="hero-reveal mt-12 font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/80">
-            [ Scroll to begin survey ]
-          </p>
+          <Link
+            href="#s-about"
+            onClick={(event) => handleSectionLinkClick(event, "s-about")}
+            className="hero-reveal mt-10 inline-flex min-h-11 items-center gap-3 font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/75 transition-colors hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
+          >
+            <span>[ Begin survey ]</span>
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 16 16"
+              className="h-3.5 w-3.5"
+            >
+              <path
+                d="M8 2.5v10M4 9l4 4.5L12 9"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1"
+              />
+            </svg>
+          </Link>
         </div>
 
         <div className="hero-reveal hidden w-72 lg:block">
