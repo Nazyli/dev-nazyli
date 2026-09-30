@@ -8,6 +8,9 @@ import {
 } from "@/data/certificates";
 import type { Certificate } from "@/data/certificates";
 import { getCertificateIndexFromHash } from "@/lib/certificateNavigation";
+import { getSkillForTechnology } from "@/data/skills";
+import { navigateToSkill } from "@/lib/skillNavigation";
+import { handleHashLinkClick } from "@/lib/sectionNavigation";
 
 const VALIDITY_FILTERS = [
   { value: "all", label: "All statuses" },
@@ -305,14 +308,33 @@ export function CertificateArchive({
                         Skills covered &middot; {certificate.skills.length}
                       </p>
                       <ul className="mt-3 flex flex-wrap gap-2">
-                        {certificate.skills.map((skill) => (
-                          <li
-                            key={skill}
-                            className="max-w-full border border-indigo/40 bg-void/50 px-2 py-1 font-mono text-[9px] leading-relaxed text-starlight/75"
-                          >
-                            {skill}
-                          </li>
-                        ))}
+                        {certificate.skills.map((skillName) => {
+                          const skill = getSkillForTechnology(skillName);
+
+                          return (
+                            <li
+                              key={skillName}
+                              className="max-w-full border border-indigo/40 bg-void/50 px-2 py-1 font-mono text-[9px] leading-relaxed text-starlight/75"
+                            >
+                              {skill ? (
+                                <a
+                                  href={`#skill-${skill.id}`}
+                                  aria-label={`Explore ${skillName} in ${skill.name} expertise`}
+                                  onClick={(event) =>
+                                    handleHashLinkClick(event, () =>
+                                      navigateToSkill(skill.id),
+                                    )
+                                  }
+                                  className="inline-flex min-h-11 items-center text-accent underline decoration-accent/40 underline-offset-4 hover:text-starlight focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                                >
+                                  {skillName}
+                                </a>
+                              ) : (
+                                skillName
+                              )}
+                            </li>
+                          );
+                        })}
                       </ul>
                       <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
                         <a
