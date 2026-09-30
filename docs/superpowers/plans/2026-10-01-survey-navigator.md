@@ -41,7 +41,7 @@
 - Produces an accessible header trigger and searchable native dialog.
 
 - [x] Build item index from published data; section and skill items use current navigation helpers, project items activate the existing project index, and credential items dispatch into the archive navigation handler.
-- [x] Add case-insensitive filtering, empty state, native open/close behavior, `/` and `Ctrl/Cmd+K`, arrow traversal, Enter activation, and Lenis-safe nested scrolling.
+- [x] Add case-insensitive filtering, live result announcements, shortcut metadata, empty state, native open/close behavior, `/` and `Ctrl/Cmd+K`, arrow traversal, Enter activation, and Lenis-safe nested scrolling.
 - [x] Mount the trigger in the observatory header; keep modal layout responsive and token based.
 - [x] Run `rtk npm run lint` and `rtk npm run build`; inspect the rendered trigger in the browser and verify keyboard/hash paths against their handlers.
 - [x] Commit as `feat(navigation): add survey navigator`.

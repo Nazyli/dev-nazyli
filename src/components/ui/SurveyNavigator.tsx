@@ -205,8 +205,9 @@ export function SurveyNavigator() {
         type="button"
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-keyshortcuts="/ Control+K Meta+K"
         aria-label="Search destinations"
-        title="Search destinations (Ctrl or Command + K)"
+        title="Search destinations (/ or Ctrl or Command + K)"
         onClick={() => setOpen(true)}
         className="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 border-l border-indigo/30 pl-3 text-starlight/70 transition-colors hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none sm:pl-4"
       >
@@ -267,6 +268,13 @@ export function SurveyNavigator() {
           <p className="mt-3 font-mono text-[9px] uppercase tracking-[0.16em] text-starlight/45">
             {results.length} destinations · arrows to move · enter to open · esc to close
           </p>
+          <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+            {query.trim()
+              ? results.length === 0
+                ? `No destinations found for ${query}.`
+                : `${results.length} ${results.length === 1 ? "destination" : "destinations"} found.`
+              : ""}
+          </p>
         </div>
 
         <ul
@@ -299,10 +307,7 @@ export function SurveyNavigator() {
             </li>
           ))}
           {results.length === 0 && (
-            <li
-              role="status"
-              className="px-4 py-10 text-center font-mono text-[10px] uppercase tracking-[0.16em] text-starlight/55"
-            >
+            <li className="px-4 py-10 text-center font-mono text-[10px] uppercase tracking-[0.16em] text-starlight/55">
               No destinations found
             </li>
           )}

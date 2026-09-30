@@ -17,5 +17,6 @@ The dialog uses native modal focus handling and Escape behavior. Arrow keys move
 - Selecting a result closes the dialog and preserves the existing deep-link behavior.
 - Re-selecting the active project or credential still opens and focuses its record.
 - The result list scrolls without moving the page behind the modal.
+- Result counts and zero matches are announced to assistive technology; the trigger exposes its keyboard shortcuts.
 - No results are communicated clearly, and the result list remains keyboard accessible.
 - Lint and production build pass.
