@@ -226,7 +226,7 @@ export function ObservatoryChrome() {
             className={`group relative flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-accent ${
               active === i
                 ? "text-gold"
-                : "text-starlight/35 hover:text-starlight/75"
+                : "text-starlight/55 hover:text-starlight/75"
             }`}
           >
             <span

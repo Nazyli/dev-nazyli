@@ -192,7 +192,7 @@ export function CertificateArchive({
                       {status && (
                         <span
                           className={
-                            status === "current" ? "text-gold" : "text-starlight/45"
+                            status === "current" ? "text-gold" : "text-starlight/55"
                           }
                         >
                           {status}
