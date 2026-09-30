@@ -92,6 +92,7 @@ export function SkillPlanet({
         <button
           type="button"
           aria-label={skill.name}
+          aria-describedby={`skill-description-${skill.id}`}
           aria-pressed={isActive}
           onPointerEnter={(event) => {
             if (event.pointerType !== "touch") onActivate();
@@ -137,6 +138,9 @@ export function SkillPlanet({
             }`}
           >
             {skill.name}
+          </span>
+          <span id={`skill-description-${skill.id}`} className="sr-only">
+            {skill.class}. Technologies: {skill.tech.join(", ")}.
           </span>
         </button>
       </div>
