@@ -127,6 +127,17 @@ export function CertificateArchive({
         : status === validity);
     return matchesQuery && matchesProvider && matchesValidity;
   });
+  const groupedCertificates = matchingCertificates.reduce<Map<string, Certificate[]>>(
+    (groups, certificate) => {
+      const dateTime = getCertificateMonthDateTime(certificate.from);
+      const year = dateTime?.slice(0, 4) ?? "date-unlisted";
+      const group = groups.get(year) ?? [];
+      group.push(certificate);
+      groups.set(year, group);
+      return groups;
+    },
+    new Map(),
+  );
 
   return (
     <div>
@@ -216,118 +227,141 @@ export function CertificateArchive({
 
       <div className="border-y border-indigo/40">
         {matchingCertificates.length > 0 ? (
-          matchingCertificates.map((certificate) => {
-            const recordIndex = certificates.findIndex(
-              (record) => record.no === certificate.no,
-            );
-            const status = getCertificateStatus(certificate.to);
+          Array.from(groupedCertificates, ([year, yearCertificates]) => (
+            <div
+              key={year}
+              role="group"
+              aria-labelledby={`credential-year-${year}`}
+            >
+              <div className="flex items-center justify-between gap-3 border-b border-indigo/30 bg-void/80 px-1 py-2">
+                <h3
+                  id={`credential-year-${year}`}
+                  className="font-mono text-[9px] uppercase tracking-[0.25em] text-gold"
+                >
+                  {year === "date-unlisted"
+                    ? "Credential date unlisted"
+                    : `Credential year · ${year}`}
+                </h3>
+                <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-starlight/55">
+                  {yearCertificates.length} {yearCertificates.length === 1 ? "record" : "records"}
+                </span>
+              </div>
+              {yearCertificates.map((certificate) => {
+                const recordIndex = certificates.findIndex(
+                  (record) => record.no === certificate.no,
+                );
+                const status = getCertificateStatus(certificate.to);
 
-            return (
-              <details
-                key={certificate.no}
-                id={`credential-${certificate.no}`}
-                className="group border-b border-indigo/30 last:border-b-0"
-              >
-                <summary className="flex cursor-pointer list-none items-center gap-4 py-5 marker:hidden focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-accent sm:gap-6 sm:py-6 [&::-webkit-details-marker]:hidden">
-                  <ConstellationMark certificate={certificate} />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
-                      <span className="font-display text-lg font-medium leading-snug tracking-tight text-starlight sm:text-xl">
-                        {certificate.title}
-                      </span>
-                      <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-gold">
-                        REC-{String(recordIndex + 1).padStart(2, "0")}
-                      </span>
-                    </span>
-                    <span className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[9px] uppercase tracking-[0.18em] text-starlight/60 sm:text-[10px]">
-                      <span>{certificate.provider}</span>
-                      <span aria-hidden="true">/</span>
-                      <span>
-                        <CertificateMonth value={certificate.from} /> &mdash;{" "}
-                        <CertificateMonth value={certificate.to} />
-                      </span>
-                      {status && (
-                        <span
-                          className={
-                            status === "current" ? "text-gold" : "text-starlight/55"
-                          }
-                        >
-                          {status}
-                        </span>
-                      )}
-                    </span>
-                  </span>
-                  <svg
-                    aria-hidden="true"
-                    viewBox="0 0 16 16"
-                    className="h-4 w-4 shrink-0 text-accent transition-transform duration-200 group-open:rotate-45"
+                return (
+                  <details
+                    key={certificate.no}
+                    id={`credential-${certificate.no}`}
+                    className="group border-b border-indigo/30 last:border-b-0"
                   >
-                    <path
-                      d="M8 2.5v11M2.5 8h11"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1"
-                    />
-                  </svg>
-                </summary>
-                <div className="ml-16 border-l border-gold/40 bg-abyss/95 px-4 py-4 sm:ml-20">
-                  <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-starlight/55">
-                    Skills covered &middot; {certificate.skills.length}
-                  </p>
-                  <ul className="mt-3 flex flex-wrap gap-2">
-                    {certificate.skills.map((skill) => (
-                      <li
-                        key={skill}
-                        className="max-w-full border border-indigo/40 bg-void/50 px-2 py-1 font-mono text-[9px] leading-relaxed text-starlight/75"
+                    <summary className="flex cursor-pointer list-none items-center gap-4 py-5 marker:hidden focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-accent sm:gap-6 sm:py-6 [&::-webkit-details-marker]:hidden">
+                      <ConstellationMark certificate={certificate} />
+                      <span className="min-w-0 flex-1">
+                        <span className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
+                          <span className="font-display text-lg font-medium leading-snug tracking-tight text-starlight sm:text-xl">
+                            {certificate.title}
+                          </span>
+                          <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-gold">
+                            REC-{String(recordIndex + 1).padStart(2, "0")}
+                          </span>
+                        </span>
+                        <span className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[9px] uppercase tracking-[0.18em] text-starlight/60 sm:text-[10px]">
+                          <span>{certificate.provider}</span>
+                          <span aria-hidden="true">/</span>
+                          <span>
+                            <CertificateMonth value={certificate.from} /> &mdash;{" "}
+                            <CertificateMonth value={certificate.to} />
+                          </span>
+                          {status && (
+                            <span
+                              className={
+                                status === "current" ? "text-gold" : "text-starlight/55"
+                              }
+                            >
+                              {status}
+                            </span>
+                          )}
+                        </span>
+                      </span>
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 16 16"
+                        className="h-4 w-4 shrink-0 text-accent transition-transform duration-200 group-open:rotate-45"
                       >
-                        {skill}
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
-                    <a
-                      href={`#credential-${certificate.no}`}
-                      aria-label={`Link to ${certificate.title} in the credential archive`}
-                      className="inline-flex min-h-11 items-center font-mono text-[9px] uppercase tracking-[0.18em] text-accent underline decoration-accent/40 underline-offset-4 hover:text-starlight focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                    >
-                      Record link
-                    </a>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        const recordUrl = new URL(window.location.href);
-                        recordUrl.hash = `credential-${certificate.no}`;
-                        const citation = [
-                          `${certificate.title} — ${certificate.provider}`,
-                          `Awarded: ${certificate.from}`,
-                          `Expiry: ${certificate.to ?? "Not listed"}`,
-                          `Skills: ${certificate.skills.join(", ")}`,
-                          `Record: ${recordUrl.toString()}`,
-                        ].join("\n");
+                        <path
+                          d="M8 2.5v11M2.5 8h11"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1"
+                        />
+                      </svg>
+                    </summary>
+                    <div className="ml-16 border-l border-gold/40 bg-abyss/95 px-4 py-4 sm:ml-20">
+                      <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-starlight/55">
+                        Skills covered &middot; {certificate.skills.length}
+                      </p>
+                      <ul className="mt-3 flex flex-wrap gap-2">
+                        {certificate.skills.map((skill) => (
+                          <li
+                            key={skill}
+                            className="max-w-full border border-indigo/40 bg-void/50 px-2 py-1 font-mono text-[9px] leading-relaxed text-starlight/75"
+                          >
+                            {skill}
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
+                        <a
+                          href={`#credential-${certificate.no}`}
+                          aria-label={`Link to ${certificate.title} in the credential archive`}
+                          className="inline-flex min-h-11 items-center font-mono text-[9px] uppercase tracking-[0.18em] text-accent underline decoration-accent/40 underline-offset-4 hover:text-starlight focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                        >
+                          Record link
+                        </a>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const recordUrl = new URL(window.location.href);
+                            recordUrl.hash = `credential-${certificate.no}`;
+                            const citation = [
+                              `${certificate.title} — ${certificate.provider}`,
+                              `Awarded: ${certificate.from}`,
+                              `Expiry: ${certificate.to ?? "Not listed"}`,
+                              `Skills: ${certificate.skills.join(", ")}`,
+                              `Record: ${recordUrl.toString()}`,
+                            ].join("\n");
 
-                        try {
-                          await navigator.clipboard.writeText(citation);
-                          setCopiedCertificate(certificate.no);
-                          setCopyStatus(`Citation and record link for ${certificate.title} copied.`);
-                        } catch {
-                          setCopiedCertificate(null);
-                          setCopyStatus(
-                            `Clipboard unavailable. Copy the title, provider, dates, skills, and record link for ${certificate.title} manually.`,
-                          );
-                        }
-                      }}
-                      aria-label={`Copy citation and record link for ${certificate.title}`}
-                      className="inline-flex min-h-11 items-center border border-indigo/50 px-3 font-mono text-[9px] uppercase tracking-[0.18em] text-starlight/70 transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                    >
-                      {copiedCertificate === certificate.no
-                        ? "Citation copied"
-                        : "Copy citation + link"}
-                    </button>
-                  </div>
-                </div>
-              </details>
-            );
-          })
+                            try {
+                              await navigator.clipboard.writeText(citation);
+                              setCopiedCertificate(certificate.no);
+                              setCopyStatus(
+                                `Citation and record link for ${certificate.title} copied.`,
+                              );
+                            } catch {
+                              setCopiedCertificate(null);
+                              setCopyStatus(
+                                `Clipboard unavailable. Copy the title, provider, dates, skills, and record link for ${certificate.title} manually.`,
+                              );
+                            }
+                          }}
+                          aria-label={`Copy citation and record link for ${certificate.title}`}
+                          className="inline-flex min-h-11 items-center border border-indigo/50 px-3 font-mono text-[9px] uppercase tracking-[0.18em] text-starlight/70 transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                        >
+                          {copiedCertificate === certificate.no
+                            ? "Citation copied"
+                            : "Copy citation + link"}
+                        </button>
+                      </div>
+                    </div>
+                  </details>
+                );
+              })}
+            </div>
+          ))
         ) : (
           <div className="py-8">
             <p className="font-display text-lg font-medium text-starlight">
