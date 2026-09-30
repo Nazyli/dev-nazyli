@@ -18,6 +18,17 @@ export function Projects() {
   const activeProjectRef = useRef(0);
   const [activeProject, setActiveProject] = useState(0);
   const [shareStatus, setShareStatus] = useState("");
+  const activateProject = useCallback((index: number) => {
+    if (activeProjectRef.current === index) return;
+
+    activeProjectRef.current = index;
+    setActiveProject(index);
+    setShareStatus("");
+    if (getProjectIndexFromHash(window.location.hash) >= 0) {
+      updateProjectHash(index, true);
+    }
+  }, []);
+
   const navigateToProject = useCallback((index: number, updateHistory = true) => {
     const project = publishedProjects[index];
     if (!project) return;
@@ -73,6 +84,64 @@ export function Projects() {
     window.addEventListener("popstate", navigateFromHash);
     return () => window.removeEventListener("popstate", navigateFromHash);
   }, [navigateToProject]);
+
+  useEffect(() => {
+    const section = root.current;
+    if (!section) return;
+
+    const slides = Array.from(
+      section.querySelectorAll<HTMLElement>(".project-slide"),
+    );
+    if (slides.length === 0) return;
+
+    const pinnedDesktop = window.matchMedia(
+      "(prefers-reduced-motion: no-preference) and (min-width: 1024px)",
+    );
+    let frame = 0;
+
+    const updateVisibleProject = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const center = window.innerHeight / 2;
+        let activeIndex = -1;
+        let activeDistance = Number.POSITIVE_INFINITY;
+
+        slides.forEach((slide, index) => {
+          const rect = slide.getBoundingClientRect();
+          if (rect.bottom <= 0 || rect.top >= window.innerHeight) return;
+
+          const distance = Math.abs(rect.top + rect.height / 2 - center);
+          if (distance < activeDistance) {
+            activeDistance = distance;
+            activeIndex = index;
+          }
+        });
+
+        if (activeIndex >= 0) activateProject(activeIndex);
+      });
+    };
+
+    const syncScrollTracking = () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", updateVisibleProject);
+      window.removeEventListener("resize", updateVisibleProject);
+      if (pinnedDesktop.matches) return;
+
+      window.addEventListener("scroll", updateVisibleProject, { passive: true });
+      window.addEventListener("resize", updateVisibleProject);
+      updateVisibleProject();
+    };
+
+    syncScrollTracking();
+    pinnedDesktop.addEventListener("change", syncScrollTracking);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", updateVisibleProject);
+      window.removeEventListener("resize", updateVisibleProject);
+      pinnedDesktop.removeEventListener("change", syncScrollTracking);
+    };
+  }, [activateProject]);
 
   const selectProject = (index: number) => {
     navigateToProject(index);
@@ -192,14 +261,7 @@ export function Projects() {
                     activeIndex = index;
                   }
                 });
-                if (activeProjectRef.current !== activeIndex) {
-                  activeProjectRef.current = activeIndex;
-                  setActiveProject(activeIndex);
-                  setShareStatus("");
-                  if (getProjectIndexFromHash(window.location.hash) >= 0) {
-                    updateProjectHash(activeIndex, true);
-                  }
-                }
+                activateProject(activeIndex);
               },
             },
           });
