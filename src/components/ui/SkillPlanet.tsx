@@ -174,7 +174,7 @@ export function SkillPlanet({
           className="group flex min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 flex-col items-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
         >
           <span
-            className={`relative block h-3.5 w-3.5 transition-transform duration-300 group-focus-visible:scale-150 ${
+            className={`relative block h-3.5 w-3.5 transition-transform duration-300 motion-reduce:transition-none group-focus-visible:scale-150 ${
               isActive ? "scale-150" : ""
             }`}
           >

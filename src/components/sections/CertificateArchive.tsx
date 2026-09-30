@@ -369,7 +369,7 @@ export function CertificateArchive({
                       <svg
                         aria-hidden="true"
                         viewBox="0 0 16 16"
-                        className="h-4 w-4 shrink-0 text-accent transition-transform duration-200 group-open:rotate-45"
+                        className="h-4 w-4 shrink-0 text-accent transition-transform duration-200 motion-reduce:transition-none group-open:rotate-45"
                       >
                         <path
                           d="M8 2.5v11M2.5 8h11"

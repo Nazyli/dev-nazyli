@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 export function CursorReticle() {
   const ref = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
+    if (reducedMotion) return;
     if (!window.matchMedia("(pointer: fine)").matches) return;
     const el = ref.current;
     if (!el) return;
@@ -22,13 +25,13 @@ export function CursorReticle() {
 
     window.addEventListener("pointermove", onMove);
     return () => window.removeEventListener("pointermove", onMove);
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <div
       ref={ref}
       aria-hidden
-      className="obs-reticle opacity-0 transition-opacity duration-500"
+      className="obs-reticle opacity-0 transition-opacity duration-500 motion-reduce:hidden motion-reduce:transition-none"
     >
       <span className="absolute left-1/2 top-0 h-3 w-px -translate-x-1/2 bg-accent/40" />
       <span className="absolute bottom-0 left-1/2 h-3 w-px -translate-x-1/2 bg-accent/40" />

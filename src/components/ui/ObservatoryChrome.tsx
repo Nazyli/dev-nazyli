@@ -308,7 +308,7 @@ export function ObservatoryChrome() {
           >
             <span
               aria-hidden
-              className={`whitespace-nowrap pr-1 text-[9px] uppercase tracking-[0.3em] text-starlight/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100 ${
+              className={`whitespace-nowrap pr-1 text-[9px] uppercase tracking-[0.3em] text-starlight/50 opacity-0 transition-opacity duration-200 motion-reduce:transition-none group-hover:opacity-100 ${
                 active === i ? "opacity-100" : ""
               }`}
             >
@@ -316,7 +316,7 @@ export function ObservatoryChrome() {
             </span>
             <span
               aria-hidden
-              className={`h-px transition-all duration-300 ${
+              className={`h-px transition-all duration-300 motion-reduce:transition-none ${
                 active === i ? "w-4 bg-gold" : "w-0 bg-gold group-hover:w-3"
               }`}
             />

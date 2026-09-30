@@ -196,7 +196,7 @@ export function Expertise() {
 
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
           <div
-            className={`flex items-center justify-center transition-opacity duration-300 ${
+            className={`flex items-center justify-center transition-opacity duration-300 motion-reduce:transition-none ${
               active ? "opacity-0" : "opacity-100"
             }`}
           >
@@ -210,7 +210,7 @@ export function Expertise() {
             </div>
           </div>
           <div
-            className={`absolute flex items-center justify-center transition-opacity duration-300 ${
+            className={`absolute flex items-center justify-center transition-opacity duration-300 motion-reduce:transition-none ${
               active ? "opacity-100" : "opacity-0"
             }`}
           >
