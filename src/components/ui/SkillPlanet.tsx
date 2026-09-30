@@ -153,14 +153,16 @@ export function SkillPlanet({
           onPointerEnter={(event) => {
             if (event.pointerType !== "touch") onActivate();
           }}
-          onPointerLeave={(event) => {
-            if (event.pointerType === "mouse") onDeactivate();
-          }}
           onPointerDown={(event) => {
             pointerType.current = event.pointerType;
           }}
           onFocus={onActivate}
-          onBlur={onDeactivate}
+          onBlur={(event) => {
+            const section = event.currentTarget.closest("#s-expertise");
+            const nextTarget = event.relatedTarget;
+            if (nextTarget instanceof Node && section?.contains(nextTarget)) return;
+            onDeactivate();
+          }}
           onClick={() => {
             if (pointerType.current === "touch" && isActive) {
               onDeactivate();

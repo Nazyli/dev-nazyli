@@ -117,6 +117,9 @@ export function Expertise() {
       id="s-expertise"
       ref={root}
       aria-label="Expertise"
+      onPointerLeave={(event) => {
+        if (event.pointerType === "mouse") selectSkill(null);
+      }}
       className="relative flex min-h-screen min-h-svh flex-col items-center justify-center px-6 py-12"
     >
       <div className="mb-6 flex flex-col items-center text-center sm:mb-8">
