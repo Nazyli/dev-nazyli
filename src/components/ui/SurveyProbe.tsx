@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 const PROBE_TRAIL = 16;
 const COMET_TRAIL = 14;
@@ -34,12 +35,16 @@ type Explosion = {
 
 export function SurveyProbe() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
-    if (!window.matchMedia("(pointer: fine)").matches) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
+    if (reducedMotion) {
+      canvas.style.opacity = "0";
+      return;
+    }
+    if (!window.matchMedia("(pointer: fine)").matches) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -218,13 +223,13 @@ export function SurveyProbe() {
       window.removeEventListener("pointerdown", onDown);
       window.removeEventListener("resize", resize);
     };
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <canvas
       ref={canvasRef}
       aria-hidden
-      className="pointer-events-none fixed inset-0 z-[55] opacity-0 transition-opacity duration-500"
+      className="pointer-events-none fixed inset-0 z-[55] opacity-0 transition-opacity duration-500 motion-reduce:transition-none"
     />
   );
 }
