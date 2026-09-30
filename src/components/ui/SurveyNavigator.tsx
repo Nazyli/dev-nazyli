@@ -110,6 +110,15 @@ export function SurveyNavigator() {
     );
   }, [query]);
 
+  function openNavigator() {
+    if (dialog.current?.open) {
+      search.current?.focus();
+      return;
+    }
+
+    setOpen(true);
+  }
+
   useEffect(() => {
     if (!open) return;
     const currentDialog = dialog.current;
@@ -130,13 +139,13 @@ export function SurveyNavigator() {
 
       if (usesCommandKey && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        setOpen(true);
+        openNavigator();
         return;
       }
 
       if (!isEditing && !usesCommandKey && event.key === "/") {
         event.preventDefault();
-        setOpen(true);
+        openNavigator();
       }
     };
 
@@ -227,7 +236,7 @@ export function SurveyNavigator() {
         aria-keyshortcuts="/ Control+K Meta+K"
         aria-label="Search destinations"
         title="Search destinations (/ or Ctrl or Command + K)"
-        onClick={() => setOpen(true)}
+        onClick={openNavigator}
         className="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 border-l border-indigo/30 pl-3 text-starlight/70 transition-colors hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none sm:pl-4"
       >
         <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5">
