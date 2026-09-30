@@ -100,7 +100,7 @@ export default function NotFound() {
         </figure>
       </div>
 
-      <p className="absolute bottom-5 font-mono text-[9px] uppercase tracking-[0.28em] text-starlight/40">
+      <p className="absolute bottom-5 font-mono text-[9px] uppercase tracking-[0.28em] text-starlight/55">
         Signal available at home coordinates
       </p>
     </main>
