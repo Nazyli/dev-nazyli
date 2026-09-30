@@ -54,6 +54,11 @@ function CertificateMonth({ value }: { value: string | null }) {
   return dateTime ? <time dateTime={dateTime}>{value}</time> : value;
 }
 
+function escapeCsvCell(value: string) {
+  const safeValue = /^[\s]*[=+\-@]/.test(value) ? `'${value}` : value;
+  return `"${safeValue.replaceAll('"', '""')}"`;
+}
+
 export function CertificateArchive({
   certificates,
 }: {
@@ -168,6 +173,39 @@ export function CertificateArchive({
     },
     new Map(),
   );
+  const exportMatchingCertificates = () => {
+    const rows = [
+      ["Record", "Credential", "Provider", "Awarded", "Expiry", "Status", "Skills", "Record URL"],
+      ...matchingCertificates.map((certificate) => {
+        const recordUrl = new URL(window.location.href);
+        recordUrl.hash = `credential-${certificate.no}`;
+        const recordIndex = certificates.findIndex(
+          (record) => record.no === certificate.no,
+        );
+        return [
+          `REC-${String(recordIndex + 1).padStart(2, "0")}`,
+          certificate.title,
+          certificate.provider,
+          certificate.from,
+          certificate.to ?? "Not listed",
+          getCertificateStatus(certificate.to) ?? "Not listed",
+          certificate.skills.join("; "),
+          recordUrl.toString(),
+        ];
+      }),
+    ];
+    const csv = rows.map((row) => row.map(escapeCsvCell).join(",")).join("\r\n");
+    const file = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" });
+    const fileUrl = URL.createObjectURL(file);
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.download = "evry-nazyli-credentials.csv";
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(fileUrl), 1000);
+    setCopyStatus(
+      `${matchingCertificates.length} credential ${matchingCertificates.length === 1 ? "record" : "records"} exported as CSV.`,
+    );
+  };
 
   return (
     <div>
@@ -240,19 +278,30 @@ export function CertificateArchive({
             ? `${matchingCertificates.length} matching ${matchingCertificates.length === 1 ? "record" : "records"}`
             : `${certificates.length} records`}
         </p>
-        {hasFilters && (
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => {
-              setQuery("");
-              setProvider("All sources");
-              setValidity("all");
-            }}
-            className="inline-flex min-h-11 items-center px-2 font-mono text-[9px] uppercase tracking-[0.14em] text-accent underline decoration-accent/40 underline-offset-4 hover:text-starlight focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            onClick={exportMatchingCertificates}
+            disabled={matchingCertificates.length === 0}
+            aria-label={`Export ${matchingCertificates.length} matching credentials as CSV`}
+            className="inline-flex min-h-11 items-center border border-indigo/50 px-3 font-mono text-[9px] uppercase tracking-[0.14em] text-starlight/70 transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Clear all filters
+            Export CSV
           </button>
-        )}
+          {hasFilters && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                setProvider("All sources");
+                setValidity("all");
+              }}
+              className="inline-flex min-h-11 items-center px-2 font-mono text-[9px] uppercase tracking-[0.14em] text-accent underline decoration-accent/40 underline-offset-4 hover:text-starlight focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Clear all filters
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="border-y border-indigo/40">
