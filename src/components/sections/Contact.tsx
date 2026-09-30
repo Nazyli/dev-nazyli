@@ -5,10 +5,19 @@ import { gsap, useGSAP } from "@/lib/gsap";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const EMAIL_ADDRESS = "info@nazyli.com";
+const PORTFOLIO_URL = "https://nazyli.com";
+const CONTACT_STATUS_MESSAGES = {
+  idle: "",
+  emailCopied: "Email address copied.",
+  emailUnavailable: "Clipboard unavailable. Use Email Evry to open a message.",
+  linkCopied: "Portfolio link copied to clipboard.",
+  shared: "Portfolio shared.",
+  shareUnavailable: "Sharing unavailable. Copy the portfolio link from your browser address bar.",
+} as const;
 
 export function Contact() {
   const root = useRef<HTMLElement>(null);
-  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "unavailable">("idle");
+  const [copyStatus, setCopyStatus] = useState<keyof typeof CONTACT_STATUS_MESSAGES>("idle");
 
   useGSAP(
     () => {
@@ -80,9 +89,9 @@ export function Contact() {
                   onClick={async () => {
                     try {
                       await navigator.clipboard.writeText(EMAIL_ADDRESS);
-                      setCopyStatus("copied");
+                      setCopyStatus("emailCopied");
                     } catch {
-                      setCopyStatus("unavailable");
+                      setCopyStatus("emailUnavailable");
                     }
                   }}
                   aria-label={`Copy ${EMAIL_ADDRESS} to clipboard`}
@@ -117,17 +126,44 @@ export function Contact() {
         Print / save as PDF
       </button>
 
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            if (navigator.share) {
+              await navigator.share({
+                title: "Evry Nazyli · AI Engineer",
+                text: "Explore Evry Nazyli's AI engineering portfolio.",
+                url: PORTFOLIO_URL,
+              });
+              setCopyStatus("shared");
+              return;
+            }
+            await navigator.clipboard.writeText(PORTFOLIO_URL);
+            setCopyStatus("linkCopied");
+          } catch (error) {
+            if (error instanceof Error && error.name === "AbortError") return;
+            try {
+              await navigator.clipboard.writeText(PORTFOLIO_URL);
+              setCopyStatus("linkCopied");
+            } catch {
+              setCopyStatus("shareUnavailable");
+            }
+          }
+        }}
+        aria-label="Share or copy the portfolio link"
+        className="print-action contact-reveal mt-3 inline-flex min-h-11 items-center border border-indigo/50 px-4 font-mono text-[10px] uppercase tracking-[0.2em] text-starlight/75 transition-colors hover:border-accent/60 hover:text-accent focus-visible:text-accent motion-reduce:transition-none"
+      >
+        Share portfolio
+      </button>
+
       <p
         role="status"
         aria-live="polite"
         aria-atomic="true"
         className="contact-reveal mt-2 min-h-5 font-mono text-[9px] uppercase tracking-[0.16em] text-starlight/65"
       >
-        {copyStatus === "copied"
-          ? "Email address copied."
-          : copyStatus === "unavailable"
-            ? "Clipboard unavailable. Use Email Evry to open a message."
-            : ""}
+        {CONTACT_STATUS_MESSAGES[copyStatus]}
       </p>
 
       <footer className="contact-reveal absolute bottom-16 left-0 right-0 lg:bottom-8">
