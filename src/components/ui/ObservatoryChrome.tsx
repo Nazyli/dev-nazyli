@@ -12,6 +12,7 @@ import {
   navigateToSection,
 } from "@/lib/sectionNavigation";
 import { getProjectIndexFromHash } from "@/lib/projectNavigation";
+import { getCertificateIndexFromHash } from "@/lib/certificateNavigation";
 import { setAmbientMotionPaused } from "@/lib/universeState";
 import { useAmbientMotionPaused } from "@/hooks/useAmbientMotionPaused";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -142,7 +143,14 @@ export function ObservatoryChrome() {
 
         const preserveProjectHash =
           id === "s-projects" && getProjectIndexFromHash(window.location.hash) >= 0;
-        if (window.location.hash !== `#${id}` && !preserveProjectHash) {
+        const preserveCertificateHash =
+          id === "s-certificates" &&
+          getCertificateIndexFromHash(window.location.hash) >= 0;
+        if (
+          window.location.hash !== `#${id}` &&
+          !preserveProjectHash &&
+          !preserveCertificateHash
+        ) {
           window.history.replaceState(
             typeof window.history.state === "object" &&
               window.history.state !== null
@@ -168,7 +176,10 @@ export function ObservatoryChrome() {
   useEffect(() => {
     const onPopState = () => {
       const hash = window.location.hash;
-      if (getProjectIndexFromHash(hash) >= 0) return;
+      if (
+        getProjectIndexFromHash(hash) >= 0 ||
+        getCertificateIndexFromHash(hash) >= 0
+      ) return;
 
       const id = hash.slice(1);
       navigateToSection(
@@ -186,6 +197,8 @@ export function ObservatoryChrome() {
       });
     } else if (getProjectIndexFromHash(initialId) >= 0) {
       pendingInitialRoute.current = "s-projects";
+    } else if (getCertificateIndexFromHash(initialId) >= 0) {
+      pendingInitialRoute.current = "s-certificates";
     }
 
     window.addEventListener("popstate", onPopState);

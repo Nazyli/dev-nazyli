@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   buildConstellationPath,
   getCertificateMonthDateTime,
   getCertificateStatus,
 } from "@/data/certificates";
 import type { Certificate } from "@/data/certificates";
+import { getCertificateIndexFromHash } from "@/lib/certificateNavigation";
 
 const VALIDITY_FILTERS = [
   { value: "all", label: "All statuses" },
@@ -60,6 +61,47 @@ export function CertificateArchive({
   const [validity, setValidity] = useState<ValidityFilter>("all");
   const [copiedCertificate, setCopiedCertificate] = useState<number | null>(null);
   const [copyStatus, setCopyStatus] = useState("");
+
+  useEffect(() => {
+    let firstFrame = 0;
+    let secondFrame = 0;
+
+    const openCredentialFromHash = () => {
+      const index = getCertificateIndexFromHash(
+        window.location.hash,
+        certificates,
+      );
+      const certificate = certificates[index];
+      if (!certificate) return;
+
+      const details = document.getElementById(`credential-${certificate.no}`);
+      if (!(details instanceof HTMLDetailsElement)) return;
+      details.open = true;
+
+      cancelAnimationFrame(firstFrame);
+      cancelAnimationFrame(secondFrame);
+      firstFrame = requestAnimationFrame(() => {
+        secondFrame = requestAnimationFrame(() => {
+          details.scrollIntoView({
+            behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+              ? "auto"
+              : "smooth",
+            block: "center",
+          });
+        });
+      });
+    };
+
+    openCredentialFromHash();
+    window.addEventListener("hashchange", openCredentialFromHash);
+    window.addEventListener("popstate", openCredentialFromHash);
+    return () => {
+      cancelAnimationFrame(firstFrame);
+      cancelAnimationFrame(secondFrame);
+      window.removeEventListener("hashchange", openCredentialFromHash);
+      window.removeEventListener("popstate", openCredentialFromHash);
+    };
+  }, [certificates]);
   const providers = [
     "All sources",
     ...Array.from(new Set(certificates.map((certificate) => certificate.provider))),
@@ -183,6 +225,7 @@ export function CertificateArchive({
             return (
               <details
                 key={certificate.no}
+                id={`credential-${certificate.no}`}
                 className="group border-b border-indigo/30 last:border-b-0"
               >
                 <summary className="flex cursor-pointer list-none items-center gap-4 py-5 marker:hidden focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-accent sm:gap-6 sm:py-6 [&::-webkit-details-marker]:hidden">
@@ -241,34 +284,46 @@ export function CertificateArchive({
                       </li>
                     ))}
                   </ul>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const citation = [
-                        `${certificate.title} — ${certificate.provider}`,
-                        `Awarded: ${certificate.from}`,
-                        `Expiry: ${certificate.to ?? "Not listed"}`,
-                        `Skills: ${certificate.skills.join(", ")}`,
-                      ].join("\n");
+                  <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
+                    <a
+                      href={`#credential-${certificate.no}`}
+                      aria-label={`Link to ${certificate.title} in the credential archive`}
+                      className="inline-flex min-h-11 items-center font-mono text-[9px] uppercase tracking-[0.18em] text-accent underline decoration-accent/40 underline-offset-4 hover:text-starlight focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                    >
+                      Record link
+                    </a>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const recordUrl = new URL(window.location.href);
+                        recordUrl.hash = `credential-${certificate.no}`;
+                        const citation = [
+                          `${certificate.title} — ${certificate.provider}`,
+                          `Awarded: ${certificate.from}`,
+                          `Expiry: ${certificate.to ?? "Not listed"}`,
+                          `Skills: ${certificate.skills.join(", ")}`,
+                          `Record: ${recordUrl.toString()}`,
+                        ].join("\n");
 
-                      try {
-                        await navigator.clipboard.writeText(citation);
-                        setCopiedCertificate(certificate.no);
-                        setCopyStatus(`Citation for ${certificate.title} copied.`);
-                      } catch {
-                        setCopiedCertificate(null);
-                        setCopyStatus(
-                          `Clipboard unavailable. Copy the title, provider, dates, and skills for ${certificate.title} manually.`,
-                        );
-                      }
-                    }}
-                    aria-label={`Copy citation for ${certificate.title}`}
-                    className="mt-5 inline-flex min-h-11 items-center border border-indigo/50 px-3 font-mono text-[9px] uppercase tracking-[0.18em] text-starlight/70 transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                  >
-                    {copiedCertificate === certificate.no
-                      ? "Citation copied"
-                      : "Copy citation"}
-                  </button>
+                        try {
+                          await navigator.clipboard.writeText(citation);
+                          setCopiedCertificate(certificate.no);
+                          setCopyStatus(`Citation and record link for ${certificate.title} copied.`);
+                        } catch {
+                          setCopiedCertificate(null);
+                          setCopyStatus(
+                            `Clipboard unavailable. Copy the title, provider, dates, skills, and record link for ${certificate.title} manually.`,
+                          );
+                        }
+                      }}
+                      aria-label={`Copy citation and record link for ${certificate.title}`}
+                      className="inline-flex min-h-11 items-center border border-indigo/50 px-3 font-mono text-[9px] uppercase tracking-[0.18em] text-starlight/70 transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                    >
+                      {copiedCertificate === certificate.no
+                        ? "Citation copied"
+                        : "Copy citation + link"}
+                    </button>
+                  </div>
                 </div>
               </details>
             );
