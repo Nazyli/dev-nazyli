@@ -389,6 +389,11 @@ export function Projects() {
                 </button>
               )}
             </div>
+            <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+              {publishedProjects[activeProject]
+                ? `Project ${activeProject + 1} of ${publishedProjects.length}: ${publishedProjects[activeProject].title}.`
+                : ""}
+            </p>
             <p
               role="status"
               aria-live="polite"
