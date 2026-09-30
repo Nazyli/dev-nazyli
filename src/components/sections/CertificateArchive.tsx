@@ -7,6 +7,15 @@ import {
 } from "@/data/certificates";
 import type { Certificate } from "@/data/certificates";
 
+const VALIDITY_FILTERS = [
+  { value: "all", label: "All statuses" },
+  { value: "current", label: "Current" },
+  { value: "expired", label: "Expired" },
+  { value: "no-expiry", label: "No expiry listed" },
+] as const;
+
+type ValidityFilter = (typeof VALIDITY_FILTERS)[number]["value"];
+
 function ConstellationMark({ certificate }: { certificate: Certificate }) {
   return (
     <svg
@@ -40,19 +49,31 @@ export function CertificateArchive({
 }) {
   const [query, setQuery] = useState("");
   const [provider, setProvider] = useState("All sources");
+  const [validity, setValidity] = useState<ValidityFilter>("all");
   const providers = [
     "All sources",
     ...Array.from(new Set(certificates.map((certificate) => certificate.provider))),
   ];
   const normalizedQuery = query.trim().toLowerCase();
-  const hasFilters = normalizedQuery.length > 0 || provider !== "All sources";
+  const hasFilters =
+    normalizedQuery.length > 0 ||
+    provider !== "All sources" ||
+    validity !== "all";
   const matchingCertificates = certificates.filter((certificate) => {
     const matchesQuery = [
       certificate.title,
       certificate.provider,
       ...certificate.skills,
     ].some((value) => value.toLowerCase().includes(normalizedQuery));
-    return matchesQuery && (provider === "All sources" || certificate.provider === provider);
+    const matchesProvider =
+      provider === "All sources" || certificate.provider === provider;
+    const status = getCertificateStatus(certificate.to);
+    const matchesValidity =
+      validity === "all" ||
+      (validity === "no-expiry"
+        ? certificate.to === null
+        : status === validity);
+    return matchesQuery && matchesProvider && matchesValidity;
   });
 
   return (
@@ -93,16 +114,50 @@ export function CertificateArchive({
         </div>
       </fieldset>
 
-      <p
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        className="py-3 font-mono text-[9px] uppercase tracking-[0.2em] text-starlight/65"
-      >
-        {hasFilters
-          ? `${matchingCertificates.length} matching ${matchingCertificates.length === 1 ? "record" : "records"}`
-          : `${certificates.length} records`}
-      </p>
+      <fieldset className="mt-5 min-w-0">
+        <legend className="font-mono text-[10px] uppercase tracking-[0.25em] text-starlight/70">
+          Filter by validity
+        </legend>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {VALIDITY_FILTERS.map((filter) => (
+            <button
+              key={filter.value}
+              type="button"
+              aria-pressed={validity === filter.value}
+              onClick={() => setValidity(filter.value)}
+              className="min-h-11 max-w-full border border-indigo/50 px-3 py-2 text-left font-mono text-[9px] uppercase leading-relaxed tracking-[0.12em] text-starlight/65 transition-colors hover:border-accent/50 hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent aria-pressed:border-gold/60 aria-pressed:text-gold"
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
+      <div className="flex min-h-12 flex-wrap items-center justify-between gap-2 py-2">
+        <p
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className="font-mono text-[9px] uppercase tracking-[0.2em] text-starlight/65"
+        >
+          {hasFilters
+            ? `${matchingCertificates.length} matching ${matchingCertificates.length === 1 ? "record" : "records"}`
+            : `${certificates.length} records`}
+        </p>
+        {hasFilters && (
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
+              setProvider("All sources");
+              setValidity("all");
+            }}
+            className="inline-flex min-h-11 items-center px-2 font-mono text-[9px] uppercase tracking-[0.14em] text-accent underline decoration-accent/40 underline-offset-4 hover:text-starlight focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            Clear all filters
+          </button>
+        )}
+      </div>
 
       <div className="border-y border-indigo/40">
         {matchingCertificates.length > 0 ? (
@@ -184,18 +239,8 @@ export function CertificateArchive({
                 : `No credentials from ${provider}.`}
             </p>
             <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.15em] text-starlight/65">
-              Try another provider, title, or skill.
+              Try another provider, validity status, title, or skill.
             </p>
-            <button
-              type="button"
-              onClick={() => {
-                setQuery("");
-                setProvider("All sources");
-              }}
-              className="mt-4 inline-flex min-h-11 items-center border border-accent/50 px-3 font-mono text-[10px] uppercase tracking-[0.18em] text-accent transition-colors hover:bg-accent/10 focus-visible:bg-accent/10"
-            >
-              Clear filters
-            </button>
           </div>
         )}
       </div>
