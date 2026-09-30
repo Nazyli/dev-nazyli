@@ -166,7 +166,7 @@ export function Contact() {
         {CONTACT_STATUS_MESSAGES[copyStatus]}
       </p>
 
-      <footer className="contact-reveal absolute bottom-16 left-0 right-0 lg:bottom-8">
+      <footer className="contact-reveal mt-12 w-full lg:absolute lg:bottom-8 lg:left-0 lg:right-0">
         <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/75">
           Evry Nazyli - 2026
         </p>
