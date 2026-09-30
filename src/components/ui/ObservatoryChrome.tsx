@@ -250,7 +250,7 @@ export function ObservatoryChrome() {
 
       <nav
         aria-label="Sections"
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-7 border-t border-indigo/30 bg-void/95 px-1 pt-2 pb-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] min-[375px]:gap-x-2 lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-7 border-t border-indigo/30 bg-void/95 px-0 pt-2 pb-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] min-[375px]:gap-x-2 lg:hidden"
       >
         {SECTIONS.map((section, i) => (
           <button
