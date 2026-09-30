@@ -1,8 +1,7 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useMemo, useRef, useSyncExternalStore } from "react";
-import { supportsWebGL } from "@/lib/webgl";
+import { useRef, useSyncExternalStore } from "react";
 import { AccretionDisk } from "./AccretionDisk";
 import { DustClouds } from "./DustClouds";
 import { Earth } from "./Earth";
@@ -59,7 +58,6 @@ function ReadySignal({
 }
 
 export function SpaceScene({ onReady }: { onReady?: () => void }) {
-  const webgl = useMemo(() => supportsWebGL(), []);
   const reducedMotion = useSyncExternalStore(
     subscribeToMotionPreference,
     getMotionPreference,
@@ -70,12 +68,6 @@ export function SpaceScene({ onReady }: { onReady?: () => void }) {
     isDocumentVisible,
     () => true,
   );
-
-  if (!webgl) {
-    return (
-      <div aria-hidden="true" className="star-map-fallback fixed inset-0 z-0" />
-    );
-  }
 
   return (
     <div
