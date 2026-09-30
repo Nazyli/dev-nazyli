@@ -234,9 +234,7 @@ export function CertificateArchive({
         ) : (
           <div className="py-8">
             <p className="font-display text-lg font-medium text-starlight">
-              {normalizedQuery
-                ? `No credentials match “${query.trim()}”.`
-                : `No credentials from ${provider}.`}
+              No credentials match these filters.
             </p>
             <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.15em] text-starlight/65">
               Try another provider, validity status, title, or skill.
