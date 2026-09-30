@@ -23,7 +23,6 @@ export function useScrollAnimation() {
     lenis.on("scroll", ScrollTrigger.update);
 
     const tick = (time: number) => lenis.raf(time * 1000);
-    gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
 
     const master = ScrollTrigger.create({
@@ -37,13 +36,15 @@ export function useScrollAnimation() {
     const mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: reduce)", () => {
       universeState.reducedMotion = true;
+      gsap.ticker.remove(tick);
       return () => {
         universeState.reducedMotion = false;
       };
     });
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       universeState.reducedMotion = false;
-      return () => {};
+      gsap.ticker.add(tick);
+      return () => gsap.ticker.remove(tick);
     });
 
     const onLoad = () => ScrollTrigger.refresh();
