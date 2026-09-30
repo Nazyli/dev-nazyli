@@ -86,7 +86,7 @@ export function Contact() {
                     }
                   }}
                   aria-label={`Copy ${EMAIL_ADDRESS} to clipboard`}
-                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 px-2 font-mono text-[9px] uppercase tracking-[0.1em] text-starlight/70 transition-colors hover:text-accent focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent sm:w-auto"
+                  className="print-action inline-flex min-h-11 w-full items-center justify-center gap-2 px-2 font-mono text-[9px] uppercase tracking-[0.1em] text-starlight/70 transition-colors hover:text-accent focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent sm:w-auto"
                 >
                   <svg
                     aria-hidden="true"
@@ -107,6 +107,15 @@ export function Contact() {
           </li>
         ))}
       </ul>
+
+      <button
+        type="button"
+        onClick={() => window.print()}
+        aria-label="Print or save this portfolio as a PDF"
+        className="print-action contact-reveal mt-8 inline-flex min-h-11 items-center border border-indigo/50 px-4 font-mono text-[10px] uppercase tracking-[0.2em] text-starlight/75 transition-colors hover:border-accent/60 hover:text-accent focus-visible:text-accent motion-reduce:transition-none"
+      >
+        Print / save as PDF
+      </button>
 
       <p
         role="status"

@@ -59,7 +59,7 @@ export function Expertise() {
       </div>
 
       <div
-        className="expertise-reveal relative aspect-square w-[var(--solar)]"
+        className="expertise-solar-system expertise-reveal relative aspect-square w-[var(--solar)]"
         style={{
           "--solar": "min(88vw, 620px, max(16rem, calc(100svh - 17rem)))",
         } as CSSProperties}
@@ -174,6 +174,15 @@ export function Expertise() {
           />
         ))}
       </div>
+
+      <ul className="print-skills" aria-label="All expertise and technologies">
+        {skills.map((skill) => (
+          <li key={skill.id}>
+            <strong>{skill.name}</strong>
+            <span>{skill.tech.join(" · ")}</span>
+          </li>
+        ))}
+      </ul>
 
       <p
         aria-live="polite"

@@ -351,3 +351,155 @@
       transparent 100%
     );
 }
+
+.print-skills {
+  display: none;
+}
+
+@media print {
+  @page {
+    margin: 16mm;
+  }
+
+  html,
+  body {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+    color: #151515 !important;
+    cursor: auto !important;
+    print-color-adjust: economy;
+  }
+
+  body > a[href="#main"],
+  header,
+  nav,
+  canvas,
+  .star-map-fallback,
+  .pointer-events-none.fixed.inset-0.z-0,
+  .obs-vignette,
+  .obs-reticle,
+  .warp-overlay,
+  .print-action,
+  [role="progressbar"] {
+    display: none !important;
+  }
+
+  #main,
+  #main section {
+    position: static !important;
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    background: #fff !important;
+    color: #151515 !important;
+  }
+
+  #main section {
+    margin: 0 !important;
+    padding: 0 0 12mm !important;
+    break-after: page;
+  }
+
+  #main section:last-of-type {
+    break-after: auto;
+  }
+
+  #main .pin-spacer {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #main button,
+  #main input,
+  #main fieldset {
+    display: none !important;
+  }
+
+  #main * {
+    border-color: #b8b8b8 !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    color: #151515 !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  #main .hero-fade,
+  #main [class*="-reveal"],
+  #main .exp-entry,
+  #main .hero-line,
+  #main .project-constellation-path,
+  #main .project-constellation-star {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+  }
+
+  #main .project-constellation-path {
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+
+  #main .exp-node {
+    opacity: 1 !important;
+  }
+
+  #main .contact-reveal.absolute {
+    position: static !important;
+  }
+
+  #main .expertise-solar-system {
+    display: none !important;
+  }
+
+  #main .print-skills {
+    display: block !important;
+    margin: 0 auto;
+    max-width: 180mm;
+    list-style: none;
+    padding: 0;
+  }
+
+  #main .print-skills li {
+    display: grid;
+    grid-template-columns: 38mm 1fr;
+    gap: 6mm;
+    border-bottom: 1px solid #b8b8b8;
+    padding: 3mm 0;
+    break-inside: avoid;
+  }
+
+  #main .project-stage,
+  #main .projects-pinned .project-stage {
+    display: block !important;
+    min-height: 0 !important;
+  }
+
+  #main .project-slide,
+  #main .projects-pinned .project-slide {
+    display: grid !important;
+    grid-area: auto !important;
+    border-top-width: 1px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    break-inside: avoid;
+  }
+
+  #main details:not([open]) > :not(summary) {
+    display: block !important;
+  }
+
+  #main h1,
+  #main h2,
+  #main h3 {
+    break-after: avoid;
+  }
+}
