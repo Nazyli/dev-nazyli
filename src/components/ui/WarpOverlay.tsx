@@ -1,7 +1,25 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+} from "react";
 import { useEntrance } from "@/components/providers/EntranceProvider";
+
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+function subscribeToMotionPreference(onChange: () => void) {
+  const media = window.matchMedia(REDUCED_MOTION_QUERY);
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
+}
+
+function getMotionPreference() {
+  return window.matchMedia(REDUCED_MOTION_QUERY).matches;
+}
 
 type Streak = {
   angle: number;
@@ -47,31 +65,29 @@ export function WarpOverlay() {
   const [leaving, setLeaving] = useState(false);
   const [gone, setGone] = useState(false);
   const startRef = useRef(0);
-  const reducedRef = useRef(false);
+  const reducedMotion = useSyncExternalStore(
+    subscribeToMotionPreference,
+    getMotionPreference,
+    () => false,
+  );
 
   useEffect(() => {
     startRef.current = Date.now();
-    reducedRef.current = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
   }, []);
 
   useEffect(() => {
-    const timeout = window.setTimeout(
+    if (leaving) return;
+
+    const timeout = reducedMotion ? TIMEOUT_REDUCED : TIMEOUT;
+    const readyMinimum = reducedMotion ? READY_MIN_REDUCED : READY_MIN;
+    const deadline =
+      startRef.current + Math.min(timeout, ready ? readyMinimum : timeout);
+    const timer = window.setTimeout(
       () => setLeaving(true),
-      reducedRef.current ? TIMEOUT_REDUCED : TIMEOUT
+      Math.max(0, deadline - Date.now()),
     );
-    return () => window.clearTimeout(timeout);
-  }, []);
-
-  useEffect(() => {
-    if (!ready) return;
-    const elapsed = Date.now() - startRef.current;
-    const min = reducedRef.current ? READY_MIN_REDUCED : READY_MIN;
-    const delay = Math.max(0, min - elapsed);
-    const timer = window.setTimeout(() => setLeaving(true), delay);
     return () => window.clearTimeout(timer);
-  }, [ready]);
+  }, [ready, reducedMotion, leaving]);
 
   useEffect(() => {
     if (!leaving) return;
