@@ -15,6 +15,15 @@ import { SurveySatellite } from "./SurveySatellite";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
+function subscribeToVisibility(onChange: () => void) {
+  document.addEventListener("visibilitychange", onChange);
+  return () => document.removeEventListener("visibilitychange", onChange);
+}
+
+function isDocumentVisible() {
+  return document.visibilityState === "visible";
+}
+
 function subscribeToMotionPreference(onChange: () => void) {
   const media = window.matchMedia(REDUCED_MOTION_QUERY);
   media.addEventListener("change", onChange);
@@ -56,6 +65,11 @@ export function SpaceScene({ onReady }: { onReady?: () => void }) {
     getMotionPreference,
     () => false,
   );
+  const pageVisible = useSyncExternalStore(
+    subscribeToVisibility,
+    isDocumentVisible,
+    () => true,
+  );
 
   if (!webgl) {
     return (
@@ -69,7 +83,9 @@ export function SpaceScene({ onReady }: { onReady?: () => void }) {
       className="pointer-events-none fixed inset-0 z-0"
     >
       <Canvas
-        frameloop={reducedMotion ? "demand" : "always"}
+        frameloop={
+          !pageVisible ? "never" : reducedMotion ? "demand" : "always"
+        }
         dpr={[1, 1.75]}
         gl={{ antialias: true, powerPreference: "high-performance" }}
         camera={{ fov: 55, near: 0.1, far: 500, position: [0, 0, -46] }}
