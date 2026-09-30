@@ -12,6 +12,7 @@ export function Projects() {
   const projectTimeline = useRef<gsap.core.Timeline | null>(null);
   const activeProjectRef = useRef(0);
   const [activeProject, setActiveProject] = useState(0);
+  const [shareStatus, setShareStatus] = useState("");
   const navigateToProject = useCallback((index: number, updateHistory = true) => {
     const project = publishedProjects[index];
     if (!project) return;
@@ -22,6 +23,7 @@ export function Projects() {
     ).matches;
     activeProjectRef.current = index;
     setActiveProject(index);
+    setShareStatus("");
 
     const section = root.current;
     if (!section) return;
@@ -69,6 +71,39 @@ export function Projects() {
 
   const selectProject = (index: number) => {
     navigateToProject(index);
+  };
+  const shareSelectedProject = async () => {
+    const project = publishedProjects[activeProject];
+    if (!project) return;
+
+    setShareStatus("");
+    updateProjectHash(activeProject, true);
+    const url = new URL(window.location.href);
+    url.hash = `project-${project.id}`;
+    const link = url.toString();
+    const copyLink = () => navigator.clipboard.writeText(link);
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: project.title,
+          text: project.description,
+          url: link,
+        });
+        setShareStatus("Project link shared.");
+        return;
+      }
+      await copyLink();
+      setShareStatus("Project link copied.");
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") return;
+      try {
+        await copyLink();
+        setShareStatus("Project link copied.");
+      } catch {
+        setShareStatus("Sharing unavailable. Project URL is in the address bar.");
+      }
+    }
   };
 
   useGSAP(
@@ -155,6 +190,7 @@ export function Projects() {
                 if (activeProjectRef.current !== activeIndex) {
                   activeProjectRef.current = activeIndex;
                   setActiveProject(activeIndex);
+                  setShareStatus("");
                   if (getProjectIndexFromHash(window.location.hash) >= 0) {
                     updateProjectHash(activeIndex, true);
                   }
@@ -313,23 +349,51 @@ export function Projects() {
               {String(publishedProjects.length).padStart(2, "0")} published
               project records
             </p>
-            {publishedProjects.length > 1 && (
-              <nav className="mt-5 flex flex-wrap gap-2" aria-label="Project index">
-                {publishedProjects.map((project, index) => (
-                  <a
-                    key={project.id}
-                    href={`#project-${project.id}`}
-                    data-project-index={index}
-                    aria-label={`Go to project ${index + 1}: ${project.title}`}
-                    aria-current={activeProject === index ? "step" : undefined}
-                    onClick={() => selectProject(index)}
-                    className="flex min-h-11 items-center border border-indigo/70 px-3 font-mono text-[10px] uppercase tracking-[0.18em] text-starlight/65 transition-colors hover:border-accent/60 hover:text-accent focus-visible:text-accent aria-[current=step]:border-gold/60 aria-[current=step]:text-gold"
-                  >
-                    {String(index + 1).padStart(2, "0")}
-                  </a>
-                ))}
-              </nav>
-            )}
+            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
+              {publishedProjects.length > 1 && (
+                <nav className="flex flex-wrap gap-2" aria-label="Project index">
+                  {publishedProjects.map((project, index) => (
+                    <a
+                      key={project.id}
+                      href={`#project-${project.id}`}
+                      data-project-index={index}
+                      aria-label={`Go to project ${index + 1}: ${project.title}`}
+                      aria-current={activeProject === index ? "step" : undefined}
+                      onClick={() => selectProject(index)}
+                      className="flex min-h-11 items-center border border-indigo/70 px-3 font-mono text-[10px] uppercase tracking-[0.18em] text-starlight/65 transition-colors hover:border-accent/60 hover:text-accent focus-visible:text-accent aria-[current=step]:border-gold/60 aria-[current=step]:text-gold"
+                    >
+                      {String(index + 1).padStart(2, "0")}
+                    </a>
+                  ))}
+                </nav>
+              )}
+              {publishedProjects.length > 0 && (
+                <button
+                  type="button"
+                  onClick={shareSelectedProject}
+                  aria-label={`Share ${publishedProjects[activeProject].title}`}
+                  className="inline-flex min-h-11 items-center gap-2 border border-accent/45 px-3 font-mono text-[9px] uppercase tracking-[0.16em] text-accent transition-colors hover:bg-accent/10 focus-visible:bg-accent/10 motion-reduce:transition-none"
+                >
+                  <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5">
+                    <path
+                      d="M6 10 10.5 5.5M6.5 4.5l1.8-1.8a3 3 0 0 1 4.2 4.2l-1.8 1.8M9.5 11.5l-1.8 1.8a3 3 0 0 1-4.2-4.2l1.8-1.8"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1"
+                    />
+                  </svg>
+                  Share selected build
+                </button>
+              )}
+            </div>
+            <p
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              className="mt-2 min-h-5 font-mono text-[9px] uppercase tracking-[0.16em] text-starlight/60"
+            >
+              {shareStatus}
+            </p>
           </div>
 
           {publishedProjects.length > 0 ? (
