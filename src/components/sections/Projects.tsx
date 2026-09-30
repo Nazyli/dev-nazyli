@@ -84,7 +84,11 @@ export function Projects() {
       requestAnimationFrame(() => requestAnimationFrame(navigateFromHash));
     }
     window.addEventListener("popstate", navigateFromHash);
-    return () => window.removeEventListener("popstate", navigateFromHash);
+    window.addEventListener("hashchange", navigateFromHash);
+    return () => {
+      window.removeEventListener("popstate", navigateFromHash);
+      window.removeEventListener("hashchange", navigateFromHash);
+    };
   }, [navigateToProject]);
 
   useEffect(() => {

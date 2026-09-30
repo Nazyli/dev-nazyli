@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
-import { skills } from "@/data/skills";
+import { certificates } from "@/data/certificates";
+import { publishedProjects } from "@/data/projects";
+import { getSkillForTechnology, skills } from "@/data/skills";
 import { getSkillIdFromHash } from "@/lib/skillNavigation";
 import { SkillPlanet } from "@/components/ui/SkillPlanet";
 import { DataPlate, DataRow } from "@/components/ui/DataPlate";
@@ -41,6 +43,20 @@ export function Expertise() {
   }, [selectSkill]);
 
   const active = skills.find((skill) => skill.id === activeId) ?? null;
+  const relatedProjects = active
+    ? publishedProjects.filter((project) =>
+        project.technologies?.some(
+          (technology) => getSkillForTechnology(technology)?.id === active.id,
+        ),
+      )
+    : [];
+  const relatedCertificates = active
+    ? certificates.filter((certificate) =>
+        certificate.skills.some(
+          (technology) => getSkillForTechnology(technology)?.id === active.id,
+        ),
+      )
+    : [];
 
   const shareActiveSkill = async () => {
     if (!active) return;
@@ -233,6 +249,55 @@ export function Expertise() {
           />
         ))}
       </div>
+
+      {active && (relatedProjects.length > 0 || relatedCertificates.length > 0) && (
+        <div
+          role="region"
+          aria-labelledby={`skill-evidence-title-${active.id}`}
+          className="mt-8 w-full max-w-2xl border-y border-indigo/40"
+        >
+          <h3
+            id={`skill-evidence-title-${active.id}`}
+            className="px-1 py-2 font-mono text-[9px] uppercase tracking-[0.25em] text-gold"
+          >
+            Evidence records · {active.name}
+          </h3>
+          <ul className="divide-y divide-indigo/30">
+            {relatedProjects.map((project) => (
+              <li key={`project-${project.id}`}>
+                <a
+                  href={`#project-${project.id}`}
+                  aria-label={`View project record: ${project.title}`}
+                  className="flex min-h-11 items-center justify-between gap-4 px-1 py-2 text-starlight/80 transition-colors hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                >
+                  <span className="font-display text-sm tracking-tight">
+                    {project.title}
+                  </span>
+                  <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.18em] text-starlight/55">
+                    Project record
+                  </span>
+                </a>
+              </li>
+            ))}
+            {relatedCertificates.map((certificate) => (
+              <li key={`credential-${certificate.no}`}>
+                <a
+                  href={`#credential-${certificate.no}`}
+                  aria-label={`View credential record: ${certificate.title}`}
+                  className="flex min-h-11 items-center justify-between gap-4 px-1 py-2 text-starlight/80 transition-colors hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                >
+                  <span className="font-display text-sm tracking-tight">
+                    {certificate.title}
+                  </span>
+                  <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.18em] text-starlight/55">
+                    Credential · REC-{String(certificate.no).padStart(2, "0")}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <ul className="print-skills" aria-label="All expertise and technologies">
         {skills.map((skill) => (
