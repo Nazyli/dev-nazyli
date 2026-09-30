@@ -157,6 +157,15 @@ export function Contact() {
         Share portfolio
       </button>
 
+      <a
+        href="/evry-nazyli.vcf"
+        download
+        aria-label="Download Evry Nazyli’s contact card"
+        className="print-action contact-reveal mt-3 inline-flex min-h-11 items-center border border-indigo/50 px-4 font-mono text-[10px] uppercase tracking-[0.2em] text-starlight/75 transition-colors hover:border-accent/60 hover:text-accent focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
+      >
+        Save contact
+      </a>
+
       <p
         role="status"
         aria-live="polite"
