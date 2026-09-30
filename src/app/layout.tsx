@@ -1,25 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { fontVariables } from "./fonts";
 import "./globals.css";
 
 const SITE_URL = "https://nazyli.com";
 const SITE_DESCRIPTION =
   "Portfolio of Evry Nazyli, AI Engineer. A journey through the universe - intelligent systems, LLM applications, and backend engineering.";
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -82,7 +67,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable} antialiased`}
+      className={`${fontVariables} antialiased`}
     >
       <body className="min-h-dvh bg-void text-starlight">
         <script
