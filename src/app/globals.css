@@ -104,6 +104,10 @@
 }
 
 @media (max-width: 639px) {
+  #s-expertise [style*="--solar"] {
+    --solar: min(64vw, 620px, max(16rem, calc(100svh - 17rem))) !important;
+  }
+
   .skill-orbit-node {
     --skill-orbit-offset: calc(var(--solar) * 0.415) !important;
   }

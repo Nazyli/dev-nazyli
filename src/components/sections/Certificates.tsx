@@ -1,35 +1,6 @@
-import { buildConstellationPath, certificates } from "@/data/certificates";
+import { CertificateArchive } from "@/components/sections/CertificateArchive";
+import { certificates } from "@/data/certificates";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-
-function ConstellationMark({
-  certificate,
-}: {
-  certificate: (typeof certificates)[number];
-}) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 100 100"
-      className="h-12 w-12 shrink-0 sm:h-14 sm:w-14"
-    >
-      <path
-        d={buildConstellationPath(certificate)}
-        className="fill-none stroke-indigo"
-        strokeWidth="1"
-        vectorEffect="non-scaling-stroke"
-      />
-      {certificate.constellation.stars.map(([x, y], index) => (
-        <circle
-          key={`${x}-${y}-${index}`}
-          cx={x}
-          cy={y}
-          r={index % 3 === 0 ? 2.1 : 1.35}
-          className={index % 3 === 0 ? "fill-gold" : "fill-starlight/70"}
-        />
-      ))}
-    </svg>
-  );
-}
 
 export function Certificates() {
   return (
@@ -59,62 +30,7 @@ export function Certificates() {
           </div>
 
           {certificates.length > 0 ? (
-            <div className="border-y border-indigo/40">
-              {certificates.map((certificate, index) => (
-                <details
-                  key={certificate.no}
-                  className="group border-b border-indigo/30 last:border-b-0"
-                >
-                  <summary className="flex cursor-pointer list-none items-center gap-4 py-5 marker:hidden focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-accent sm:gap-6 sm:py-6 [&::-webkit-details-marker]:hidden">
-                    <ConstellationMark certificate={certificate} />
-                    <span className="min-w-0 flex-1">
-                      <span className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
-                        <span className="font-display text-lg font-medium leading-snug tracking-tight text-starlight sm:text-xl">
-                          {certificate.title}
-                        </span>
-                        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-gold">
-                          REC-{String(index + 1).padStart(2, "0")}
-                        </span>
-                      </span>
-                      <span className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[9px] uppercase tracking-[0.18em] text-starlight/60 sm:text-[10px]">
-                        <span>{certificate.provider}</span>
-                        <span aria-hidden="true">/</span>
-                        <span>
-                          {certificate.from} — {certificate.to ?? "Expiry not listed"}
-                        </span>
-                      </span>
-                    </span>
-                    <svg
-                      aria-hidden="true"
-                      viewBox="0 0 16 16"
-                      className="h-4 w-4 shrink-0 text-accent transition-transform duration-200 group-open:rotate-45"
-                    >
-                      <path
-                        d="M8 2.5v11M2.5 8h11"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1"
-                      />
-                    </svg>
-                  </summary>
-                  <div className="ml-16 border-l border-gold/40 bg-abyss/95 px-4 py-4 sm:ml-20">
-                    <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-starlight/55">
-                      Skills covered · {certificate.skills.length}
-                    </p>
-                    <ul className="mt-3 flex flex-wrap gap-2">
-                      {certificate.skills.map((skill) => (
-                        <li
-                          key={skill}
-                          className="max-w-full border border-indigo/40 bg-void/50 px-2 py-1 font-mono text-[9px] leading-relaxed text-starlight/75"
-                        >
-                          {skill}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </details>
-              ))}
-            </div>
+            <CertificateArchive certificates={certificates} />
           ) : (
             <p className="border-y border-indigo/40 py-10 font-mono text-xs uppercase tracking-[0.2em] text-starlight/65">
               No certificate records have been added yet.

@@ -27,34 +27,47 @@ export function SkillPlanet({
   const pointerType = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!spinRef.current || !labelRef.current) return;
-    if (
-      window.matchMedia(
-        "(prefers-reduced-motion: reduce), (max-width: 639px)"
-      ).matches
-    ) {
-      return;
-    }
+    const spinElement = spinRef.current;
+    const labelElement = labelRef.current;
+    if (!spinElement || !labelElement) return;
 
-    const duration = 90 / skill.speed;
-    const spin = gsap.to(spinRef.current, {
-      rotation: skill.angleDeg + 360,
-      duration,
-      repeat: -1,
-      ease: "none",
-    });
-    const label = gsap.to(labelRef.current, {
-      rotation: -skill.angleDeg - 360,
-      duration,
-      repeat: -1,
-      ease: "none",
-    });
-    spinTween.current = spin;
-    labelTween.current = label;
+    const staticLayout = window.matchMedia(
+      "(prefers-reduced-motion: reduce), (max-width: 639px)",
+    );
+    const syncOrbit = () => {
+      spinTween.current?.kill();
+      labelTween.current?.kill();
+      spinTween.current = null;
+      labelTween.current = null;
+
+      gsap.set(spinElement, { rotation: skill.angleDeg });
+      gsap.set(labelElement, { rotation: -skill.angleDeg });
+      if (staticLayout.matches) return;
+
+      const duration = 90 / skill.speed;
+      spinTween.current = gsap.to(spinElement, {
+        rotation: skill.angleDeg + 360,
+        duration,
+        repeat: -1,
+        ease: "none",
+      });
+      labelTween.current = gsap.to(labelElement, {
+        rotation: -skill.angleDeg - 360,
+        duration,
+        repeat: -1,
+        ease: "none",
+      });
+    };
+
+    syncOrbit();
+    staticLayout.addEventListener("change", syncOrbit);
 
     return () => {
-      spin.kill();
-      label.kill();
+      staticLayout.removeEventListener("change", syncOrbit);
+      spinTween.current?.kill();
+      labelTween.current?.kill();
+      spinTween.current = null;
+      labelTween.current = null;
     };
   }, [skill]);
 

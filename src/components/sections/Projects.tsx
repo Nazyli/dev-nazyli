@@ -1,12 +1,58 @@
 "use client";
 
-import { useRef } from "react";
+import { type MouseEvent, useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { buildConstellationPath, publishedProjects } from "@/data/projects";
+import { scrollController } from "@/lib/scrollController";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export function Projects() {
   const root = useRef<HTMLElement>(null);
+  const projectTimeline = useRef<gsap.core.Timeline | null>(null);
+  const activeProjectRef = useRef(0);
+  const [activeProject, setActiveProject] = useState(0);
+  const selectProject = (event: MouseEvent<HTMLAnchorElement>, index: number) => {
+    event.preventDefault();
+    const isPinnedDesktop = window.matchMedia(
+      "(prefers-reduced-motion: no-preference) and (min-width: 1024px)",
+    ).matches;
+    if (activeProjectRef.current !== index) {
+      activeProjectRef.current = index;
+      setActiveProject(index);
+    }
+    const section = root.current;
+    if (!section) return;
+    if (!isPinnedDesktop) {
+      const project = publishedProjects[index];
+      document
+        .getElementById(`project-${project.id}`)
+        ?.scrollIntoView({
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            ? "auto"
+            : "smooth",
+          block: "center",
+        });
+      return;
+    }
+    const label = `project-${String(index + 1).padStart(2, "0")}`;
+    const timeline = projectTimeline.current;
+    const trigger = timeline?.scrollTrigger;
+    const labelTime = timeline?.labels[label];
+    if (!timeline || !trigger || labelTime === undefined) {
+      section.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+    const start =
+      trigger.start || section.getBoundingClientRect().top + window.scrollY;
+    const end = trigger.end || start + window.innerHeight * publishedProjects.length;
+    const destination = start + (end - start) * (labelTime / timeline.duration());
+
+    if (scrollController.lenis) {
+      scrollController.lenis.scrollTo(destination, { duration: 0.8 });
+    } else {
+      window.scrollTo({ top: destination, behavior: "smooth" });
+    }
+  };
 
   useGSAP(
     () => {
@@ -41,19 +87,31 @@ export function Projects() {
           const paths = slides.map((slide) =>
             slide.querySelector<SVGPathElement>(".project-constellation-path"),
           );
+          const stars = slides.map((slide) =>
+            slide.querySelectorAll<SVGCircleElement>(
+              ".project-constellation-star",
+            ),
+          );
 
-          paths.forEach((path) => {
-            if (!path) return;
-            const length = path.getTotalLength();
-            gsap.set(path, {
-              strokeDasharray: length,
-              strokeDashoffset: length,
+          paths.forEach((path, index) => {
+            if (path) {
+              const length = path.getTotalLength();
+              gsap.set(path, {
+                strokeDasharray: length,
+                strokeDashoffset: length,
+              });
+            }
+            gsap.set(stars[index], {
+              autoAlpha: 0,
+              scale: 0.6,
+              transformOrigin: "50% 50%",
             });
           });
           gsap.set(slides.slice(1), { autoAlpha: 0, y: 18 });
 
           const timeline = gsap.timeline({
             scrollTrigger: {
+              id: "project-carousel",
               trigger: section,
               start: "top top",
               end: () => `+=${window.innerHeight * slides.length}`,
@@ -67,13 +125,40 @@ export function Projects() {
               },
               anticipatePin: 1,
               invalidateOnRefresh: true,
+              onUpdate: () => {
+                let activeIndex = 0;
+                let activeOpacity = -1;
+                slides.forEach((slide, index) => {
+                  const opacity = Number(gsap.getProperty(slide, "opacity"));
+                  if (opacity > activeOpacity) {
+                    activeOpacity = opacity;
+                    activeIndex = index;
+                  }
+                });
+                if (activeProjectRef.current !== activeIndex) {
+                  activeProjectRef.current = activeIndex;
+                  setActiveProject(activeIndex);
+                }
+              },
             },
           });
+          projectTimeline.current = timeline;
 
           timeline.addLabel("project-01", 0.25);
           if (paths[0]) {
             timeline.to(paths[0], { strokeDashoffset: 0, duration: 0.25 });
           }
+          timeline.to(
+            stars[0],
+            {
+              autoAlpha: 1,
+              scale: 1,
+              duration: 0.12,
+              stagger: 0.035,
+              ease: "power2.out",
+            },
+            0.42,
+          );
 
           slides.slice(1).forEach((slide, index) => {
             const transition = index + 0.7;
@@ -96,6 +181,17 @@ export function Projects() {
                 transition + 0.15,
               );
             }
+            timeline.to(
+              stars[index + 1],
+              {
+                autoAlpha: 1,
+                scale: 1,
+                duration: 0.12,
+                stagger: 0.035,
+                ease: "power2.out",
+              },
+              transition + 0.42,
+            );
             timeline.addLabel(
               `project-${String(index + 2).padStart(2, "0")}`,
               transition + 0.4,
@@ -104,7 +200,10 @@ export function Projects() {
           timeline.to({}, { duration: 1 }, slides.length - 1);
           timeline.addLabel("project-end", timeline.duration());
 
-          return () => section.classList.remove("projects-pinned");
+          return () => {
+            projectTimeline.current = null;
+            section.classList.remove("projects-pinned");
+          };
         },
       );
 
@@ -115,20 +214,47 @@ export function Projects() {
             .toArray<SVGPathElement>(".project-constellation-path", root.current)
             .forEach((path) => {
               const length = path.getTotalLength();
+              const stars = path
+                .closest("svg")
+                ?.querySelectorAll<SVGCircleElement>(
+                  ".project-constellation-star",
+                );
               gsap.set(path, {
                 strokeDasharray: length,
                 strokeDashoffset: length,
               });
-              gsap.to(path, {
-                strokeDashoffset: 0,
-                duration: 1.4,
-                ease: "power2.out",
+              if (stars) {
+                gsap.set(stars, {
+                  autoAlpha: 0,
+                  scale: 0.6,
+                  transformOrigin: "50% 50%",
+                });
+              }
+              const timeline = gsap.timeline({
                 scrollTrigger: {
                   trigger: path,
                   start: "top 78%",
                   once: true,
                 },
               });
+              timeline.to(path, {
+                strokeDashoffset: 0,
+                duration: 1.1,
+                ease: "power2.out",
+              });
+              if (stars) {
+                timeline.to(
+                  stars,
+                  {
+                    autoAlpha: 1,
+                    scale: 1,
+                    duration: 0.18,
+                    stagger: 0.055,
+                    ease: "power2.out",
+                  },
+                  "-=0.12",
+                );
+              }
             });
         },
       );
@@ -167,6 +293,23 @@ export function Projects() {
               {String(publishedProjects.length).padStart(2, "0")} published
               project records
             </p>
+            {publishedProjects.length > 1 && (
+              <nav className="mt-5 flex flex-wrap gap-2" aria-label="Project index">
+                {publishedProjects.map((project, index) => (
+                  <a
+                    key={project.id}
+                    href={`#project-${project.id}`}
+                    data-project-index={index}
+                    aria-label={`Go to project ${index + 1}: ${project.title}`}
+                    aria-current={activeProject === index ? "step" : undefined}
+                    onClick={(event) => selectProject(event, index)}
+                    className="flex min-h-11 items-center border border-indigo/70 px-3 font-mono text-[10px] uppercase tracking-[0.18em] text-starlight/65 transition-colors hover:border-accent/60 hover:text-accent focus-visible:text-accent aria-[current=step]:border-gold/60 aria-[current=step]:text-gold"
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </a>
+                ))}
+              </nav>
+            )}
           </div>
 
           {publishedProjects.length > 0 ? (
@@ -174,13 +317,14 @@ export function Projects() {
               {publishedProjects.map((project) => (
                 <article
                   key={project.id}
+                  id={`project-${project.id}`}
                   className="project-slide grid gap-5 py-7 sm:grid-cols-[112px_1fr] sm:gap-7"
                 >
                   {project.constellation && (
                     <svg
                       aria-hidden="true"
                       viewBox="0 0 100 100"
-                      className="h-20 w-20 self-center"
+                      className="project-constellation h-20 w-20 self-center"
                     >
                       <path
                         d={buildConstellationPath(project.constellation)}
@@ -194,7 +338,7 @@ export function Projects() {
                           cx={x}
                           cy={y}
                           r={index % 3 === 0 ? 2 : 1.25}
-                          className="fill-gold"
+                          className="project-constellation-star fill-gold"
                         />
                       ))}
                     </svg>

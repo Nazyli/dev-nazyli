@@ -2,6 +2,10 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
+const SITE_URL = "https://nazyli.com";
+const SITE_DESCRIPTION =
+  "Portfolio of Evry Nazyli, AI Engineer. A journey through the universe - intelligent systems, LLM applications, and backend engineering.";
+
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin"],
@@ -18,15 +22,24 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://nazyli.com"),
+  metadataBase: new URL(SITE_URL),
+  alternates: { canonical: "/" },
   title: "Evry Nazyli - AI Engineer",
-  description:
-    "Portfolio of Evry Nazyli, AI Engineer. A journey through the universe - intelligent systems, LLM applications, and backend engineering.",
+  description: SITE_DESCRIPTION,
   applicationName: "Nazyli Universe",
+  authors: [{ name: "Evry Nazyli", url: SITE_URL }],
+  creator: "Evry Nazyli",
+  keywords: [
+    "Evry Nazyli",
+    "AI Engineer",
+    "LLM systems",
+    "Voice AI",
+    "Backend engineering",
+  ],
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://nazyli.com",
+    url: SITE_URL,
     siteName: "Nazyli Universe",
     title: "Evry Nazyli - AI Engineer",
     description: "A journey through the universe of Evry Nazyli, AI Engineer.",
@@ -52,12 +65,32 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Evry Nazyli",
+    url: SITE_URL,
+    jobTitle: "AI Engineer",
+    description: SITE_DESCRIPTION,
+    knowsAbout: ["LLM systems", "Voice AI", "Backend engineering"],
+    sameAs: [
+      "https://github.com/Nazyli",
+      "https://www.linkedin.com/in/evrynazyli/",
+    ],
+  };
+
   return (
     <html
       lang="en"
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable} antialiased`}
     >
       <body className="min-h-dvh bg-void text-starlight">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+          }}
+        />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-abyss focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase focus:tracking-[0.25em] focus:text-accent"

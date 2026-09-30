@@ -57,7 +57,16 @@ export function ShootingStar() {
   const texture = useMemo(() => makeStreakTexture(), []);
 
   useFrame((state, delta) => {
-    if (universeState.reducedMotion || !mesh.current || !texture) return;
+    if (!mesh.current || !texture) return;
+    if (universeState.reducedMotion) {
+      mesh.current.visible = false;
+      (mesh.current.material as THREE.MeshBasicMaterial).opacity = 0;
+      active.current = false;
+      elapsed.current = 0;
+      countdown.current = 2;
+      return;
+    }
+
     const camera = state.camera;
 
     if (!active.current) {

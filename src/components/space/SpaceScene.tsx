@@ -11,6 +11,7 @@ import { Planet } from "./Planet";
 import { ShootingStar } from "./ShootingStar";
 import { SpaceCamera } from "./SpaceCamera";
 import { Stars } from "./Stars";
+import { SurveySatellite } from "./SurveySatellite";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
@@ -83,6 +84,7 @@ export function SpaceScene({ onReady }: { onReady?: () => void }) {
         <ShootingStar />
         <Planet position={[3.4, 0.8, -26]} radius={1} />
         <Earth position={[7, 12.2, 150]} radius={5.5} />
+        <SurveySatellite />
         <SpaceCamera />
         <ReadySignal onReady={onReady} reducedMotion={reducedMotion} />
       </Canvas>

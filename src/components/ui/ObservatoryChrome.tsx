@@ -50,8 +50,43 @@ function useJakartaClock() {
 export function ObservatoryChrome() {
   const clock = useJakartaClock();
   const [active, setActive] = useState(0);
+  const journeyProgress = useRef<HTMLDivElement>(null);
   const pendingInitialRoute = useRef<string | null>(null);
-  const ratios = useRef<number[]>(SECTIONS.map(() => 0));
+
+  useEffect(() => {
+    const progress = journeyProgress.current;
+    if (!progress) return;
+
+    let frame = 0;
+    const updateProgress = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const scrollableHeight =
+          document.documentElement.scrollHeight - window.innerHeight;
+        const value =
+          scrollableHeight > 0
+            ? Math.max(
+                0,
+                Math.min(100, Math.round((window.scrollY / scrollableHeight) * 100)),
+              )
+            : 0;
+        progress.setAttribute("aria-valuenow", String(value));
+        progress.setAttribute("aria-valuetext", `${value}% complete`);
+        const fill = progress.firstElementChild;
+        if (fill instanceof HTMLElement) fill.style.width = `${value}%`;
+      });
+    };
+
+    updateProgress();
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    window.addEventListener("resize", updateProgress);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", updateProgress);
+      window.removeEventListener("resize", updateProgress);
+    };
+  }, []);
 
   useEffect(() => {
     const els = SECTIONS.map((s) => document.getElementById(s.id)).filter(
@@ -59,48 +94,54 @@ export function ObservatoryChrome() {
     );
     if (els.length === 0) return;
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const idx = SECTIONS.findIndex((s) => s.id === entry.target.id);
-          if (idx === -1) return;
-          ratios.current[idx] = entry.isIntersecting
-            ? entry.intersectionRatio
-            : 0;
-        });
-        let best = -1;
-        let bestRatio = 0;
-        ratios.current.forEach((ratio, i) => {
-          if (ratio > bestRatio) {
-            bestRatio = ratio;
-            best = i;
-          }
-        });
-        if (best >= 0) {
-          const id = SECTIONS[best].id;
-          if (pendingInitialRoute.current && id !== pendingInitialRoute.current) {
-            return;
-          }
-          pendingInitialRoute.current = null;
-          setActive(best);
+    let frame = 0;
+    const updateActive = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const center = window.innerHeight / 2;
+        let best = 0;
+        let bestDistance = Number.POSITIVE_INFINITY;
 
-          if (window.location.hash !== `#${id}`) {
-            window.history.replaceState(
-              typeof window.history.state === "object" &&
-                window.history.state !== null
-                ? { ...window.history.state, section: id }
-                : { section: id },
-              "",
-              `#${id}`,
-            );
+        els.forEach((element, index) => {
+          const rect = element.getBoundingClientRect();
+          const distance =
+            rect.top <= center && rect.bottom >= center
+              ? 0
+              : Math.min(Math.abs(rect.top - center), Math.abs(rect.bottom - center));
+          if (distance < bestDistance) {
+            bestDistance = distance;
+            best = index;
           }
+        });
+
+        const id = SECTIONS[best].id;
+        if (pendingInitialRoute.current && id !== pendingInitialRoute.current) {
+          return;
         }
-      },
-      { rootMargin: "-42% 0px -42% 0px" }
-    );
+        pendingInitialRoute.current = null;
+        setActive((current) => (current === best ? current : best));
 
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+        if (window.location.hash !== `#${id}`) {
+          window.history.replaceState(
+            typeof window.history.state === "object" &&
+              window.history.state !== null
+              ? { ...window.history.state, section: id }
+              : { section: id },
+            "",
+            `#${id}`,
+          );
+        }
+      });
+    };
+
+    updateActive();
+    window.addEventListener("scroll", updateActive, { passive: true });
+    window.addEventListener("resize", updateActive);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", updateActive);
+      window.removeEventListener("resize", updateActive);
+    };
   }, []);
 
   useEffect(() => {
@@ -149,6 +190,18 @@ export function ObservatoryChrome() {
         </p>
 
         <p className="tabular-nums text-starlight/60">{clock ?? "--:--:-- WIB"}</p>
+        <div
+          ref={journeyProgress}
+          role="progressbar"
+          aria-label="Survey progress"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={0}
+          aria-valuetext="0% complete"
+          className="absolute inset-x-0 bottom-0 h-px bg-indigo/30"
+        >
+          <div className="h-full w-0 bg-accent transition-[width] duration-100 motion-reduce:transition-none" />
+        </div>
       </header>
 
       <nav

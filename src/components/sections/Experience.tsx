@@ -80,53 +80,55 @@ export function Experience() {
         </h2>
       </div>
 
-      <ol
-        aria-label="Career experience timeline"
-        className="relative mx-auto w-full max-w-4xl"
-      >
-        <div className="absolute bottom-0 left-[19px] top-0 w-px bg-indigo/30 md:left-1/2">
+      <div className="relative mx-auto w-full max-w-4xl">
+        <div
+          aria-hidden="true"
+          className="absolute bottom-0 left-[19px] top-0 w-px bg-indigo/30 md:left-1/2"
+        >
           <div
             ref={fillRef}
-            className="h-full w-full origin-top scale-y-0 bg-accent"
+            className="h-full w-full origin-top scale-y-0 bg-accent motion-reduce:scale-y-100"
           />
         </div>
 
-        {publishedExperience.map((entry, i) => {
-          const onLeft = i % 2 === 0;
-          return (
-            <li
-              key={entry.id}
-              className="exp-entry relative mb-20 pl-12 last:mb-0 md:grid md:grid-cols-2 md:gap-16 md:pl-0"
-            >
-              <span
-                aria-hidden="true"
-                className="exp-node absolute left-[19px] top-1 h-4 w-4 md:left-1/2 md:-translate-x-1/2"
+        <ol aria-label="Career experience timeline" className="relative">
+          {publishedExperience.map((entry, i) => {
+            const onLeft = i % 2 === 0;
+            return (
+              <li
+                key={entry.id}
+                className="exp-entry relative mb-20 pl-12 last:mb-0 md:grid md:grid-cols-2 md:gap-16 md:pl-0"
               >
-                <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-gold" />
-                <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-gold" />
-              </span>
-              <div
-                className={
-                  onLeft ? "md:col-start-1 md:text-right" : "md:col-start-2"
-                }
-              >
-                <p className="font-mono text-xs uppercase tracking-[0.35em] text-gold">
-                  {entry.period}
-                </p>
-                <h3 className="mt-3 font-display text-2xl font-medium tracking-tight text-starlight">
-                  {entry.role}
-                </h3>
-                <p className="mt-1 font-mono text-xs uppercase tracking-[0.25em] text-accent">
-                  {entry.company}
-                </p>
-                <p className="mt-4 text-sm leading-relaxed text-starlight/60">
-                  {entry.description}
-                </p>
-              </div>
-            </li>
-          );
-        })}
-      </ol>
+                <span
+                  aria-hidden="true"
+                  className="exp-node absolute left-[19px] top-1 h-4 w-4 md:left-1/2 md:-translate-x-1/2"
+                >
+                  <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-gold" />
+                  <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-gold" />
+                </span>
+                <div
+                  className={
+                    onLeft ? "md:col-start-1 md:text-right" : "md:col-start-2"
+                  }
+                >
+                  <p className="font-mono text-xs uppercase tracking-[0.35em] text-gold">
+                    {entry.period}
+                  </p>
+                  <h3 className="mt-3 font-display text-2xl font-medium tracking-tight text-starlight">
+                    {entry.role}
+                  </h3>
+                  <p className="mt-1 font-mono text-xs uppercase tracking-[0.25em] text-accent">
+                    {entry.company}
+                  </p>
+                  <p className="mt-4 text-sm leading-relaxed text-starlight/60">
+                    {entry.description}
+                  </p>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
     </section>
   );
 }
