@@ -58,6 +58,8 @@ export function CertificateArchive({
   const [query, setQuery] = useState("");
   const [provider, setProvider] = useState("All sources");
   const [validity, setValidity] = useState<ValidityFilter>("all");
+  const [copiedCertificate, setCopiedCertificate] = useState<number | null>(null);
+  const [copyStatus, setCopyStatus] = useState("");
   const providers = [
     "All sources",
     ...Array.from(new Set(certificates.map((certificate) => certificate.provider))),
@@ -86,6 +88,9 @@ export function CertificateArchive({
 
   return (
     <div>
+      <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+        {copyStatus}
+      </p>
       <div>
         <label
           htmlFor="credential-search"
@@ -236,6 +241,34 @@ export function CertificateArchive({
                       </li>
                     ))}
                   </ul>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const citation = [
+                        `${certificate.title} — ${certificate.provider}`,
+                        `Awarded: ${certificate.from}`,
+                        `Expiry: ${certificate.to ?? "Not listed"}`,
+                        `Skills: ${certificate.skills.join(", ")}`,
+                      ].join("\n");
+
+                      try {
+                        await navigator.clipboard.writeText(citation);
+                        setCopiedCertificate(certificate.no);
+                        setCopyStatus(`Citation for ${certificate.title} copied.`);
+                      } catch {
+                        setCopiedCertificate(null);
+                        setCopyStatus(
+                          `Clipboard unavailable. Copy the title, provider, dates, and skills for ${certificate.title} manually.`,
+                        );
+                      }
+                    }}
+                    aria-label={`Copy citation for ${certificate.title}`}
+                    className="mt-5 inline-flex min-h-11 items-center border border-indigo/50 px-3 font-mono text-[9px] uppercase tracking-[0.18em] text-starlight/70 transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                  >
+                    {copiedCertificate === certificate.no
+                      ? "Citation copied"
+                      : "Copy citation"}
+                  </button>
                 </div>
               </details>
             );
