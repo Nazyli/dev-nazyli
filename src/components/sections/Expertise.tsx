@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { skills } from "@/data/skills";
@@ -14,13 +14,18 @@ const TICKS = [0, 90, 180, 270];
 export function Expertise() {
   const root = useRef<HTMLElement>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [shareStatus, setShareStatus] = useState("");
+  const selectSkill = useCallback((skillId: string | null) => {
+    setActiveId(skillId);
+    setShareStatus("");
+  }, []);
 
   useEffect(() => {
     const activateSkillFromHash = () => {
       const skillId = getSkillIdFromHash(window.location.hash);
       if (!skillId) return;
 
-      setActiveId(skillId);
+      selectSkill(skillId);
       document.getElementById(`skill-${skillId}`)?.focus({ preventScroll: true });
     };
 
@@ -33,9 +38,41 @@ export function Expertise() {
       window.removeEventListener("hashchange", activateSkillFromHash);
       window.removeEventListener("popstate", activateSkillFromHash);
     };
-  }, []);
+  }, [selectSkill]);
 
   const active = skills.find((skill) => skill.id === activeId) ?? null;
+
+  const shareActiveSkill = async () => {
+    if (!active) return;
+
+    const url = new URL(window.location.href);
+    url.hash = `skill-${active.id}`;
+    const link = url.toString();
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `${active.name} expertise`,
+          text: `Explore ${active.class}: ${active.tech.join(", ")}.`,
+          url: link,
+        });
+        setShareStatus(`Skill link shared for ${active.name}.`);
+        return;
+      }
+
+      await navigator.clipboard.writeText(link);
+      setShareStatus(`Skill link copied for ${active.name}.`);
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") return;
+
+      try {
+        await navigator.clipboard.writeText(link);
+        setShareStatus(`Skill link copied for ${active.name}.`);
+      } catch {
+        setShareStatus("Sharing unavailable. Skill URL is in the address bar.");
+      }
+    }
+  };
 
   useGSAP(
     () => {
@@ -191,8 +228,8 @@ export function Expertise() {
             skill={skill}
             isActive={activeId === skill.id}
             isOrbitPaused={activeId !== null}
-            onActivate={() => setActiveId(skill.id)}
-            onDeactivate={() => setActiveId(null)}
+            onActivate={() => selectSkill(skill.id)}
+            onDeactivate={() => selectSkill(null)}
           />
         ))}
       </div>
@@ -210,14 +247,29 @@ export function Expertise() {
         Use the arrow keys to move between planets. Press Enter or Space to select one.
       </p>
 
-      <p
-        aria-live="polite"
-        className="pointer-events-none mt-8 font-mono text-center text-[10px] uppercase tracking-[0.3em] text-starlight/75"
-      >
-        {active
-          ? "Focus held · select another planet to explore"
-          : "Select a planet to view its details"}
-      </p>
+      <div className="mt-8 flex flex-col items-center gap-2">
+        <p
+          aria-live="polite"
+          className="pointer-events-none font-mono text-center text-[10px] uppercase tracking-[0.3em] text-starlight/75"
+        >
+          {active
+            ? "Focus held · select another planet to explore"
+            : "Select a planet to view its details"}
+        </p>
+        {active && (
+          <button
+            type="button"
+            onClick={shareActiveSkill}
+            aria-label={`Share ${active.name} expertise link`}
+            className="inline-flex min-h-11 items-center border border-accent/45 px-3 font-mono text-[9px] uppercase tracking-[0.16em] text-accent transition-colors hover:bg-accent/10 focus-visible:bg-accent/10 motion-reduce:transition-none"
+          >
+            Share skill link
+          </button>
+        )}
+        <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+          {shareStatus}
+        </p>
+      </div>
     </section>
   );
 }
