@@ -1,9 +1,60 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import type { KeyboardEvent } from "react";
 import type { CSSProperties } from "react";
 import { gsap } from "@/lib/gsap";
 import type { Skill } from "@/data/skills";
+
+const ARROW_DIRECTIONS = {
+  ArrowUp: [0, -1],
+  ArrowRight: [1, 0],
+  ArrowDown: [0, 1],
+  ArrowLeft: [-1, 0],
+} as const;
+
+function moveFocusAroundOrbit(event: KeyboardEvent<HTMLButtonElement>) {
+  const direction = ARROW_DIRECTIONS[event.key as keyof typeof ARROW_DIRECTIONS];
+  if (!direction) return;
+
+  const system = event.currentTarget.closest("[data-skill-system]");
+  if (!system) return;
+
+  const planets = Array.from(
+    system.querySelectorAll<HTMLButtonElement>("[data-skill-planet]"),
+  );
+  const current = event.currentTarget.getBoundingClientRect();
+  const currentX = current.left + current.width / 2;
+  const currentY = current.top + current.height / 2;
+  const [directionX, directionY] = direction;
+  const candidates = planets
+    .filter((planet) => planet !== event.currentTarget)
+    .map((planet) => {
+      const rect = planet.getBoundingClientRect();
+      const deltaX = rect.left + rect.width / 2 - currentX;
+      const deltaY = rect.top + rect.height / 2 - currentY;
+      const forward = deltaX * directionX + deltaY * directionY;
+      const cross = Math.abs(deltaX * directionY - deltaY * directionX);
+
+      return {
+        planet,
+        forward,
+        angle: Math.atan2(cross, forward),
+        distance: Math.hypot(deltaX, deltaY),
+      };
+    });
+
+  const forwardCandidates = candidates.filter((candidate) => candidate.forward > 0);
+  const target = forwardCandidates.length > 0
+    ? forwardCandidates.sort(
+        (a, b) => a.angle - b.angle || a.distance - b.distance,
+      )[0]?.planet
+    : candidates.sort((a, b) => a.forward - b.forward)[0]?.planet;
+
+  if (!target) return;
+  event.preventDefault();
+  target.focus();
+}
 
 type SkillPlanetProps = {
   skill: Skill;
@@ -91,9 +142,11 @@ export function SkillPlanet({
       >
         <button
           type="button"
+          data-skill-planet={skill.id}
           aria-label={skill.name}
-          aria-describedby={`skill-description-${skill.id}`}
+          aria-describedby={`skill-description-${skill.id} skill-navigation-help`}
           aria-pressed={isActive}
+          onKeyDown={moveFocusAroundOrbit}
           onPointerEnter={(event) => {
             if (event.pointerType !== "touch") onActivate();
           }}

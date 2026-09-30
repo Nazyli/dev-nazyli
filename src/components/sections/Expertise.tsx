@@ -60,6 +60,7 @@ export function Expertise() {
 
       <div
         className="expertise-solar-system expertise-reveal relative aspect-square w-[var(--solar)]"
+        data-skill-system
         style={{
           "--solar": "min(88vw, 620px, max(16rem, calc(100svh - 17rem)))",
         } as CSSProperties}
@@ -183,6 +184,10 @@ export function Expertise() {
           </li>
         ))}
       </ul>
+
+      <p id="skill-navigation-help" className="sr-only">
+        Use the arrow keys to move between planets. Press Enter or Space to select one.
+      </p>
 
       <p
         aria-live="polite"
