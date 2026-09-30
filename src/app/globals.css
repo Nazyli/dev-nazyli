@@ -13,6 +13,13 @@
   --font-mono: var(--font-jetbrains-mono);
 }
 
+@theme static {
+  --color-nebula-blue: #1e2a4a;
+  --color-nebula-teal: #12323e;
+  --color-dust: #2a4a5c;
+  --color-gold-muted: #c2a06a;
+}
+
 @layer base {
   body {
     background-color: var(--color-void);

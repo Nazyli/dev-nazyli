@@ -5,6 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
 import { makeAccretionDiskTexture } from "@/lib/textures";
+import { getSpaceColor } from "@/lib/spaceColors";
 
 const INNER = 1.4;
 const OUTER = 6.0;
@@ -61,7 +62,7 @@ export function AccretionDisk({
         <sprite scale={[1.2, 1.2, 1]}>
           <spriteMaterial
             map={coreTexture}
-            color="#c2a06a"
+            color={getSpaceColor("gold-muted")}
             transparent
             opacity={0.8}
             depthWrite={false}

@@ -4,6 +4,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
+import { getSpaceColor } from "@/lib/spaceColors";
 import {
   EARTH_CLOUD_URL,
   EARTH_TEXTURE_URL,
@@ -26,7 +27,7 @@ function Atmosphere({ radius }: { radius: number }) {
         side: THREE.BackSide,
         blending: THREE.AdditiveBlending,
         uniforms: {
-          uColor: { value: new THREE.Color("#66d9e8") },
+          uColor: { value: new THREE.Color(getSpaceColor("accent")) },
           uIntensity: { value: 0.6 },
         },
         vertexShader: `

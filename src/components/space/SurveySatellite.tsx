@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
+import { getSpaceColor } from "@/lib/spaceColors";
 
 const EARTH_ARRIVAL = 0.9;
 const ORBIT_RADIUS = 8.2;
@@ -28,7 +29,7 @@ export function SurveySatellite() {
       <mesh rotation={[0, 0, 0.18]}>
         <ringGeometry args={[ORBIT_RADIUS - 0.025, ORBIT_RADIUS + 0.025, 96]} />
         <meshBasicMaterial
-          color="#1e213f"
+          color={getSpaceColor("indigo")}
           transparent
           opacity={0.8}
           depthWrite={false}
@@ -38,23 +39,23 @@ export function SurveySatellite() {
       <group position={[ORBIT_RADIUS, 0, 0]}>
         <mesh>
           <boxGeometry args={[0.46, 0.42, 0.42]} />
-          <meshStandardMaterial color="#d9b36a" roughness={0.65} metalness={0.35} />
+          <meshStandardMaterial color={getSpaceColor("gold")} roughness={0.65} metalness={0.35} />
         </mesh>
         <mesh position={[-0.82, 0, 0]}>
           <boxGeometry args={[1.18, 0.62, 0.06]} />
-          <meshStandardMaterial color="#1e213f" roughness={0.8} metalness={0.15} />
+          <meshStandardMaterial color={getSpaceColor("indigo")} roughness={0.8} metalness={0.15} />
         </mesh>
         <mesh position={[0.82, 0, 0]}>
           <boxGeometry args={[1.18, 0.62, 0.06]} />
-          <meshStandardMaterial color="#1e213f" roughness={0.8} metalness={0.15} />
+          <meshStandardMaterial color={getSpaceColor("indigo")} roughness={0.8} metalness={0.15} />
         </mesh>
         <mesh position={[-0.82, 0, 0.036]}>
           <boxGeometry args={[1.02, 0.025, 0.012]} />
-          <meshBasicMaterial color="#66d9e8" />
+          <meshBasicMaterial color={getSpaceColor("accent")} />
         </mesh>
         <mesh position={[0.82, 0, 0.036]}>
           <boxGeometry args={[1.02, 0.025, 0.012]} />
-          <meshBasicMaterial color="#66d9e8" />
+          <meshBasicMaterial color={getSpaceColor("accent")} />
         </mesh>
       </group>
     </group>

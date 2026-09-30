@@ -12,6 +12,7 @@ import { SpaceCamera } from "./SpaceCamera";
 import { Stars } from "./Stars";
 import { SurveySatellite } from "./SurveySatellite";
 import { useAmbientMotionPaused } from "@/hooks/useAmbientMotionPaused";
+import { getSpaceColor } from "@/lib/spaceColors";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
@@ -118,8 +119,8 @@ export function SpaceScene({
         <InvalidateOnDemand enabled={pageVisible && demandRender} />
         <ContextLossSignal onContextLost={onContextLost} />
         <ambientLight intensity={0.3} />
-        <directionalLight position={[14, 5, 9]} intensity={3.2} color="#f5efe0" />
-        <directionalLight position={[-10, -4, -6]} intensity={0.5} color="#1e213f" />
+        <directionalLight position={[14, 5, 9]} intensity={3.2} color={getSpaceColor("starlight")} />
+        <directionalLight position={[-10, -4, -6]} intensity={0.5} color={getSpaceColor("indigo")} />
         <Nebula />
         <DustClouds />
         <Stars />

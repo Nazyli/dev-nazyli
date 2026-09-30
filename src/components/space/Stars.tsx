@@ -5,6 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
 import { createSeededRandom } from "@/lib/random";
+import { getSpaceColor } from "@/lib/spaceColors";
 
 const DISTANT_COUNT = 1100;
 const BRIGHT_COUNT = 36;
@@ -116,7 +117,7 @@ export function Stars() {
       <points geometry={distantGeometry}>
         <pointsMaterial
           map={sprite}
-          color="#f5efe0"
+          color={getSpaceColor("starlight")}
           size={0.5}
           sizeAttenuation
           transparent
@@ -128,7 +129,7 @@ export function Stars() {
       <points geometry={brightGeometry}>
         <pointsMaterial
           map={sprite}
-          color="#d9b36a"
+          color={getSpaceColor("gold")}
           size={0.95}
           sizeAttenuation
           transparent
@@ -140,7 +141,7 @@ export function Stars() {
       <points geometry={galaxyGeometry} rotation={[0.6, 0, 0]}>
         <pointsMaterial
           map={sprite}
-          color="#f5efe0"
+          color={getSpaceColor("starlight")}
           size={0.3}
           sizeAttenuation
           transparent

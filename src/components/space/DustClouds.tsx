@@ -5,6 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
 import { createSeededRandom } from "@/lib/random";
+import { getSpaceColor } from "@/lib/spaceColors";
 
 const COUNT = 700;
 
@@ -81,7 +82,7 @@ export function DustClouds() {
       <points geometry={geometry}>
         <pointsMaterial
           map={sprite}
-          color="#2a4a5c"
+          color={getSpaceColor("dust")}
           size={1.6}
           sizeAttenuation
           transparent
