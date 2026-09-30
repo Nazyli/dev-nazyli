@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type MouseEvent,
+} from "react";
 import { navigateToSection } from "@/lib/sectionNavigation";
 import { getProjectIndexFromHash } from "@/lib/projectNavigation";
 
@@ -42,6 +48,21 @@ function getClockSnapshot() {
 
 function getServerClockSnapshot() {
   return null;
+}
+
+function handleSectionLinkClick(event: MouseEvent<HTMLAnchorElement>, id: string) {
+  if (
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+  navigateToSection(id);
 }
 
 function useJakartaClock() {
@@ -217,10 +238,10 @@ export function ObservatoryChrome() {
         className="fixed right-5 top-1/2 z-30 hidden -translate-y-1/2 flex-col items-center gap-5 lg:flex"
       >
         {SECTIONS.map((section, i) => (
-          <button
+          <a
             key={section.id}
-            type="button"
-            onClick={() => navigateToSection(section.id)}
+            href={`#${section.id}`}
+            onClick={(event) => handleSectionLinkClick(event, section.id)}
             aria-current={active === i ? "true" : undefined}
             aria-label={section.label}
             className={`group relative flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-accent ${
@@ -244,7 +265,7 @@ export function ObservatoryChrome() {
               }`}
             />
             {section.index}
-          </button>
+          </a>
         ))}
       </nav>
 
@@ -253,10 +274,10 @@ export function ObservatoryChrome() {
         className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-7 border-t border-indigo/30 bg-void/95 px-0 pt-2 pb-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] min-[375px]:gap-x-2 lg:hidden"
       >
         {SECTIONS.map((section, i) => (
-          <button
+          <a
             key={section.id}
-            type="button"
-            onClick={() => navigateToSection(section.id)}
+            href={`#${section.id}`}
+            onClick={(event) => handleSectionLinkClick(event, section.id)}
             aria-current={active === i ? "true" : undefined}
             aria-label={section.label}
             className={`flex min-h-11 flex-col items-center justify-center gap-1 font-mono transition-colors focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent ${
@@ -270,7 +291,7 @@ export function ObservatoryChrome() {
             <span className="hidden text-[8px] uppercase tracking-[0.08em] min-[420px]:inline min-[520px]:text-[9px]">
               {section.mobile}
             </span>
-          </button>
+          </a>
         ))}
       </nav>
     </>
