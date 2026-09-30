@@ -11,8 +11,11 @@ const ORBIT_RADIUS = 8.2;
 
 export function SurveySatellite() {
   const orbit = useRef<THREE.Group>(null);
+  const downlinkPing = useRef<THREE.Mesh>(null);
+  const downlinkMaterial = useRef<THREE.MeshBasicMaterial>(null);
+  const downlinkPhase = useRef(0);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (universeState.reducedMotion || !orbit.current) return;
 
     const arrival = THREE.MathUtils.clamp(
@@ -22,10 +25,30 @@ export function SurveySatellite() {
     );
     orbit.current.scale.setScalar(arrival);
     orbit.current.rotation.z = Math.PI - 0.55 + arrival * 1.1;
+
+    if (downlinkPing.current && downlinkMaterial.current) {
+      if (!universeState.ambientMotionPaused) {
+        downlinkPhase.current = (downlinkPhase.current + delta / 3.2) % 1;
+      }
+      downlinkPing.current.visible = arrival > 0;
+      downlinkPing.current.scale.setScalar(0.65 + downlinkPhase.current * 1.8);
+      downlinkMaterial.current.opacity = (1 - downlinkPhase.current) * 0.28;
+    }
   });
 
   return (
     <group ref={orbit} position={[7, 12.2, 150]}>
+      <mesh ref={downlinkPing} position={[0, 0, -5.54]} visible={false}>
+        <ringGeometry args={[0.9, 0.94, 96]} />
+        <meshBasicMaterial
+          ref={downlinkMaterial}
+          color={getSpaceColor("accent")}
+          transparent
+          opacity={0}
+          depthWrite={false}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
       <mesh rotation={[0, 0, 0.18]}>
         <ringGeometry args={[ORBIT_RADIUS - 0.025, ORBIT_RADIUS + 0.025, 96]} />
         <meshBasicMaterial
