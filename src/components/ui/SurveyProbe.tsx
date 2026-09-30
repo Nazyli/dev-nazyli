@@ -216,17 +216,32 @@ export function SurveyProbe() {
     };
 
     scheduleFrame = () => {
-      if (rafId === 0) rafId = requestAnimationFrame(tick);
+      if (rafId === 0 && document.visibilityState === "visible") {
+        rafId = requestAnimationFrame(tick);
+      }
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+        last = 0;
+        return;
+      }
+
+      if (shown) scheduleFrame();
     };
 
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerdown", onDown);
     window.addEventListener("resize", resize);
+    document.addEventListener("visibilitychange", onVisibilityChange);
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerdown", onDown);
       window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, [reducedMotion]);
 
