@@ -5,6 +5,7 @@ import { gsap, useGSAP } from "@/lib/gsap";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const EMAIL_ADDRESS = "info@nazyli.com";
+const EMAIL_SUBJECT = "AI engineering inquiry · Nazyli Universe";
 const PORTFOLIO_URL = "https://nazyli.com";
 const CONTACT_STATUS_MESSAGES = {
   idle: "",
@@ -40,7 +41,11 @@ export function Contact() {
   );
 
   const links = [
-    { label: "Email Evry", href: `mailto:${EMAIL_ADDRESS}`, primary: true },
+    {
+      label: "Email Evry",
+      href: `mailto:${EMAIL_ADDRESS}?subject=${encodeURIComponent(EMAIL_SUBJECT)}`,
+      primary: true,
+    },
     { label: "GitHub", href: "https://github.com/Nazyli" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/evrynazyli/" },
   ];
