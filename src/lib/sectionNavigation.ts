@@ -2,9 +2,9 @@ import type { MouseEvent } from "react";
 import { scrollController } from "@/lib/scrollController";
 import { universeState } from "@/lib/universeState";
 
-export function handleSectionLinkClick(
+export function handleHashLinkClick(
   event: MouseEvent<HTMLAnchorElement>,
-  id: string,
+  navigate: () => void,
 ) {
   if (
     event.button !== 0 ||
@@ -17,7 +17,14 @@ export function handleSectionLinkClick(
   }
 
   event.preventDefault();
-  navigateToSection(id);
+  navigate();
+}
+
+export function handleSectionLinkClick(
+  event: MouseEvent<HTMLAnchorElement>,
+  id: string,
+) {
+  handleHashLinkClick(event, () => navigateToSection(id));
 }
 
 export function navigateToSection(id: string, updateHistory = true) {

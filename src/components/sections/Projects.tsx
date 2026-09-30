@@ -5,6 +5,7 @@ import { gsap, useGSAP } from "@/lib/gsap";
 import { buildConstellationPath, publishedProjects } from "@/data/projects";
 import { getProjectIndexFromHash, updateProjectHash } from "@/lib/projectNavigation";
 import { scrollController } from "@/lib/scrollController";
+import { handleHashLinkClick } from "@/lib/sectionNavigation";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export function Projects() {
@@ -359,7 +360,9 @@ export function Projects() {
                       data-project-index={index}
                       aria-label={`Go to project ${index + 1}: ${project.title}`}
                       aria-current={activeProject === index ? "step" : undefined}
-                      onClick={() => selectProject(index)}
+                      onClick={(event) =>
+                        handleHashLinkClick(event, () => selectProject(index))
+                      }
                       className="flex min-h-11 items-center border border-indigo/70 px-3 font-mono text-[10px] uppercase tracking-[0.18em] text-starlight/65 transition-colors hover:border-accent/60 hover:text-accent focus-visible:text-accent aria-[current=step]:border-gold/60 aria-[current=step]:text-gold"
                     >
                       {String(index + 1).padStart(2, "0")}
