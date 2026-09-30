@@ -1,25 +1,38 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { cameraPath, cameraTargetPath } from "@/lib/cameraPath";
 import { universeState } from "@/lib/universeState";
+import { useAmbientMotionPaused } from "@/hooks/useAmbientMotionPaused";
 
 const tmpPosition = new THREE.Vector3();
 const tmpTarget = new THREE.Vector3();
 
 export function SpaceCamera() {
   const hasMoved = useRef(false);
+  const invalidate = useThree((state) => state.invalidate);
+  const ambientMotionPaused = useAmbientMotionPaused();
 
   useEffect(() => {
     const onPointerMove = (event: PointerEvent) => {
       universeState.mouseX = (event.clientX / window.innerWidth - 0.5) * 2;
       universeState.mouseY = (event.clientY / window.innerHeight - 0.5) * 2;
+      if (ambientMotionPaused) invalidate();
     };
+    const onScroll = () => invalidate();
+
     window.addEventListener("pointermove", onPointerMove);
-    return () => window.removeEventListener("pointermove", onPointerMove);
-  }, []);
+    if (ambientMotionPaused) {
+      window.addEventListener("scroll", onScroll, { passive: true });
+      invalidate();
+    }
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [ambientMotionPaused, invalidate]);
 
   useFrame((state, delta) => {
     const camera = state.camera;
@@ -57,6 +70,12 @@ export function SpaceCamera() {
       6,
       delta
     );
+    if (
+      ambientMotionPaused &&
+      camera.position.distanceToSquared(tmpPosition) > 0.0001
+    ) {
+      state.invalidate();
+    }
 
     tmpTarget.x += universeState.mouseX * 0.6;
     tmpTarget.y += universeState.mouseY * 0.4;

@@ -11,6 +11,7 @@ import { ShootingStar } from "./ShootingStar";
 import { SpaceCamera } from "./SpaceCamera";
 import { Stars } from "./Stars";
 import { SurveySatellite } from "./SurveySatellite";
+import { useAmbientMotionPaused } from "@/hooks/useAmbientMotionPaused";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
@@ -35,10 +36,10 @@ function getMotionPreference() {
 
 function ReadySignal({
   onReady,
-  reducedMotion,
+  keepRendering,
 }: {
   onReady?: () => void;
-  reducedMotion: boolean;
+  keepRendering: boolean;
 }) {
   const frame = useRef(0);
   const fired = useRef(false);
@@ -51,8 +52,18 @@ function ReadySignal({
       onReady?.();
       return;
     }
-    if (reducedMotion) state.invalidate();
+    if (keepRendering) state.invalidate();
   });
+
+  return null;
+}
+
+function InvalidateOnDemand({ enabled }: { enabled: boolean }) {
+  const invalidate = useThree((state) => state.invalidate);
+
+  useEffect(() => {
+    if (enabled) invalidate();
+  }, [enabled, invalidate]);
 
   return null;
 }
@@ -88,6 +99,8 @@ export function SpaceScene({
     isDocumentVisible,
     () => true,
   );
+  const ambientMotionPaused = useAmbientMotionPaused();
+  const demandRender = reducedMotion || ambientMotionPaused;
 
   return (
     <div
@@ -96,12 +109,13 @@ export function SpaceScene({
     >
       <Canvas
         frameloop={
-          !pageVisible ? "never" : reducedMotion ? "demand" : "always"
+          !pageVisible ? "never" : demandRender ? "demand" : "always"
         }
         dpr={[1, 1.75]}
         gl={{ antialias: true, powerPreference: "high-performance" }}
         camera={{ fov: 55, near: 0.1, far: 500, position: [0, 0, -46] }}
       >
+        <InvalidateOnDemand enabled={pageVisible && demandRender} />
         <ContextLossSignal onContextLost={onContextLost} />
         <ambientLight intensity={0.3} />
         <directionalLight position={[14, 5, 9]} intensity={3.2} color="#f5efe0" />
@@ -115,7 +129,7 @@ export function SpaceScene({
         <Earth position={[7, 12.2, 150]} radius={5.5} />
         <SurveySatellite />
         <SpaceCamera />
-        <ReadySignal onReady={onReady} reducedMotion={reducedMotion} />
+        <ReadySignal onReady={onReady} keepRendering={demandRender} />
       </Canvas>
     </div>
   );
