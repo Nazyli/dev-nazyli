@@ -490,6 +490,8 @@ export function Projects() {
                 <article
                   key={project.id}
                   id={`project-${project.id}`}
+                  aria-labelledby={`project-title-${project.id}`}
+                  tabIndex={-1}
                   className="project-slide grid gap-5 py-7 sm:grid-cols-[112px_1fr] sm:gap-7"
                 >
                   {project.constellation && (
@@ -519,7 +521,10 @@ export function Projects() {
                     <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold">
                       {project.index ? `Record ${project.index}` : "Project record"}
                     </p>
-                    <h3 className="mt-2 font-display text-2xl font-medium tracking-tight text-starlight">
+                    <h3
+                      id={`project-title-${project.id}`}
+                      className="mt-2 font-display text-2xl font-medium tracking-tight text-starlight"
+                    >
                       {project.title}
                     </h3>
                     <p className="mt-3 max-w-xl text-sm leading-relaxed text-starlight/70">

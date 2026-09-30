@@ -85,6 +85,7 @@ export function CertificateArchive({
       cancelAnimationFrame(secondFrame);
       firstFrame = requestAnimationFrame(() => {
         secondFrame = requestAnimationFrame(() => {
+          details.querySelector("summary")?.focus({ preventScroll: true });
           details.scrollIntoView({
             behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
               ? "auto"
