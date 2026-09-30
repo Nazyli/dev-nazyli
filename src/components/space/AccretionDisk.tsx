@@ -35,7 +35,11 @@ export function AccretionDisk({
   const coreTexture = useMemo(() => makeCoreTexture(), []);
 
   useFrame((_, delta) => {
-    if (universeState.reducedMotion || !spin.current) return;
+    if (
+      universeState.reducedMotion ||
+      universeState.ambientMotionPaused ||
+      !spin.current
+    ) return;
     spin.current.rotation.z += delta * 0.06;
   });
 

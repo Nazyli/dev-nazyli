@@ -12,6 +12,8 @@ import {
   navigateToSection,
 } from "@/lib/sectionNavigation";
 import { getProjectIndexFromHash } from "@/lib/projectNavigation";
+import { setAmbientMotionPaused } from "@/lib/universeState";
+import { useAmbientMotionPaused } from "@/hooks/useAmbientMotionPaused";
 
 const SECTIONS = [
   { id: "s-hero", index: "01", label: "Deep Field", mobile: "Deep", compact: "Deep", target: "TGT 01 · DEEP FIELD" },
@@ -84,6 +86,7 @@ const JakartaClock = memo(function JakartaClock() {
 
 export function ObservatoryChrome() {
   const [active, setActive] = useState(0);
+  const ambientMotionPaused = useAmbientMotionPaused();
   const journeyProgress = useRef<HTMLDivElement>(null);
   const pendingInitialRoute = useRef<string | null>(null);
 
@@ -189,7 +192,7 @@ export function ObservatoryChrome() {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-30 flex h-9 items-center justify-between border-b border-indigo/25 bg-void/85 px-4 font-mono text-[10px] uppercase tracking-[0.25em] sm:px-6">
+      <header className="fixed inset-x-0 top-0 z-30 flex h-11 items-center justify-between border-b border-indigo/25 bg-void/85 px-4 font-mono text-[10px] uppercase tracking-[0.25em] sm:px-6">
         <a
           href="#s-hero"
           onClick={(event) => handleSectionLinkClick(event, "s-hero")}
@@ -207,7 +210,34 @@ export function ObservatoryChrome() {
           {SECTIONS[active].target}
         </p>
 
-        <JakartaClock />
+        <div className="flex items-center gap-2 sm:gap-4">
+          <JakartaClock />
+          <button
+            type="button"
+            aria-label="Ambient space motion"
+            aria-pressed={ambientMotionPaused}
+            title={
+              ambientMotionPaused ? "Resume ambient motion" : "Pause ambient motion"
+            }
+            onClick={() => setAmbientMotionPaused(!ambientMotionPaused)}
+            className="inline-flex min-h-11 items-center justify-center gap-2 border-l border-indigo/30 pl-3 text-starlight/70 transition-colors hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none sm:pl-4"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 16 16"
+              className="h-3.5 w-3.5"
+            >
+              {ambientMotionPaused ? (
+                <path d="M5 3.5v9l7-4.5z" fill="currentColor" />
+              ) : (
+                <path d="M5 3.5h2v9H5zM9 3.5h2v9H9z" fill="currentColor" />
+              )}
+            </svg>
+            <span className="hidden sm:inline">
+              {ambientMotionPaused ? "Motion off" : "Motion on"}
+            </span>
+          </button>
+        </div>
         <div
           ref={journeyProgress}
           role="progressbar"

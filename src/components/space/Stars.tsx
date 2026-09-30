@@ -103,7 +103,7 @@ export function Stars() {
   }, []);
 
   useFrame((_, delta) => {
-    if (universeState.reducedMotion) return;
+    if (universeState.reducedMotion || universeState.ambientMotionPaused) return;
     if (group.current) {
       group.current.rotation.y += delta * 0.004;
     }

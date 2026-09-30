@@ -25,7 +25,7 @@ export function Planet({ position, radius = 2 }: PlanetProps) {
   const ringMap = useMemo(() => makeRingTexture(), []);
 
   useFrame((_, delta) => {
-    if (universeState.reducedMotion) return;
+    if (universeState.reducedMotion || universeState.ambientMotionPaused) return;
     if (body.current) {
       body.current.rotation.y += delta * 0.03;
     }

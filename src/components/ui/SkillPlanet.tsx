@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import type { KeyboardEvent } from "react";
 import type { CSSProperties } from "react";
 import { gsap } from "@/lib/gsap";
+import { useAmbientMotionPaused } from "@/hooks/useAmbientMotionPaused";
 import type { Skill } from "@/data/skills";
 
 const ARROW_DIRECTIONS = {
@@ -71,6 +72,7 @@ export function SkillPlanet({
   onActivate,
   onDeactivate,
 }: SkillPlanetProps) {
+  const ambientMotionPaused = useAmbientMotionPaused();
   const spinRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
   const spinTween = useRef<ReturnType<typeof gsap.to> | null>(null);
@@ -123,10 +125,10 @@ export function SkillPlanet({
   }, [skill]);
 
   useEffect(() => {
-    const scale = isOrbitPaused ? 0.12 : 1;
+    const scale = ambientMotionPaused ? 0 : isOrbitPaused ? 0.12 : 1;
     spinTween.current?.timeScale(scale);
     labelTween.current?.timeScale(scale);
-  }, [isOrbitPaused]);
+  }, [ambientMotionPaused, isOrbitPaused]);
 
   return (
     <div

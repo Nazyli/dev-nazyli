@@ -59,7 +59,11 @@ export function Nebula() {
   const laneTexture = useMemo(() => makeDustLaneTexture(LANE_SEED), []);
 
   useFrame((state, delta) => {
-    if (universeState.reducedMotion || !group.current) return;
+    if (
+      universeState.reducedMotion ||
+      universeState.ambientMotionPaused ||
+      !group.current
+    ) return;
     const damp = (a: number, b: number) => THREE.MathUtils.damp(a, b, 3, delta);
     const t = state.clock.elapsedTime;
     group.current.position.x = damp(

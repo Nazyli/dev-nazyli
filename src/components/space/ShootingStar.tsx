@@ -58,6 +58,7 @@ export function ShootingStar() {
 
   useFrame((state, delta) => {
     if (!mesh.current || !texture) return;
+    if (universeState.ambientMotionPaused) return;
     if (universeState.reducedMotion) {
       mesh.current.visible = false;
       (mesh.current.material as THREE.MeshBasicMaterial).opacity = 0;

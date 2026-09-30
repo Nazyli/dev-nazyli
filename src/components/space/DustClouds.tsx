@@ -66,7 +66,11 @@ export function DustClouds() {
   const sprite = useMemo(() => makeDustSprite(), []);
 
   useFrame((_, delta) => {
-    if (universeState.reducedMotion || !group.current) return;
+    if (
+      universeState.reducedMotion ||
+      universeState.ambientMotionPaused ||
+      !group.current
+    ) return;
     group.current.rotation.y += delta * 0.01;
   });
 

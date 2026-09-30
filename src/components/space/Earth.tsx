@@ -73,7 +73,7 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
 
   useFrame((_, delta) => {
     if (universeState.reducedMotion) return;
-    spin.current += delta * 0.05;
+    if (!universeState.ambientMotionPaused) spin.current += delta * 0.05;
     const tiltX = universeState.mouseY * 0.25;
     const tiltY = universeState.mouseX * 0.4;
     if (group.current) {
@@ -91,7 +91,7 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
       );
       group.current.rotation.y = spin.current + tiltY;
     }
-    if (cloudRef.current) {
+    if (cloudRef.current && !universeState.ambientMotionPaused) {
       cloudRef.current.rotation.y += delta * 0.006;
     }
   });
