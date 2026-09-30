@@ -130,6 +130,7 @@ export function CertificateArchive({
     ...Array.from(new Set(certificates.map((certificate) => certificate.provider))),
   ];
   const normalizedQuery = query.trim().toLowerCase();
+  const searchTerms = normalizedQuery.split(/\s+/).filter(Boolean);
   const hasFilters =
     normalizedQuery.length > 0 ||
     provider !== "All sources" ||
@@ -138,11 +139,14 @@ export function CertificateArchive({
     activeFilters.current = hasFilters;
   }, [hasFilters]);
   const matchingCertificates = certificates.filter((certificate) => {
-    const matchesQuery = [
+    const searchableValues = [
       certificate.title,
       certificate.provider,
       ...certificate.skills,
-    ].some((value) => value.toLowerCase().includes(normalizedQuery));
+    ].map((value) => value.toLowerCase());
+    const matchesQuery = searchTerms.every((term) =>
+      searchableValues.some((value) => value.includes(term)),
+    );
     const matchesProvider =
       provider === "All sources" || certificate.provider === provider;
     const status = getCertificateStatus(certificate.to);
