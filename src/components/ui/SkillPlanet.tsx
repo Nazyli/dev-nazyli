@@ -144,6 +144,7 @@ export function SkillPlanet({
       >
         <button
           type="button"
+          id={`skill-${skill.id}`}
           data-skill-planet={skill.id}
           aria-label={skill.name}
           aria-describedby={`skill-description-${skill.id} skill-navigation-help`}

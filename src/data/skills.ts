@@ -130,3 +130,11 @@ export const skills: Skill[] = [
     speed: 0.7,
   },
 ];
+
+export function getSkillForTechnology(technology: string): Skill | null {
+  const normalizedTechnology = technology.trim().toLowerCase();
+
+  return skills.find((skill) =>
+    skill.tech.some((entry) => entry.toLowerCase() === normalizedTechnology),
+  ) ?? null;
+}

@@ -13,6 +13,7 @@ import {
 } from "@/lib/sectionNavigation";
 import { getProjectIndexFromHash } from "@/lib/projectNavigation";
 import { getCertificateIndexFromHash } from "@/lib/certificateNavigation";
+import { getSkillIdFromHash, navigateToSkill } from "@/lib/skillNavigation";
 import { setAmbientMotionPaused } from "@/lib/universeState";
 import { useAmbientMotionPaused } from "@/hooks/useAmbientMotionPaused";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -146,10 +147,14 @@ export function ObservatoryChrome() {
         const preserveCertificateHash =
           id === "s-certificates" &&
           getCertificateIndexFromHash(window.location.hash) >= 0;
+        const preserveSkillHash =
+          id === "s-expertise" &&
+          getSkillIdFromHash(window.location.hash) !== null;
         if (
           window.location.hash !== `#${id}` &&
           !preserveProjectHash &&
-          !preserveCertificateHash
+          !preserveCertificateHash &&
+          !preserveSkillHash
         ) {
           window.history.replaceState(
             typeof window.history.state === "object" &&
@@ -176,6 +181,11 @@ export function ObservatoryChrome() {
   useEffect(() => {
     const onPopState = () => {
       const hash = window.location.hash;
+      const skillId = getSkillIdFromHash(hash);
+      if (skillId) {
+        navigateToSkill(skillId, false);
+        return;
+      }
       if (
         getProjectIndexFromHash(hash) >= 0 ||
         getCertificateIndexFromHash(hash) >= 0
@@ -199,6 +209,14 @@ export function ObservatoryChrome() {
       pendingInitialRoute.current = "s-projects";
     } else if (getCertificateIndexFromHash(initialId) >= 0) {
       pendingInitialRoute.current = "s-certificates";
+    } else if (getSkillIdFromHash(initialId)) {
+      const skillId = getSkillIdFromHash(initialId);
+      pendingInitialRoute.current = "s-expertise";
+      if (skillId) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => navigateToSkill(skillId, false));
+        });
+      }
     }
 
     window.addEventListener("popstate", onPopState);

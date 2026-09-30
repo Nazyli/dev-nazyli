@@ -7,6 +7,8 @@ import {
   getProjectPeriodDateTime,
   publishedProjects,
 } from "@/data/projects";
+import { getSkillForTechnology } from "@/data/skills";
+import { navigateToSkill } from "@/lib/skillNavigation";
 import { getProjectIndexFromHash, updateProjectHash } from "@/lib/projectNavigation";
 import { scrollController } from "@/lib/scrollController";
 import { handleHashLinkClick } from "@/lib/sectionNavigation";
@@ -531,14 +533,33 @@ export function Projects() {
                     )}
                     {project.technologies && project.technologies.length > 0 && (
                       <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2" aria-label="Technologies">
-                        {project.technologies.map((technology) => (
+                      {project.technologies.map((technology) => {
+                        const skill = getSkillForTechnology(technology);
+
+                        return (
                           <li
                             key={technology}
                             className="font-mono text-[9px] uppercase tracking-[0.2em] text-starlight/70"
                           >
-                            {technology}
+                            {skill ? (
+                              <a
+                                href={`#skill-${skill.id}`}
+                                aria-label={`Explore ${technology} in ${skill.name} expertise`}
+                                onClick={(event) =>
+                                  handleHashLinkClick(event, () =>
+                                    navigateToSkill(skill.id),
+                                  )
+                                }
+                                className="inline-flex min-h-11 items-center text-accent underline decoration-accent/40 underline-offset-4 hover:text-starlight focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                              >
+                                {technology}
+                              </a>
+                            ) : (
+                              technology
+                            )}
                           </li>
-                        ))}
+                        );
+                      })}
                       </ul>
                     )}
                     {project.contribution && (

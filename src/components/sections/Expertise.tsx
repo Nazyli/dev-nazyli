@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { skills } from "@/data/skills";
+import { getSkillIdFromHash } from "@/lib/skillNavigation";
 import { SkillPlanet } from "@/components/ui/SkillPlanet";
 import { DataPlate, DataRow } from "@/components/ui/DataPlate";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -13,6 +14,26 @@ const TICKS = [0, 90, 180, 270];
 export function Expertise() {
   const root = useRef<HTMLElement>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const activateSkillFromHash = () => {
+      const skillId = getSkillIdFromHash(window.location.hash);
+      if (!skillId) return;
+
+      setActiveId(skillId);
+      document.getElementById(`skill-${skillId}`)?.focus({ preventScroll: true });
+    };
+
+    if (getSkillIdFromHash(window.location.hash) !== null) {
+      requestAnimationFrame(activateSkillFromHash);
+    }
+    window.addEventListener("hashchange", activateSkillFromHash);
+    window.addEventListener("popstate", activateSkillFromHash);
+    return () => {
+      window.removeEventListener("hashchange", activateSkillFromHash);
+      window.removeEventListener("popstate", activateSkillFromHash);
+    };
+  }, []);
 
   const active = skills.find((skill) => skill.id === activeId) ?? null;
 
