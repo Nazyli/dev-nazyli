@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
@@ -66,6 +66,8 @@ export function Stars() {
   const group = useRef<THREE.Group>(null);
 
   const sprite = useMemo(() => makeStarSprite(), []);
+
+  useEffect(() => () => sprite?.dispose(), [sprite]);
 
   const distantGeometry = useMemo(() => {
     const positions = new Float32Array(DISTANT_COUNT * 3);

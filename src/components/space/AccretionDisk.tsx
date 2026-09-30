@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
@@ -34,6 +34,14 @@ export function AccretionDisk({
   const spin = useRef<THREE.Group>(null);
   const map = useMemo(() => makeAccretionDiskTexture(), []);
   const coreTexture = useMemo(() => makeCoreTexture(), []);
+
+  useEffect(
+    () => () => {
+      map.dispose();
+      coreTexture?.dispose();
+    },
+    [coreTexture, map],
+  );
 
   useFrame((_, delta) => {
     if (

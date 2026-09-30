@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
@@ -23,6 +23,14 @@ export function Planet({ position, radius = 2 }: PlanetProps) {
     []
   );
   const ringMap = useMemo(() => makeRingTexture(), []);
+
+  useEffect(
+    () => () => {
+      map?.dispose();
+      ringMap.dispose();
+    },
+    [map, ringMap],
+  );
 
   useFrame((_, delta) => {
     if (universeState.reducedMotion || universeState.ambientMotionPaused) return;

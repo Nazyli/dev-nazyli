@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
@@ -70,6 +70,15 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
   const cloudMap = useMemo(
     () => (EARTH_CLOUD_URL ? null : makeCloudTexture()),
     []
+  );
+
+  useEffect(
+    () => () => {
+      earthMap?.dispose();
+      earthBump.dispose();
+      cloudMap?.dispose();
+    },
+    [cloudMap, earthBump, earthMap],
   );
 
   useFrame((_, delta) => {

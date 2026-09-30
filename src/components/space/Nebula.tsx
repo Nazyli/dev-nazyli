@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
@@ -58,6 +58,14 @@ export function Nebula() {
 
   const cloudTextures = useMemo(() => SEEDS.map((s) => makeNebulaTexture(s)), []);
   const laneTexture = useMemo(() => makeDustLaneTexture(LANE_SEED), []);
+
+  useEffect(
+    () => () => {
+      cloudTextures.forEach((texture) => texture.dispose());
+      laneTexture.dispose();
+    },
+    [cloudTextures, laneTexture],
+  );
 
   useFrame((state, delta) => {
     if (

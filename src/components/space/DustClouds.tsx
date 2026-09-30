@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
@@ -65,6 +65,8 @@ export function DustClouds() {
 
   const geometry = useMemo(() => makeDustGeometry(), []);
   const sprite = useMemo(() => makeDustSprite(), []);
+
+  useEffect(() => () => sprite?.dispose(), [sprite]);
 
   useFrame((_, delta) => {
     if (
