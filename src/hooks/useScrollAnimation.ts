@@ -15,7 +15,8 @@ export function useScrollAnimation() {
 
     const lenis = new Lenis({
       duration: 1.15,
-      smoothWheel: !reduced,
+      smoothWheel: true,
+      respectReducedMotion: true,
     });
     scrollController.lenis = lenis;
 
