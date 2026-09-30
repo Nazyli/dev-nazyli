@@ -25,6 +25,25 @@ export type Project = {
   constellation?: Constellation;
 };
 
+export function getProjectPeriodDateTime(period: string): string | null {
+  const value = period.trim();
+  const year = /^(\d{4})$/.exec(value);
+  if (year) return year[1];
+
+  const updated = /^Updated\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})$/i.exec(
+    value,
+  );
+  if (!updated) return null;
+
+  const month = [
+    "jan", "feb", "mar", "apr", "may", "jun",
+    "jul", "aug", "sep", "oct", "nov", "dec",
+  ].indexOf(updated[1].toLowerCase());
+  if (month < 0) return null;
+
+  return `${updated[2]}-${String(month + 1).padStart(2, "0")}`;
+}
+
 export function buildConstellationPath(constellation: Constellation): string {
   return constellation.lines
     .map(([from, to]) => {

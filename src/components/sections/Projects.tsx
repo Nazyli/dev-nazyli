@@ -2,7 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
-import { buildConstellationPath, publishedProjects } from "@/data/projects";
+import {
+  buildConstellationPath,
+  getProjectPeriodDateTime,
+  publishedProjects,
+} from "@/data/projects";
 import { getProjectIndexFromHash, updateProjectHash } from "@/lib/projectNavigation";
 import { scrollController } from "@/lib/scrollController";
 import { handleHashLinkClick } from "@/lib/sectionNavigation";
@@ -406,7 +410,15 @@ export function Projects() {
 
           {publishedProjects.length > 0 ? (
             <div className="projects-reveal project-stage divide-y divide-indigo/40 border-y border-indigo/40">
-              {publishedProjects.map((project) => (
+              {publishedProjects.map((project) => {
+                const projectDate = project.period ?? project.year?.toString();
+                const dateTime = project.period
+                  ? getProjectPeriodDateTime(project.period)
+                  : project.year !== undefined && /^\d{4}$/.test(String(project.year))
+                    ? String(project.year)
+                    : null;
+
+                return (
                 <article
                   key={project.id}
                   id={`project-${project.id}`}
@@ -447,9 +459,12 @@ export function Projects() {
                     </p>
                     {(project.role || project.period || project.year !== undefined) && (
                       <p className="mt-4 font-mono text-[9px] uppercase tracking-[0.2em] text-starlight/60">
-                        {[project.role, project.period ?? project.year?.toString()]
-                          .filter(Boolean)
-                          .join(" · ")}
+                        {project.role && projectDate && <>{project.role} · </>}
+                        {dateTime ? (
+                          <time dateTime={dateTime}>{projectDate}</time>
+                        ) : (
+                          projectDate
+                        )}
                       </p>
                     )}
                     {project.technologies && project.technologies.length > 0 && (
@@ -506,7 +521,8 @@ export function Projects() {
                     </div>
                   </div>
                 </article>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="projects-reveal flex min-h-72 flex-col justify-center border-y border-indigo/40 py-10 lg:pl-10">

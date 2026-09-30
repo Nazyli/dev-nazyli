@@ -112,7 +112,11 @@ export function Experience() {
                   }
                 >
                   <p className="font-mono text-xs uppercase tracking-[0.35em] text-gold">
-                    {entry.period}
+                    {/^[0-9]{4}$/.test(entry.period) ? (
+                      <time dateTime={entry.period}>{entry.period}</time>
+                    ) : (
+                      entry.period
+                    )}
                   </p>
                   <h3 className="mt-3 font-display text-2xl font-medium tracking-tight text-starlight">
                     {entry.role}
