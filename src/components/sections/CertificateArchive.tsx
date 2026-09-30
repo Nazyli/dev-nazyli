@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   buildConstellationPath,
   getCertificateMonthDateTime,
@@ -64,6 +64,7 @@ export function CertificateArchive({
   const [validity, setValidity] = useState<ValidityFilter>("all");
   const [copiedCertificate, setCopiedCertificate] = useState<number | null>(null);
   const [copyStatus, setCopyStatus] = useState("");
+  const activeFilters = useRef(false);
 
   useEffect(() => {
     let firstFrame = 0;
@@ -80,6 +81,9 @@ export function CertificateArchive({
       const details = document.getElementById(`credential-${certificate.no}`);
       if (!(details instanceof HTMLDetailsElement)) {
         if (!retry) {
+          if (activeFilters.current) {
+            setCopyStatus("Filters cleared to reveal the linked credential.");
+          }
           setQuery("");
           setProvider("All sources");
           setValidity("all");
@@ -128,6 +132,9 @@ export function CertificateArchive({
     normalizedQuery.length > 0 ||
     provider !== "All sources" ||
     validity !== "all";
+  useEffect(() => {
+    activeFilters.current = hasFilters;
+  }, [hasFilters]);
   const matchingCertificates = certificates.filter((certificate) => {
     const matchesQuery = [
       certificate.title,
