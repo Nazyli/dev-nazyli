@@ -17,6 +17,7 @@ import { getSkillIdFromHash, navigateToSkill } from "@/lib/skillNavigation";
 import { setAmbientMotionPaused } from "@/lib/universeState";
 import { useAmbientMotionPaused } from "@/hooks/useAmbientMotionPaused";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { SurveyNavigator } from "@/components/ui/SurveyNavigator";
 
 const SECTIONS = [
   { id: "s-hero", index: "01", label: "Deep Field", mobile: "Deep", compact: "Deep", target: "TGT 01 · DEEP FIELD" },
@@ -245,6 +246,7 @@ export function ObservatoryChrome() {
 
         <div className="flex items-center gap-2 sm:gap-4">
           <JakartaClock />
+          <SurveyNavigator />
           {!reducedMotion && (
             <button
               type="button"

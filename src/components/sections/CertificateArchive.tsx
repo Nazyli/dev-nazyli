@@ -116,11 +116,13 @@ export function CertificateArchive({
     handleCredentialNavigation();
     window.addEventListener("hashchange", handleCredentialNavigation);
     window.addEventListener("popstate", handleCredentialNavigation);
+    window.addEventListener("credential:navigate", handleCredentialNavigation);
     return () => {
       cancelAnimationFrame(firstFrame);
       cancelAnimationFrame(secondFrame);
       window.removeEventListener("hashchange", handleCredentialNavigation);
       window.removeEventListener("popstate", handleCredentialNavigation);
+      window.removeEventListener("credential:navigate", handleCredentialNavigation);
     };
   }, [certificates]);
   const providers = [
