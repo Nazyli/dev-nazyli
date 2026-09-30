@@ -43,9 +43,9 @@ export function Expertise() {
       id="s-expertise"
       ref={root}
       aria-label="Expertise"
-      className="relative flex min-h-screen flex-col items-center justify-center px-6 py-20"
+      className="relative flex min-h-screen min-h-svh flex-col items-center justify-center px-6 py-12"
     >
-      <div className="mb-12 flex flex-col items-center text-center">
+      <div className="mb-6 flex flex-col items-center text-center sm:mb-8">
         <SectionHeading
           index="03"
           label="Expertise"
@@ -59,10 +59,16 @@ export function Expertise() {
       </div>
 
       <div
-        className="expertise-reveal relative aspect-square w-[min(88vw,620px)]"
-        style={{ "--solar": "min(88vw, 620px)" } as CSSProperties}
+        className="expertise-reveal relative aspect-square w-[var(--solar)]"
+        style={{
+          "--solar": "min(88vw, 620px, max(16rem, calc(100svh - 17rem)))",
+        } as CSSProperties}
       >
-        <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full">
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 100 100"
+          className="absolute inset-0 h-full w-full"
+        >
           <circle
             cx="50"
             cy="50"
@@ -110,14 +116,14 @@ export function Expertise() {
           ))}
         </svg>
 
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
           <div
             className={`flex items-center justify-center transition-opacity duration-300 ${
               active ? "opacity-0" : "opacity-100"
             }`}
           >
             <div className="text-center">
-              <p className="font-mono text-[9px] uppercase tracking-[0.35em] text-starlight/60">
+              <p className="font-mono text-[8px] uppercase tracking-[0.25em] text-starlight/60">
                 Core focus
               </p>
               <p className="mt-2 font-display text-lg font-medium tracking-tight text-starlight">
@@ -131,7 +137,10 @@ export function Expertise() {
             }`}
           >
             {active && (
-              <DataPlate title="Object readout" className="w-[min(76vw,340px)]">
+              <DataPlate
+                title="Object readout"
+                className="w-[min(76vw,340px)] border-starlight/40 bg-abyss/95 backdrop-blur-md"
+              >
                 <DataRow k="Object" v={active.name} />
                 <DataRow k="Class" v={active.class} />
                 <DataRow
@@ -159,14 +168,20 @@ export function Expertise() {
             key={skill.id}
             skill={skill}
             isActive={activeId === skill.id}
+            isOrbitPaused={activeId !== null}
             onActivate={() => setActiveId(skill.id)}
             onDeactivate={() => setActiveId(null)}
           />
         ))}
       </div>
 
-      <p className="pointer-events-none mt-8 font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/75">
-        Awaiting object selection · hover a planet
+      <p
+        aria-live="polite"
+        className="pointer-events-none mt-8 font-mono text-center text-[10px] uppercase tracking-[0.3em] text-starlight/75"
+      >
+        {active
+          ? "Focus held · select another planet to explore"
+          : "Select a planet to view its details"}
       </p>
     </section>
   );

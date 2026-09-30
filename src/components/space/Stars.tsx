@@ -4,10 +4,11 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
+import { createSeededRandom } from "@/lib/random";
 
-const DISTANT_COUNT = 1600;
-const BRIGHT_COUNT = 60;
-const GALAXY_COUNT = 1400;
+const DISTANT_COUNT = 1100;
+const BRIGHT_COUNT = 36;
+const GALAXY_COUNT = 700;
 
 function makeStarSprite() {
   const canvas = document.createElement("canvas");
@@ -31,12 +32,13 @@ function randomSpherePositions(
   count: number,
   minRadius: number,
   maxRadius: number,
-  out: Float32Array
+  out: Float32Array,
+  random: () => number,
 ) {
   for (let i = 0; i < count; i++) {
-    const radius = minRadius + Math.random() * (maxRadius - minRadius);
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos(2 * Math.random() - 1);
+    const radius = minRadius + random() * (maxRadius - minRadius);
+    const theta = random() * Math.PI * 2;
+    const phi = Math.acos(2 * random() - 1);
     const i3 = i * 3;
     out[i3] = radius * Math.sin(phi) * Math.cos(theta);
     out[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
@@ -44,13 +46,17 @@ function randomSpherePositions(
   }
 }
 
-function randomDiscPositions(count: number, out: Float32Array) {
+function randomDiscPositions(
+  count: number,
+  out: Float32Array,
+  random: () => number,
+) {
   for (let i = 0; i < count; i++) {
-    const radius = 30 + Math.random() * 32;
-    const theta = Math.random() * Math.PI * 2;
+    const radius = 30 + random() * 32;
+    const theta = random() * Math.PI * 2;
     const i3 = i * 3;
     out[i3] = radius * Math.cos(theta);
-    out[i3 + 1] = (Math.random() - 0.5) * 1.4;
+    out[i3 + 1] = (random() - 0.5) * 1.4;
     out[i3 + 2] = radius * Math.sin(theta);
   }
 }
@@ -62,7 +68,13 @@ export function Stars() {
 
   const distantGeometry = useMemo(() => {
     const positions = new Float32Array(DISTANT_COUNT * 3);
-    randomSpherePositions(DISTANT_COUNT, 28, 60, positions);
+    randomSpherePositions(
+      DISTANT_COUNT,
+      28,
+      60,
+      positions,
+      createSeededRandom(10101),
+    );
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     return geometry;
@@ -70,7 +82,13 @@ export function Stars() {
 
   const brightGeometry = useMemo(() => {
     const positions = new Float32Array(BRIGHT_COUNT * 3);
-    randomSpherePositions(BRIGHT_COUNT, 28, 60, positions);
+    randomSpherePositions(
+      BRIGHT_COUNT,
+      28,
+      60,
+      positions,
+      createSeededRandom(20202),
+    );
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     return geometry;
@@ -78,7 +96,7 @@ export function Stars() {
 
   const galaxyGeometry = useMemo(() => {
     const positions = new Float32Array(GALAXY_COUNT * 3);
-    randomDiscPositions(GALAXY_COUNT, positions);
+    randomDiscPositions(GALAXY_COUNT, positions, createSeededRandom(30303));
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     return geometry;

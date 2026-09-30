@@ -33,9 +33,9 @@ export function About() {
       id="s-about"
       ref={root}
       aria-label="About"
-      className="relative flex min-h-screen items-center px-6 py-24 sm:px-16 lg:px-24"
+      className="relative flex min-h-screen min-h-svh items-center px-6 py-24 sm:px-16 lg:pl-24 lg:pr-48"
     >
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-14 lg:grid-cols-[1.15fr_1fr]">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-14 lg:grid-cols-[1.25fr_1fr] lg:gap-10">
         <div>
           <SectionHeading
             index="02"
@@ -43,7 +43,7 @@ export function About() {
             descriptor="Observer profile"
             className="about-reveal"
           />
-          <h2 className="about-reveal mt-8 font-display text-4xl font-medium leading-tight tracking-tight text-starlight sm:text-5xl lg:text-6xl">
+          <h2 className="about-reveal mt-8 font-display text-4xl font-medium leading-tight tracking-tight text-starlight sm:text-5xl">
             AI Engineer, focused on intelligent applications, LLM systems &
             backend engineering.
           </h2>

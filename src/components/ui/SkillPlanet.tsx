@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import type { CSSProperties } from "react";
 import { gsap } from "@/lib/gsap";
 import type { Skill } from "@/data/skills";
 
 type SkillPlanetProps = {
   skill: Skill;
   isActive: boolean;
+  isOrbitPaused: boolean;
   onActivate: () => void;
   onDeactivate: () => void;
 };
@@ -14,6 +16,7 @@ type SkillPlanetProps = {
 export function SkillPlanet({
   skill,
   isActive,
+  isOrbitPaused,
   onActivate,
   onDeactivate,
 }: SkillPlanetProps) {
@@ -21,10 +24,17 @@ export function SkillPlanet({
   const labelRef = useRef<HTMLSpanElement>(null);
   const spinTween = useRef<ReturnType<typeof gsap.to> | null>(null);
   const labelTween = useRef<ReturnType<typeof gsap.to> | null>(null);
+  const pointerType = useRef<string | null>(null);
 
   useEffect(() => {
     if (!spinRef.current || !labelRef.current) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (
+      window.matchMedia(
+        "(prefers-reduced-motion: reduce), (max-width: 639px)"
+      ).matches
+    ) {
+      return;
+    }
 
     const duration = 90 / skill.speed;
     const spin = gsap.to(spinRef.current, {
@@ -34,7 +44,7 @@ export function SkillPlanet({
       ease: "none",
     });
     const label = gsap.to(labelRef.current, {
-      rotation: -360,
+      rotation: -skill.angleDeg - 360,
       duration,
       repeat: -1,
       ease: "none",
@@ -49,10 +59,10 @@ export function SkillPlanet({
   }, [skill]);
 
   useEffect(() => {
-    const scale = isActive ? 0.12 : 1;
+    const scale = isOrbitPaused ? 0.12 : 1;
     spinTween.current?.timeScale(scale);
     labelTween.current?.timeScale(scale);
-  }, [isActive]);
+  }, [isOrbitPaused]);
 
   return (
     <div
@@ -61,10 +71,10 @@ export function SkillPlanet({
       style={{ transform: `rotate(${skill.angleDeg}deg)` }}
     >
       <div
-        className="absolute"
+        className="skill-orbit-node absolute"
         style={{
-          transform: `translateX(calc(var(--solar) * ${skill.radiusRatio * 0.5}))`,
-        }}
+          "--skill-orbit-offset": `calc(var(--solar) * ${skill.radiusRatio * 0.5})`,
+        } as CSSProperties}
       >
         <button
           type="button"
@@ -76,11 +86,18 @@ export function SkillPlanet({
           onPointerLeave={(event) => {
             if (event.pointerType === "mouse") onDeactivate();
           }}
+          onPointerDown={(event) => {
+            pointerType.current = event.pointerType;
+          }}
           onFocus={onActivate}
           onBlur={onDeactivate}
           onClick={() => {
-            if (isActive) onDeactivate();
-            else onActivate();
+            if (pointerType.current === "touch" && isActive) {
+              onDeactivate();
+            } else {
+              onActivate();
+            }
+            pointerType.current = null;
           }}
           className="group flex min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 flex-col items-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
         >
@@ -101,6 +118,7 @@ export function SkillPlanet({
           </span>
           <span
             ref={labelRef}
+            style={{ transform: `rotate(${-skill.angleDeg}deg)` }}
             className={`mt-1.5 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.15em] transition-colors duration-300 ${
               isActive ? "text-accent" : "text-starlight/80"
             }`}

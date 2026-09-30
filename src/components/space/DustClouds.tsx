@@ -4,8 +4,9 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
+import { createSeededRandom } from "@/lib/random";
 
-const COUNT = 1400;
+const COUNT = 700;
 
 type Cluster = {
   x: number;
@@ -22,18 +23,19 @@ const CLUSTERS: Cluster[] = [
   { x: 0, y: 3, z: 26, spread: 8 },
 ];
 
-function gauss() {
-  return (Math.random() + Math.random() + Math.random()) / 3 - 0.5;
+function gauss(random: () => number) {
+  return (random() + random() + random()) / 3 - 0.5;
 }
 
 function makeDustGeometry(): THREE.BufferGeometry {
+  const random = createSeededRandom(424242);
   const positions = new Float32Array(COUNT * 3);
   for (let i = 0; i < COUNT; i++) {
-    const c = CLUSTERS[Math.floor(Math.random() * CLUSTERS.length)];
+    const c = CLUSTERS[Math.floor(random() * CLUSTERS.length)];
     const i3 = i * 3;
-    positions[i3] = c.x + gauss() * c.spread;
-    positions[i3 + 1] = c.y + gauss() * c.spread * 0.6;
-    positions[i3 + 2] = c.z + gauss() * c.spread * 0.8;
+    positions[i3] = c.x + gauss(random) * c.spread;
+    positions[i3 + 1] = c.y + gauss(random) * c.spread * 0.6;
+    positions[i3 + 2] = c.z + gauss(random) * c.spread * 0.8;
   }
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));

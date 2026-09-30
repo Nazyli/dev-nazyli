@@ -36,7 +36,7 @@ export function Certificates() {
     <section
       id="s-certificates"
       aria-label="Certificates"
-      className="relative min-h-screen px-6 py-28 sm:px-16 lg:px-24"
+      className="relative min-h-screen min-h-svh px-6 py-28 sm:px-16 lg:pl-24 lg:pr-48"
     >
       <div className="mx-auto max-w-6xl">
         <SectionHeading
@@ -60,12 +60,12 @@ export function Certificates() {
 
           {certificates.length > 0 ? (
             <div className="border-y border-indigo/40">
-              {certificates.map((certificate) => (
+              {certificates.map((certificate, index) => (
                 <details
                   key={certificate.no}
                   className="group border-b border-indigo/30 last:border-b-0"
                 >
-                  <summary className="flex cursor-pointer list-none items-center gap-4 py-5 marker:hidden focus-visible:text-accent sm:gap-6 sm:py-6 [&::-webkit-details-marker]:hidden">
+                  <summary className="flex cursor-pointer list-none items-center gap-4 py-5 marker:hidden focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-accent sm:gap-6 sm:py-6 [&::-webkit-details-marker]:hidden">
                     <ConstellationMark certificate={certificate} />
                     <span className="min-w-0 flex-1">
                       <span className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
@@ -73,7 +73,7 @@ export function Certificates() {
                           {certificate.title}
                         </span>
                         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-gold">
-                          REC-{String(certificate.no).padStart(2, "0")}
+                          REC-{String(index + 1).padStart(2, "0")}
                         </span>
                       </span>
                       <span className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[9px] uppercase tracking-[0.18em] text-starlight/60 sm:text-[10px]">
@@ -97,15 +97,15 @@ export function Certificates() {
                       />
                     </svg>
                   </summary>
-                  <div className="pb-6 pl-16 sm:pl-20">
+                  <div className="ml-16 border-l border-gold/40 bg-abyss/95 px-4 py-4 sm:ml-20">
                     <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-starlight/55">
                       Skills covered · {certificate.skills.length}
                     </p>
-                    <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+                    <ul className="mt-3 flex flex-wrap gap-2">
                       {certificate.skills.map((skill) => (
                         <li
                           key={skill}
-                          className="font-mono text-[10px] leading-relaxed text-starlight/75"
+                          className="max-w-full border border-indigo/40 bg-void/50 px-2 py-1 font-mono text-[9px] leading-relaxed text-starlight/75"
                         >
                           {skill}
                         </li>

@@ -56,7 +56,7 @@ function Atmosphere({ radius }: { radius: number }) {
   );
 }
 
-export function Earth({ position = [0, 2.2, 32], radius = 5.5 }: EarthProps) {
+export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
   const group = useRef<THREE.Group>(null);
   const cloudRef = useRef<THREE.Mesh>(null);
   const spin = useRef(0);
@@ -77,6 +77,12 @@ export function Earth({ position = [0, 2.2, 32], radius = 5.5 }: EarthProps) {
     const tiltX = universeState.mouseY * 0.25;
     const tiltY = universeState.mouseX * 0.4;
     if (group.current) {
+      const arrival = THREE.MathUtils.clamp(
+        (universeState.progress - 0.9) / 0.1,
+        0,
+        1
+      );
+      group.current.scale.setScalar(arrival);
       group.current.rotation.x = THREE.MathUtils.damp(
         group.current.rotation.x,
         tiltX,

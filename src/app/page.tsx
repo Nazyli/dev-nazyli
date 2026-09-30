@@ -20,7 +20,7 @@ export default function Home() {
         <SpaceSceneDynamic />
         <WarpOverlay />
         <div aria-hidden className="obs-vignette pointer-events-none fixed inset-0 z-[5]" />
-        <main id="main" className="relative z-10">
+        <main id="main" tabIndex={-1} className="relative z-10">
           <Hero />
           <About />
           <Expertise />

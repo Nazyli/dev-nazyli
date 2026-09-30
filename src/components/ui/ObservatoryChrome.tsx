@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { scrollController } from "@/lib/scrollController";
-import { universeState } from "@/lib/universeState";
+import { navigateToSection } from "@/lib/sectionNavigation";
 
 const SECTIONS = [
-  { id: "s-hero", index: "01", label: "Deep Field", target: "TGT 01 · DEEP FIELD" },
-  { id: "s-about", index: "02", label: "Observer", target: "TGT 02 · OBSERVER" },
-  { id: "s-expertise", index: "03", label: "Star System", target: "TGT 03 · STAR SYSTEM" },
-  { id: "s-projects", index: "04", label: "Projects", target: "TGT 04 · PROJECTS" },
-  { id: "s-certificates", index: "05", label: "Certificates", target: "TGT 05 · CERTIFICATES" },
-  { id: "s-experience", index: "06", label: "Mission Log", target: "TGT 06 · MISSION LOG" },
-  { id: "s-contact", index: "07", label: "Downlink", target: "TGT 07 · DOWNLINK" },
+  { id: "s-hero", index: "01", label: "Deep Field", mobile: "Deep", compact: "Deep", target: "TGT 01 · DEEP FIELD" },
+  { id: "s-about", index: "02", label: "Observer", mobile: "About", compact: "About", target: "TGT 02 · OBSERVER" },
+  { id: "s-expertise", index: "03", label: "Star System", mobile: "Skills", compact: "Skills", target: "TGT 03 · STAR SYSTEM" },
+  { id: "s-projects", index: "04", label: "Projects", mobile: "Work", compact: "Work", target: "TGT 04 · PROJECTS" },
+  { id: "s-certificates", index: "05", label: "Certificates", mobile: "Certs", compact: "Cert", target: "TGT 05 · CERTIFICATES" },
+  { id: "s-experience", index: "06", label: "Mission Log", mobile: "Log", compact: "Log", target: "TGT 06 · MISSION LOG" },
+  { id: "s-contact", index: "07", label: "Downlink", mobile: "Contact", compact: "Link", target: "TGT 07 · DOWNLINK" },
 ];
 
 let clockValue: string | null = null;
@@ -51,6 +50,7 @@ function useJakartaClock() {
 export function ObservatoryChrome() {
   const clock = useJakartaClock();
   const [active, setActive] = useState(0);
+  const pendingInitialRoute = useRef<string | null>(null);
   const ratios = useRef<number[]>(SECTIONS.map(() => 0));
 
   useEffect(() => {
@@ -76,7 +76,25 @@ export function ObservatoryChrome() {
             best = i;
           }
         });
-        if (best >= 0) setActive(best);
+        if (best >= 0) {
+          const id = SECTIONS[best].id;
+          if (pendingInitialRoute.current && id !== pendingInitialRoute.current) {
+            return;
+          }
+          pendingInitialRoute.current = null;
+          setActive(best);
+
+          if (window.location.hash !== `#${id}`) {
+            window.history.replaceState(
+              typeof window.history.state === "object" &&
+                window.history.state !== null
+                ? { ...window.history.state, section: id }
+                : { section: id },
+              "",
+              `#${id}`,
+            );
+          }
+        }
       },
       { rootMargin: "-42% 0px -42% 0px" }
     );
@@ -85,20 +103,27 @@ export function ObservatoryChrome() {
     return () => io.disconnect();
   }, []);
 
-  const goTo = (id: string) => {
-    const target = document.getElementById(id);
-    if (!target) return;
+  useEffect(() => {
+    const onPopState = () => {
+      const id = window.location.hash.slice(1);
+      navigateToSection(
+        SECTIONS.some((section) => section.id === id) ? id : "s-hero",
+        false,
+      );
+    };
 
-    if (!scrollController.lenis) {
-      target.scrollIntoView({ behavior: "auto" });
-      return;
+    const initialId = window.location.hash.slice(1);
+    const initialIndex = SECTIONS.findIndex((section) => section.id === initialId);
+    if (initialIndex >= 0) {
+      pendingInitialRoute.current = initialId;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => navigateToSection(initialId, false));
+      });
     }
 
-    scrollController.lenis.scrollTo(target, {
-      offset: 0,
-      duration: universeState.reducedMotion ? 0 : 1.4,
-    });
-  };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   return (
     <>
@@ -107,7 +132,7 @@ export function ObservatoryChrome() {
           href="#s-hero"
           onClick={(event) => {
             event.preventDefault();
-            goTo("s-hero");
+            navigateToSection("s-hero");
           }}
           className="flex items-center gap-2 text-starlight/85 transition-colors duration-200 hover:text-accent"
         >
@@ -134,10 +159,10 @@ export function ObservatoryChrome() {
           <button
             key={section.id}
             type="button"
-            onClick={() => goTo(section.id)}
+            onClick={() => navigateToSection(section.id)}
             aria-current={active === i ? "true" : undefined}
             aria-label={section.label}
-            className={`group relative flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] transition-colors duration-200 ${
+            className={`group relative flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-accent ${
               active === i
                 ? "text-gold"
                 : "text-starlight/35 hover:text-starlight/75"
@@ -164,30 +189,25 @@ export function ObservatoryChrome() {
 
       <nav
         aria-label="Sections"
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-7 border-t border-indigo/30 bg-void/95 px-2 py-2 lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-7 border-t border-indigo/30 bg-void/95 px-1 py-2 min-[375px]:gap-x-2 lg:hidden"
       >
         {SECTIONS.map((section, i) => (
           <button
             key={section.id}
             type="button"
-            onClick={() => goTo(section.id)}
+            onClick={() => navigateToSection(section.id)}
             aria-current={active === i ? "true" : undefined}
             aria-label={section.label}
-            className={`flex min-h-10 flex-col items-center justify-center gap-1 font-mono transition-colors focus-visible:text-accent ${
+            className={`flex min-h-11 flex-col items-center justify-center gap-1 font-mono transition-colors focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent ${
               active === i ? "text-gold" : "text-starlight/50"
             }`}
           >
             <span className="text-[9px] tracking-[0.15em]">{section.index}</span>
-            <span className="text-[7px] uppercase tracking-[0.08em]">
-              {section.label === "Deep Field"
-                ? "Deep"
-                : section.label === "Star System"
-                  ? "Skills"
-                  : section.label === "Certificates"
-                    ? "Certs"
-                    : section.label === "Mission Log"
-                      ? "Exp"
-                      : section.label}
+            <span className="text-[8px] uppercase tracking-[0.02em] min-[420px]:hidden">
+              {section.compact}
+            </span>
+            <span className="hidden text-[8px] uppercase tracking-[0.08em] min-[420px]:inline min-[520px]:text-[9px]">
+              {section.mobile}
             </span>
           </button>
         ))}

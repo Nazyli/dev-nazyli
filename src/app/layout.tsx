@@ -30,11 +30,20 @@ export const metadata: Metadata = {
     siteName: "Nazyli Universe",
     title: "Evry Nazyli - AI Engineer",
     description: "A journey through the universe of Evry Nazyli, AI Engineer.",
+    images: [
+      {
+        url: "/nazyli-og.png",
+        width: 1200,
+        height: 630,
+        alt: "Evry Nazyli — AI Engineer portfolio",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Evry Nazyli - AI Engineer",
     description: "A journey through the universe of Evry Nazyli, AI Engineer.",
+    images: ["/nazyli-og.png"],
   },
 };
 

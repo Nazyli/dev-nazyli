@@ -88,6 +88,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .warp-overlay {
+    display: none;
+  }
+
   .exp-node {
     opacity: 1;
     transition: none;
@@ -95,6 +99,16 @@
 }
 
 /* Orbiting planets in the expertise solar system */
+.skill-orbit-node {
+  transform: translateX(var(--skill-orbit-offset));
+}
+
+@media (max-width: 639px) {
+  .skill-orbit-node {
+    --skill-orbit-offset: calc(var(--solar) * 0.415) !important;
+  }
+}
+
 .planet {
   display: block;
   border-radius: 9999px;

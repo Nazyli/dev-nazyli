@@ -59,11 +59,18 @@ export function Projects() {
               end: () => `+=${window.innerHeight * slides.length}`,
               pin: true,
               scrub: 0.65,
+              snap: {
+                snapTo: "labelsDirectional",
+                delay: 0.08,
+                duration: { min: 0.2, max: 0.55 },
+                ease: "power2.out",
+              },
               anticipatePin: 1,
               invalidateOnRefresh: true,
             },
           });
 
+          timeline.addLabel("project-01", 0.25);
           if (paths[0]) {
             timeline.to(paths[0], { strokeDashoffset: 0, duration: 0.25 });
           }
@@ -89,8 +96,13 @@ export function Projects() {
                 transition + 0.15,
               );
             }
+            timeline.addLabel(
+              `project-${String(index + 2).padStart(2, "0")}`,
+              transition + 0.4,
+            );
           });
           timeline.to({}, { duration: 1 }, slides.length - 1);
+          timeline.addLabel("project-end", timeline.duration());
 
           return () => section.classList.remove("projects-pinned");
         },

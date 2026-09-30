@@ -28,9 +28,9 @@ export function Contact() {
   );
 
   const links = [
+    { label: "Email Evry", href: "mailto:info@nazyli.com", primary: true },
     { label: "GitHub", href: "https://github.com/Nazyli" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/evrynazyli/" },
-    { label: "Email", href: "mailto:info@nazyli.com" },
   ];
 
   return (
@@ -38,7 +38,7 @@ export function Contact() {
       id="s-contact"
       ref={root}
       aria-label="Contact"
-      className="relative flex min-h-screen flex-col items-center justify-center px-6 pb-24 pt-20 text-center lg:py-24"
+      className="relative flex min-h-screen min-h-svh flex-col items-center justify-center px-6 pb-24 pt-20 text-center lg:py-24"
     >
       <SectionHeading
         index="07"
@@ -50,16 +50,20 @@ export function Contact() {
       <h2 className="contact-reveal mt-8 max-w-2xl font-display text-4xl font-medium leading-tight tracking-tight text-starlight sm:text-6xl">
         Have an idea worth building?
       </h2>
-      <p className="contact-reveal mt-6 font-mono text-sm uppercase tracking-[0.3em] text-accent">
+      <p className="contact-reveal mt-6 font-mono text-sm uppercase tracking-[0.3em] text-accent max-[360px]:text-xs max-[360px]:tracking-[0.2em]">
         Let&apos;s build something intelligent.
       </p>
 
-      <ul className="contact-reveal mt-14 flex flex-wrap items-center justify-center gap-12">
+      <ul className="contact-reveal mt-14 grid w-full max-w-2xl grid-cols-3 items-stretch justify-center gap-x-2 max-[360px]:mt-8 sm:flex sm:items-center sm:gap-12">
         {links.map((link, i) => (
           <li key={link.label}>
             <a
               href={link.href}
-              className="group flex flex-col items-center gap-2 font-mono text-xs uppercase tracking-[0.3em] text-starlight/70 transition-colors duration-300 hover:text-accent focus-visible:text-accent"
+              className={`group flex min-h-11 w-full flex-col items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-[0.08em] transition-colors duration-300 focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-accent sm:w-auto sm:text-xs sm:tracking-[0.3em] ${
+                link.primary
+                  ? "border border-accent/50 px-2 text-accent hover:bg-accent/10 focus-visible:bg-accent/10 sm:px-4"
+                  : "px-2 text-starlight/70 hover:text-accent"
+              }`}
             >
               <span className="font-mono text-[9px] tracking-[0.3em] text-starlight/60 transition-colors duration-300 group-hover:text-gold">
                 CH-0{i + 1}

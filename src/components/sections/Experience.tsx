@@ -66,7 +66,7 @@ export function Experience() {
       id="s-experience"
       ref={root}
       aria-label="Experience"
-      className="relative flex min-h-screen flex-col items-center justify-center px-6 py-24"
+      className="relative flex min-h-screen min-h-svh flex-col items-center justify-center px-6 py-24"
     >
       <div className="mb-20 flex flex-col items-center text-center">
         <SectionHeading
@@ -80,7 +80,10 @@ export function Experience() {
         </h2>
       </div>
 
-      <div className="relative mx-auto w-full max-w-4xl">
+      <ol
+        aria-label="Career experience timeline"
+        className="relative mx-auto w-full max-w-4xl"
+      >
         <div className="absolute bottom-0 left-[19px] top-0 w-px bg-indigo/30 md:left-1/2">
           <div
             ref={fillRef}
@@ -91,11 +94,14 @@ export function Experience() {
         {publishedExperience.map((entry, i) => {
           const onLeft = i % 2 === 0;
           return (
-            <div
+            <li
               key={entry.id}
               className="exp-entry relative mb-20 pl-12 last:mb-0 md:grid md:grid-cols-2 md:gap-16 md:pl-0"
             >
-              <span className="exp-node absolute left-[19px] top-1 h-4 w-4 md:left-1/2 md:-translate-x-1/2">
+              <span
+                aria-hidden="true"
+                className="exp-node absolute left-[19px] top-1 h-4 w-4 md:left-1/2 md:-translate-x-1/2"
+              >
                 <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-gold" />
                 <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-gold" />
               </span>
@@ -117,10 +123,10 @@ export function Experience() {
                   {entry.description}
                 </p>
               </div>
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ol>
     </section>
   );
 }

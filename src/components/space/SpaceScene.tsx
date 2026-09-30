@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useSyncExternalStore } from "react";
 import { supportsWebGL } from "@/lib/webgl";
 import { AccretionDisk } from "./AccretionDisk";
 import { DustClouds } from "./DustClouds";
@@ -12,16 +12,37 @@ import { ShootingStar } from "./ShootingStar";
 import { SpaceCamera } from "./SpaceCamera";
 import { Stars } from "./Stars";
 
-function ReadySignal({ onReady }: { onReady?: () => void }) {
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+function subscribeToMotionPreference(onChange: () => void) {
+  const media = window.matchMedia(REDUCED_MOTION_QUERY);
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
+}
+
+function getMotionPreference() {
+  return window.matchMedia(REDUCED_MOTION_QUERY).matches;
+}
+
+function ReadySignal({
+  onReady,
+  reducedMotion,
+}: {
+  onReady?: () => void;
+  reducedMotion: boolean;
+}) {
   const frame = useRef(0);
   const fired = useRef(false);
 
-  useFrame(() => {
+  useFrame((state) => {
+    if (fired.current) return;
     frame.current += 1;
     if (frame.current >= 3 && !fired.current) {
       fired.current = true;
       onReady?.();
+      return;
     }
+    if (reducedMotion) state.invalidate();
   });
 
   return null;
@@ -29,6 +50,11 @@ function ReadySignal({ onReady }: { onReady?: () => void }) {
 
 export function SpaceScene({ onReady }: { onReady?: () => void }) {
   const webgl = useMemo(() => supportsWebGL(), []);
+  const reducedMotion = useSyncExternalStore(
+    subscribeToMotionPreference,
+    getMotionPreference,
+    () => false,
+  );
 
   if (!webgl) {
     return (
@@ -42,6 +68,7 @@ export function SpaceScene({ onReady }: { onReady?: () => void }) {
       className="pointer-events-none fixed inset-0 z-0"
     >
       <Canvas
+        frameloop={reducedMotion ? "demand" : "always"}
         dpr={[1, 1.75]}
         gl={{ antialias: true, powerPreference: "high-performance" }}
         camera={{ fov: 55, near: 0.1, far: 500, position: [0, 0, -46] }}
@@ -54,10 +81,10 @@ export function SpaceScene({ onReady }: { onReady?: () => void }) {
         <Stars />
         <AccretionDisk />
         <ShootingStar />
-        <Planet position={[3.4, 0.8, -21]} radius={2} />
-        <Earth position={[0, 2.2, 32]} radius={5.5} />
+        <Planet position={[3.4, 0.8, -26]} radius={1} />
+        <Earth position={[7, 12.2, 150]} radius={5.5} />
         <SpaceCamera />
-        <ReadySignal onReady={onReady} />
+        <ReadySignal onReady={onReady} reducedMotion={reducedMotion} />
       </Canvas>
     </div>
   );
