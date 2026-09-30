@@ -69,7 +69,7 @@ export function CertificateArchive({
     let firstFrame = 0;
     let secondFrame = 0;
 
-    const openCredentialFromHash = () => {
+    const openCredentialFromHash = (retry = false) => {
       const index = getCertificateIndexFromHash(
         window.location.hash,
         certificates,
@@ -78,7 +78,19 @@ export function CertificateArchive({
       if (!certificate) return;
 
       const details = document.getElementById(`credential-${certificate.no}`);
-      if (!(details instanceof HTMLDetailsElement)) return;
+      if (!(details instanceof HTMLDetailsElement)) {
+        if (!retry) {
+          setQuery("");
+          setProvider("All sources");
+          setValidity("all");
+          firstFrame = requestAnimationFrame(() => {
+            secondFrame = requestAnimationFrame(() =>
+              openCredentialFromHash(true),
+            );
+          });
+        }
+        return;
+      }
       details.open = true;
 
       cancelAnimationFrame(firstFrame);
@@ -96,14 +108,15 @@ export function CertificateArchive({
       });
     };
 
-    openCredentialFromHash();
-    window.addEventListener("hashchange", openCredentialFromHash);
-    window.addEventListener("popstate", openCredentialFromHash);
+    const handleCredentialNavigation = () => openCredentialFromHash();
+    handleCredentialNavigation();
+    window.addEventListener("hashchange", handleCredentialNavigation);
+    window.addEventListener("popstate", handleCredentialNavigation);
     return () => {
       cancelAnimationFrame(firstFrame);
       cancelAnimationFrame(secondFrame);
-      window.removeEventListener("hashchange", openCredentialFromHash);
-      window.removeEventListener("popstate", openCredentialFromHash);
+      window.removeEventListener("hashchange", handleCredentialNavigation);
+      window.removeEventListener("popstate", handleCredentialNavigation);
     };
   }, [certificates]);
   const providers = [
