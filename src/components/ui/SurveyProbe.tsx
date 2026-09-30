@@ -49,6 +49,7 @@ export function SurveyProbe() {
     if (!ctx) return;
 
     let rafId = 0;
+    let scheduleFrame = () => {};
     let shown = false;
     let tx = window.innerWidth / 2;
     let ty = window.innerHeight / 2;
@@ -80,6 +81,7 @@ export function SurveyProbe() {
       }
       tx = event.clientX;
       ty = event.clientY;
+      scheduleFrame();
     };
 
     const onDown = (event: PointerEvent) => {
@@ -102,11 +104,11 @@ export function SurveyProbe() {
         });
       }
       explosions.push({ x: event.clientX, y: event.clientY, age: 0, particles });
+      scheduleFrame();
     };
 
     const tick = (now: number) => {
       rafId = requestAnimationFrame(tick);
-      if (!shown) return;
       const dt = Math.min((now - last) / 1000, 0.05) || 0.016;
       last = now;
 
@@ -213,10 +215,13 @@ export function SurveyProbe() {
       ctx.restore();
     };
 
+    scheduleFrame = () => {
+      if (rafId === 0) rafId = requestAnimationFrame(tick);
+    };
+
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerdown", onDown);
     window.addEventListener("resize", resize);
-    rafId = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener("pointermove", onMove);
