@@ -3,8 +3,10 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <main
+      id="main"
       aria-labelledby="not-found-title"
       className="relative isolate grid min-h-dvh place-items-center overflow-hidden bg-void px-6 py-16 text-starlight"
+      tabIndex={-1}
     >
       <Link
         href="/"
