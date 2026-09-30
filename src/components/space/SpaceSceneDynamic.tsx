@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useEntrance } from "@/components/providers/EntranceProvider";
 import { supportsWebGL } from "@/lib/webgl";
 import { SpaceSceneErrorBoundary } from "./SpaceSceneErrorBoundary";
@@ -31,6 +31,10 @@ export function SpaceSceneDynamic() {
   const { markReady } = useEntrance();
   const [mounted, setMounted] = useState(false);
   const [webgl, setWebgl] = useState(false);
+  const handleContextLost = useCallback(() => {
+    setWebgl(false);
+    markReady();
+  }, [markReady]);
   const reducedMotion = useSyncExternalStore(
     subscribeToMotionPreference,
     getMotionPreference,
@@ -63,7 +67,7 @@ export function SpaceSceneDynamic() {
 
   return (
     <SpaceSceneErrorBoundary fallback={<StaticStarMap />} onError={markReady}>
-      <SpaceScene onReady={markReady} />
+      <SpaceScene onReady={markReady} onContextLost={handleContextLost} />
     </SpaceSceneErrorBoundary>
   );
 }

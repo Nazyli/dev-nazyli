@@ -1,7 +1,7 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
-import { useRef, useSyncExternalStore } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { AccretionDisk } from "./AccretionDisk";
 import { DustClouds } from "./DustClouds";
 import { Earth } from "./Earth";
@@ -57,7 +57,27 @@ function ReadySignal({
   return null;
 }
 
-export function SpaceScene({ onReady }: { onReady?: () => void }) {
+function ContextLossSignal({ onContextLost }: { onContextLost?: () => void }) {
+  const canvas = useThree((state) => state.gl.domElement);
+
+  useEffect(() => {
+    if (!onContextLost) return;
+    const handleContextLost = () => onContextLost();
+    canvas.addEventListener("webglcontextlost", handleContextLost);
+    return () =>
+      canvas.removeEventListener("webglcontextlost", handleContextLost);
+  }, [canvas, onContextLost]);
+
+  return null;
+}
+
+export function SpaceScene({
+  onReady,
+  onContextLost,
+}: {
+  onReady?: () => void;
+  onContextLost?: () => void;
+}) {
   const reducedMotion = useSyncExternalStore(
     subscribeToMotionPreference,
     getMotionPreference,
@@ -82,6 +102,7 @@ export function SpaceScene({ onReady }: { onReady?: () => void }) {
         gl={{ antialias: true, powerPreference: "high-performance" }}
         camera={{ fov: 55, near: 0.1, far: 500, position: [0, 0, -46] }}
       >
+        <ContextLossSignal onContextLost={onContextLost} />
         <ambientLight intensity={0.3} />
         <directionalLight position={[14, 5, 9]} intensity={3.2} color="#f5efe0" />
         <directionalLight position={[-10, -4, -6]} intensity={0.5} color="#1e213f" />
