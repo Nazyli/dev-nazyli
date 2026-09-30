@@ -73,6 +73,27 @@
   opacity: 1;
 }
 
+.projects-pinned .project-stage {
+  display: grid;
+  min-height: 28rem;
+}
+
+.projects-pinned .project-slide {
+  grid-area: 1 / 1;
+  border-bottom-width: 0;
+}
+
+.projects-pinned .project-slide:not(:first-child) {
+  border-top-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exp-node {
+    opacity: 1;
+    transition: none;
+  }
+}
+
 /* Orbiting planets in the expertise solar system */
 .planet {
   display: block;

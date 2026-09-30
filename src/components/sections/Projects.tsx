@@ -24,6 +24,104 @@ export function Projects() {
           },
         });
       });
+
+      mm.add(
+        "(prefers-reduced-motion: no-preference) and (min-width: 1024px)",
+        () => {
+          const section = root.current;
+          if (!section) return;
+
+          const slides = gsap.utils.toArray<HTMLElement>(
+            ".project-slide",
+            section,
+          );
+          if (slides.length < 2) return;
+
+          section.classList.add("projects-pinned");
+          const paths = slides.map((slide) =>
+            slide.querySelector<SVGPathElement>(".project-constellation-path"),
+          );
+
+          paths.forEach((path) => {
+            if (!path) return;
+            const length = path.getTotalLength();
+            gsap.set(path, {
+              strokeDasharray: length,
+              strokeDashoffset: length,
+            });
+          });
+          gsap.set(slides.slice(1), { autoAlpha: 0, y: 18 });
+
+          const timeline = gsap.timeline({
+            scrollTrigger: {
+              trigger: section,
+              start: "top top",
+              end: () => `+=${window.innerHeight * slides.length}`,
+              pin: true,
+              scrub: 0.65,
+              anticipatePin: 1,
+              invalidateOnRefresh: true,
+            },
+          });
+
+          if (paths[0]) {
+            timeline.to(paths[0], { strokeDashoffset: 0, duration: 0.25 });
+          }
+
+          slides.slice(1).forEach((slide, index) => {
+            const transition = index + 0.7;
+            timeline.to(slides[index], {
+              autoAlpha: 0,
+              y: -18,
+              duration: 0.15,
+            }, transition);
+            timeline.fromTo(
+              slide,
+              { autoAlpha: 0, y: 18 },
+              { autoAlpha: 1, y: 0, duration: 0.15 },
+              transition + 0.15,
+            );
+            const path = paths[index + 1];
+            if (path) {
+              timeline.to(
+                path,
+                { strokeDashoffset: 0, duration: 0.25 },
+                transition + 0.15,
+              );
+            }
+          });
+          timeline.to({}, { duration: 1 }, slides.length - 1);
+
+          return () => section.classList.remove("projects-pinned");
+        },
+      );
+
+      mm.add(
+        "(prefers-reduced-motion: no-preference) and (max-width: 1023px)",
+        () => {
+          gsap.utils
+            .toArray<SVGPathElement>(".project-constellation-path", root.current)
+            .forEach((path) => {
+              const length = path.getTotalLength();
+              gsap.set(path, {
+                strokeDasharray: length,
+                strokeDashoffset: length,
+              });
+              gsap.to(path, {
+                strokeDashoffset: 0,
+                duration: 1.4,
+                ease: "power2.out",
+                scrollTrigger: {
+                  trigger: path,
+                  start: "top 78%",
+                  once: true,
+                },
+              });
+            });
+        },
+      );
+
+      return () => mm.revert();
     },
     { scope: root },
   );
@@ -33,7 +131,7 @@ export function Projects() {
       id="s-projects"
       ref={root}
       aria-label="Projects"
-      className="relative flex min-h-screen items-center px-6 py-24 sm:px-16 lg:px-24"
+      className="relative flex min-h-screen min-h-svh items-center px-6 py-24 sm:px-16 lg:px-24"
     >
       <div className="mx-auto w-full max-w-6xl">
         <SectionHeading
@@ -47,11 +145,12 @@ export function Projects() {
             <h2 className="max-w-xl font-display text-4xl font-medium leading-tight tracking-tight text-starlight sm:text-6xl">
               Built systems, made useful.
             </h2>
-            <p className="mt-6 max-w-lg text-base leading-relaxed text-starlight/70 sm:text-lg">
-              A record of the applications and tools behind the ideas. Each
-              entry belongs here when its details are ready to stand on their
-              own.
-            </p>
+            {publishedProjects.length > 0 && (
+              <p className="mt-6 max-w-lg text-base leading-relaxed text-starlight/70 sm:text-lg">
+                A workflow studio, a predictive analytics study, and a cloud
+                automation tool.
+              </p>
+            )}
             <p className="mt-8 font-mono text-[10px] uppercase tracking-[0.3em] text-gold">
               {String(publishedProjects.length).padStart(2, "0")} published
               project records
@@ -59,11 +158,11 @@ export function Projects() {
           </div>
 
           {publishedProjects.length > 0 ? (
-            <div className="projects-reveal divide-y divide-indigo/40 border-y border-indigo/40">
+            <div className="projects-reveal project-stage divide-y divide-indigo/40 border-y border-indigo/40">
               {publishedProjects.map((project) => (
                 <article
                   key={project.id}
-                  className="grid gap-5 py-7 sm:grid-cols-[112px_1fr] sm:gap-7"
+                  className="project-slide grid gap-5 py-7 sm:grid-cols-[112px_1fr] sm:gap-7"
                 >
                   {project.constellation && (
                     <svg
@@ -73,7 +172,7 @@ export function Projects() {
                     >
                       <path
                         d={buildConstellationPath(project.constellation)}
-                        className="fill-none stroke-accent/70"
+                        className="project-constellation-path fill-none stroke-accent/70"
                         strokeWidth="1.2"
                         vectorEffect="non-scaling-stroke"
                       />
@@ -150,6 +249,7 @@ export function Projects() {
                             href={link.href}
                             target="_blank"
                             rel="noreferrer"
+                            aria-label={`${link.label}: ${project.title} (opens in a new tab)`}
                             className="inline-flex font-mono text-[10px] uppercase tracking-[0.25em] text-accent underline decoration-accent/40 underline-offset-4 transition-colors hover:text-starlight"
                           >
                             {link.label}
@@ -162,22 +262,14 @@ export function Projects() {
             </div>
           ) : (
             <div className="projects-reveal flex min-h-72 flex-col justify-center border-y border-indigo/40 py-10 lg:pl-10">
-              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold">
-                Archive awaiting records
-              </p>
-              <p className="mt-5 max-w-lg font-display text-2xl leading-snug tracking-tight text-starlight sm:text-3xl">
+              <p className="max-w-lg font-display text-2xl leading-snug tracking-tight text-starlight sm:text-3xl">
                 No project details have been published here yet.
-              </p>
-              <p className="mt-4 max-w-lg text-sm leading-relaxed text-starlight/65">
-                The available entries are marked as drafts, so they are kept
-                out of the public project catalog until real project
-                information is ready.
               </p>
               <a
                 href="https://github.com/Nazyli"
                 target="_blank"
                 rel="noreferrer"
-                className="mt-7 inline-flex w-fit font-mono text-[10px] uppercase tracking-[0.25em] text-accent underline decoration-accent/40 underline-offset-4 transition-colors hover:text-starlight"
+                className="mt-7 inline-flex min-h-11 w-fit items-center border border-accent/50 px-4 font-mono text-[10px] uppercase tracking-[0.2em] text-accent transition-colors hover:bg-accent/10 hover:text-starlight focus-visible:bg-accent/10"
               >
                 Browse GitHub repositories
               </a>
