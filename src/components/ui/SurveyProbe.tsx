@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useAmbientMotionPaused } from "@/hooks/useAmbientMotionPaused";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 const PROBE_TRAIL = 16;
@@ -35,12 +36,13 @@ type Explosion = {
 
 export function SurveyProbe() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ambientMotionPaused = useAmbientMotionPaused();
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    if (reducedMotion) {
+    if (reducedMotion || ambientMotionPaused) {
       canvas.style.opacity = "0";
       return;
     }
@@ -243,7 +245,7 @@ export function SurveyProbe() {
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [reducedMotion]);
+  }, [ambientMotionPaused, reducedMotion]);
 
   return (
     <canvas
