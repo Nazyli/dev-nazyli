@@ -30,6 +30,11 @@ export function handleSectionLinkClick(
 export function navigateToSection(id: string, updateHistory = true) {
   const target = document.getElementById(id);
   if (!target) return;
+  const heading = target.querySelector<HTMLElement>("h1, h2");
+  if (heading) {
+    heading.tabIndex = -1;
+    heading.focus({ preventScroll: true });
+  }
   const scrollTarget =
     (target.closest(".pin-spacer") as HTMLElement | null) ?? target;
 
