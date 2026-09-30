@@ -53,7 +53,7 @@ src/
 
 ## Content
 
-Content lives in `src/data/*` and is typed. `projects.json` currently contains draft records marked `[TODO]`; those are kept out of the public Projects catalog until real project details are added. The catalog links to Evry's GitHub profile in the meantime. `certificate.json` feeds a separate Certificates archive. Experience records marked `20XX`, `Details withheld`, or `Confidential` are omitted from the public timeline while the available AI Engineer role remains visible.
+Content lives in `src/data/*` and is typed. `src/data/projects.json` currently supplies three published project records; `published-projects.ts` filters out draft titles marked `[TODO]` and dummy descriptions. `certificate.json` powers the searchable Certificates archive, with provider and validity filters plus copyable credential citations. Experience records marked `20XX`, `Details withheld`, or `Confidential` are omitted from the public timeline, leaving the available AI Engineer role visible.
 
 ## Deploy
 
