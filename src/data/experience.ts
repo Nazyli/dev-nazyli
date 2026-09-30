@@ -30,3 +30,16 @@ export const experience: ExperienceEntry[] = [
     description: "Entry classified - full record unavailable.",
   },
 ];
+
+export function getPublishedExperience<T extends ExperienceEntry>(
+  entries: readonly T[],
+): T[] {
+  const placeholder = /\b(?:20XX|details withheld|confidential|entry classified)\b/i;
+  return entries.filter((entry) =>
+    !placeholder.test(
+      `${entry.period} ${entry.role} ${entry.company} ${entry.description}`,
+    ),
+  );
+}
+
+export const publishedExperience = getPublishedExperience(experience);

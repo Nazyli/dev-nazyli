@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
-import { experience } from "@/data/experience";
+import { publishedExperience } from "@/data/experience";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export function Experience() {
@@ -70,7 +70,7 @@ export function Experience() {
     >
       <div className="mb-20 flex flex-col items-center text-center">
         <SectionHeading
-          index="04"
+          index="06"
           label="Experience"
           descriptor="Mission log"
           align="center"
@@ -88,7 +88,7 @@ export function Experience() {
           />
         </div>
 
-        {experience.map((entry, i) => {
+        {publishedExperience.map((entry, i) => {
           const onLeft = i % 2 === 0;
           return (
             <div

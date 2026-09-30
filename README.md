@@ -2,7 +2,7 @@
 
 Personal portfolio for **Evry Nazyli** — AI Engineer.
 
-A single-page, immersive **"journey through space"** experience: the visitor starts in deep space and scrolls through the universe — Hero → About (planet reveal) → Expertise (solar system) → Projects (constellations) → Experience (space timeline) → Contact (Earth).
+A single-page, immersive **"journey through space"** experience: the visitor starts in deep space and scrolls through the universe — Hero → About (planet reveal) → Expertise (solar system) → Projects → Certificates → Experience (space timeline) → Contact (Earth).
 
 ## Stack
 
@@ -24,6 +24,12 @@ npm run build
 npm run start      # serve production build
 ```
 
+The published-project and public-experience selectors can be checked with:
+
+```bash
+node --experimental-strip-types --test src/data/published-projects.test.mjs src/data/published-experience.test.mjs
+```
+
 ## Concept
 
 One fixed WebGL canvas renders the universe (star-map, planets, constellation backdrop, Earth) while all content lives in normal DOM on top. Scroll drives a camera that travels through space along a scripted path, with each section marking a waypoint in the journey.
@@ -36,7 +42,7 @@ One fixed WebGL canvas renders the universe (star-map, planets, constellation ba
 src/
 ├── app/            layout · page · globals.css (design tokens)
 ├── components/
-│   ├── sections/   Hero · About · Expertise · Projects · Experience · Contact
+│   ├── sections/   Hero · About · Expertise · Projects · Certificates · Experience · Contact
 │   ├── space/      SpaceScene · SpaceCamera · Stars · Planet · Earth · ...
 │   ├── ui/         Navigation · Cursor · SectionHeading · NavDots
 │   └── providers/  ScrollProvider (Lenis + ScrollTrigger)
@@ -47,7 +53,7 @@ src/
 
 ## Content
 
-All content lives in `src/data/*` and is typed. Current entries are placeholders marked `[TODO]` — replace them with real projects, skills, and experience.
+Content lives in `src/data/*` and is typed. `projects.json` currently contains draft records marked `[TODO]`; those are kept out of the public Projects catalog until real project details are added. The catalog links to Evry's GitHub profile in the meantime. `certificate.json` feeds a separate Certificates archive. Experience records marked `20XX`, `Details withheld`, or `Confidential` are omitted from the public timeline while the available AI Engineer role remains visible.
 
 ## Deploy
 

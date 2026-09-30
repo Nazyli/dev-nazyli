@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { cameraPath, cameraTargetPath } from "@/lib/cameraPath";
@@ -10,6 +10,8 @@ const tmpPosition = new THREE.Vector3();
 const tmpTarget = new THREE.Vector3();
 
 export function SpaceCamera() {
+  const hasMoved = useRef(false);
+
   useEffect(() => {
     const onPointerMove = (event: PointerEvent) => {
       universeState.mouseX = (event.clientX / window.innerWidth - 0.5) * 2;
@@ -21,6 +23,18 @@ export function SpaceCamera() {
 
   useFrame((state, delta) => {
     const camera = state.camera;
+    const reducedMotion = universeState.reducedMotion;
+    if (reducedMotion) {
+      if (!hasMoved.current) {
+        cameraPath.getPointAt(0, tmpPosition);
+        cameraTargetPath.getPointAt(0, tmpTarget);
+        camera.position.copy(tmpPosition);
+        camera.lookAt(tmpTarget);
+      }
+      return;
+    }
+
+    hasMoved.current = true;
     const t = universeState.progress;
     cameraPath.getPointAt(t, tmpPosition);
     cameraTargetPath.getPointAt(t, tmpTarget);

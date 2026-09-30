@@ -1,4 +1,7 @@
 import rawProjects from "./projects.json";
+import { getPublishedProjects } from "./published-projects";
+
+export { getPublishedProjects } from "./published-projects";
 
 export type Constellation = {
   stars: [number, number][];
@@ -7,22 +10,30 @@ export type Constellation = {
 
 export type Project = {
   id: string;
-  index: string;
+  index?: string;
   title: string;
   description: string;
-  tags: string[];
+  tags?: string[];
+  technologies?: string[];
+  role?: string;
+  contribution?: string;
+  period?: string;
+  year?: string | number;
+  repositoryUrl?: string;
+  demoUrl?: string;
   link?: string;
-  constellation: Constellation;
+  constellation?: Constellation;
 };
 
-export function buildConstellationPath(project: Project): string {
-  return project.constellation.lines
+export function buildConstellationPath(constellation: Constellation): string {
+  return constellation.lines
     .map(([from, to]) => {
-      const [ax, ay] = project.constellation.stars[from];
-      const [bx, by] = project.constellation.stars[to];
+      const [ax, ay] = constellation.stars[from];
+      const [bx, by] = constellation.stars[to];
       return `M ${ax} ${ay} L ${bx} ${by}`;
     })
     .join(" ");
 }
 
 export const projects: Project[] = rawProjects as Project[];
+export const publishedProjects = getPublishedProjects(projects);

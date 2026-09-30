@@ -3,6 +3,8 @@
 import { useRef } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { DataPlate, DataRow } from "@/components/ui/DataPlate";
+import { publishedProjects } from "@/data/projects";
+import { certificates } from "@/data/certificates";
 
 export function Hero() {
   const root = useRef<HTMLElement>(null);
@@ -40,7 +42,7 @@ export function Hero() {
             Primary target · Deep field
           </p>
           <div className="mt-6 overflow-hidden">
-            <h1 className="hero-line font-display text-6xl font-medium tracking-tight text-starlight sm:text-8xl">
+            <h1 className="hero-line font-display text-5xl font-medium tracking-tight text-starlight sm:text-8xl">
               EVRY NAZYLI
             </h1>
           </div>
@@ -60,11 +62,13 @@ export function Hero() {
 
         <div className="hero-reveal hidden w-72 lg:block">
           <DataPlate title="Target identification">
-            <DataRow k="Since" v="2017" />
-            <DataRow k="Path" v="Web → Backend → AI" />
-            <DataRow k="Projects" v="21" />
-            <DataRow k="Certificates" v="13" />
-            <DataRow k="Experience" v="9 yrs" />
+            <DataRow k="Focus" v="AI engineering" />
+            <DataRow k="Systems" v="LLM · Voice AI · Backend" />
+            <DataRow
+              k="Projects"
+              v={`${String(publishedProjects.length).padStart(2, "0")} published`}
+            />
+            <DataRow k="Credentials" v={String(certificates.length)} />
           </DataPlate>
         </div>
       </div>

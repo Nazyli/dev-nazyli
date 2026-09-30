@@ -38,10 +38,10 @@ export function Contact() {
       id="s-contact"
       ref={root}
       aria-label="Contact"
-      className="relative flex min-h-screen flex-col items-center justify-center px-6 text-center"
+      className="relative flex min-h-screen flex-col items-center justify-center px-6 pb-24 pt-20 text-center lg:py-24"
     >
       <SectionHeading
-        index="05"
+        index="07"
         label="Contact"
         descriptor="Downlink"
         align="center"
@@ -70,7 +70,7 @@ export function Contact() {
         ))}
       </ul>
 
-      <footer className="contact-reveal absolute bottom-8 left-0 right-0">
+      <footer className="contact-reveal absolute bottom-16 left-0 right-0 lg:bottom-8">
         <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/75">
           Evry Nazyli - 2026
         </p>

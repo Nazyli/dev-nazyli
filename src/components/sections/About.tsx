@@ -38,7 +38,7 @@ export function About() {
       <div className="mx-auto grid w-full max-w-6xl items-center gap-14 lg:grid-cols-[1.15fr_1fr]">
         <div>
           <SectionHeading
-            index="01"
+            index="02"
             label="About"
             descriptor="Observer profile"
             className="about-reveal"

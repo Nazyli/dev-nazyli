@@ -47,7 +47,7 @@ export function Expertise() {
     >
       <div className="mb-12 flex flex-col items-center text-center">
         <SectionHeading
-          index="02"
+          index="03"
           label="Expertise"
           descriptor="Star system catalog"
           align="center"

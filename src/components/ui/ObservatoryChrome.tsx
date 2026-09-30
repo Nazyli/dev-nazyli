@@ -8,9 +8,10 @@ const SECTIONS = [
   { id: "s-hero", index: "01", label: "Deep Field", target: "TGT 01 · DEEP FIELD" },
   { id: "s-about", index: "02", label: "Observer", target: "TGT 02 · OBSERVER" },
   { id: "s-expertise", index: "03", label: "Star System", target: "TGT 03 · STAR SYSTEM" },
-  { id: "s-projects", index: "04", label: "Constellation", target: "TGT 04 · CONSTELLATION" },
-  { id: "s-experience", index: "05", label: "Mission Log", target: "TGT 05 · MISSION LOG" },
-  { id: "s-contact", index: "06", label: "Downlink", target: "TGT 06 · DOWNLINK" },
+  { id: "s-projects", index: "04", label: "Projects", target: "TGT 04 · PROJECTS" },
+  { id: "s-certificates", index: "05", label: "Certificates", target: "TGT 05 · CERTIFICATES" },
+  { id: "s-experience", index: "06", label: "Mission Log", target: "TGT 06 · MISSION LOG" },
+  { id: "s-contact", index: "07", label: "Downlink", target: "TGT 07 · DOWNLINK" },
 ];
 
 let clockValue: string | null = null;
@@ -85,7 +86,15 @@ export function ObservatoryChrome() {
   }, []);
 
   const goTo = (id: string) => {
-    scrollController.lenis?.scrollTo(id, {
+    const target = document.getElementById(id);
+    if (!target) return;
+
+    if (!scrollController.lenis) {
+      target.scrollIntoView({ behavior: "auto" });
+      return;
+    }
+
+    scrollController.lenis.scrollTo(target, {
       offset: 0,
       duration: universeState.reducedMotion ? 0 : 1.4,
     });
@@ -149,6 +158,37 @@ export function ObservatoryChrome() {
               }`}
             />
             {section.index}
+          </button>
+        ))}
+      </nav>
+
+      <nav
+        aria-label="Sections"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-7 border-t border-indigo/30 bg-void/95 px-2 py-2 lg:hidden"
+      >
+        {SECTIONS.map((section, i) => (
+          <button
+            key={section.id}
+            type="button"
+            onClick={() => goTo(section.id)}
+            aria-current={active === i ? "true" : undefined}
+            aria-label={section.label}
+            className={`flex min-h-10 flex-col items-center justify-center gap-1 font-mono transition-colors focus-visible:text-accent ${
+              active === i ? "text-gold" : "text-starlight/50"
+            }`}
+          >
+            <span className="text-[9px] tracking-[0.15em]">{section.index}</span>
+            <span className="text-[7px] uppercase tracking-[0.08em]">
+              {section.label === "Deep Field"
+                ? "Deep"
+                : section.label === "Star System"
+                  ? "Skills"
+                  : section.label === "Certificates"
+                    ? "Certs"
+                    : section.label === "Mission Log"
+                      ? "Exp"
+                      : section.label}
+            </span>
           </button>
         ))}
       </nav>
