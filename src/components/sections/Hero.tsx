@@ -5,7 +5,7 @@ import Link from "next/link";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { DataPlate, DataRow } from "@/components/ui/DataPlate";
 import { certificates } from "@/data/certificates";
-import { navigateToSection } from "@/lib/sectionNavigation";
+import { handleSectionLinkClick } from "@/lib/sectionNavigation";
 
 export function Hero() {
   const root = useRef<HTMLElement>(null);
@@ -59,30 +59,21 @@ export function Hero() {
           <div className="hero-reveal mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
             <Link
               href="#s-projects"
-              onClick={(event) => {
-                event.preventDefault();
-                navigateToSection("s-projects");
-              }}
+              onClick={(event) => handleSectionLinkClick(event, "s-projects")}
               className="inline-flex min-h-11 items-center border border-accent/50 px-4 font-mono text-[10px] uppercase tracking-[0.2em] text-accent transition-colors hover:bg-accent/10 focus-visible:bg-accent/10 motion-reduce:transition-none"
             >
               View selected work
             </Link>
             <Link
               href="#s-expertise"
-              onClick={(event) => {
-                event.preventDefault();
-                navigateToSection("s-expertise");
-              }}
+              onClick={(event) => handleSectionLinkClick(event, "s-expertise")}
               className="inline-flex min-h-11 items-center font-mono text-[10px] uppercase tracking-[0.2em] text-starlight/75 underline decoration-indigo/80 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent motion-reduce:transition-none"
             >
               Explore expertise
             </Link>
             <Link
               href="#s-contact"
-              onClick={(event) => {
-                event.preventDefault();
-                navigateToSection("s-contact");
-              }}
+              onClick={(event) => handleSectionLinkClick(event, "s-contact")}
               className="inline-flex min-h-11 items-center font-mono text-[10px] uppercase tracking-[0.2em] text-starlight/75 underline decoration-indigo/80 underline-offset-4 transition-colors hover:text-accent hover:decoration-accent motion-reduce:transition-none"
             >
               Contact Evry

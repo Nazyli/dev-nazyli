@@ -1,5 +1,24 @@
+import type { MouseEvent } from "react";
 import { scrollController } from "@/lib/scrollController";
 import { universeState } from "@/lib/universeState";
+
+export function handleSectionLinkClick(
+  event: MouseEvent<HTMLAnchorElement>,
+  id: string,
+) {
+  if (
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+  navigateToSection(id);
+}
 
 export function navigateToSection(id: string, updateHistory = true) {
   const target = document.getElementById(id);

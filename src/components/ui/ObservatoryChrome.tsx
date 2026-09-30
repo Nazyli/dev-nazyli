@@ -5,9 +5,11 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
-  type MouseEvent,
 } from "react";
-import { navigateToSection } from "@/lib/sectionNavigation";
+import {
+  handleSectionLinkClick,
+  navigateToSection,
+} from "@/lib/sectionNavigation";
 import { getProjectIndexFromHash } from "@/lib/projectNavigation";
 
 const SECTIONS = [
@@ -48,21 +50,6 @@ function getClockSnapshot() {
 
 function getServerClockSnapshot() {
   return null;
-}
-
-function handleSectionLinkClick(event: MouseEvent<HTMLAnchorElement>, id: string) {
-  if (
-    event.button !== 0 ||
-    event.metaKey ||
-    event.ctrlKey ||
-    event.shiftKey ||
-    event.altKey
-  ) {
-    return;
-  }
-
-  event.preventDefault();
-  navigateToSection(id);
 }
 
 function useJakartaClock() {
@@ -200,10 +187,7 @@ export function ObservatoryChrome() {
       <header className="fixed inset-x-0 top-0 z-30 flex h-9 items-center justify-between border-b border-indigo/25 bg-void/85 px-4 font-mono text-[10px] uppercase tracking-[0.25em] sm:px-6">
         <a
           href="#s-hero"
-          onClick={(event) => {
-            event.preventDefault();
-            navigateToSection("s-hero");
-          }}
+          onClick={(event) => handleSectionLinkClick(event, "s-hero")}
           className="flex items-center gap-2 text-starlight/85 transition-colors duration-200 hover:text-accent"
         >
           <span aria-hidden className="block h-1.5 w-1.5 rounded-full bg-gold" />
