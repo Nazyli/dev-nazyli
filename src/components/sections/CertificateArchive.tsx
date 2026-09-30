@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   buildConstellationPath,
+  getCertificateMonthDateTime,
   getCertificateStatus,
 } from "@/data/certificates";
 import type { Certificate } from "@/data/certificates";
@@ -40,6 +41,13 @@ function ConstellationMark({ certificate }: { certificate: Certificate }) {
       ))}
     </svg>
   );
+}
+
+function CertificateMonth({ value }: { value: string | null }) {
+  if (!value) return "Expiry not listed";
+
+  const dateTime = getCertificateMonthDateTime(value);
+  return dateTime ? <time dateTime={dateTime}>{value}</time> : value;
 }
 
 export function CertificateArchive({
@@ -187,7 +195,8 @@ export function CertificateArchive({
                       <span>{certificate.provider}</span>
                       <span aria-hidden="true">/</span>
                       <span>
-                        {certificate.from} &mdash; {certificate.to ?? "Expiry not listed"}
+                        <CertificateMonth value={certificate.from} /> &mdash;{" "}
+                        <CertificateMonth value={certificate.to} />
                       </span>
                       {status && (
                         <span

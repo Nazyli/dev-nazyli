@@ -28,19 +28,29 @@ export type Certificate = {
   };
 };
 
-export function getCertificateStatus(
-  expiry: string | null,
-  now = Date.now(),
-): "current" | "expired" | null {
-  if (!expiry) return null;
+export function getCertificateMonthDateTime(value: string | null): string | null {
+  if (!value) return null;
 
   const match = /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})$/i.exec(
-    expiry.trim(),
+    value.trim(),
   );
   if (!match) return null;
 
   const month = MONTHS.indexOf(match[1].toLowerCase());
-  const expiresAt = Date.UTC(Number(match[2]), month + 1, 1);
+  if (month < 0) return null;
+
+  return `${match[2]}-${String(month + 1).padStart(2, "0")}`;
+}
+
+export function getCertificateStatus(
+  expiry: string | null,
+  now = Date.now(),
+): "current" | "expired" | null {
+  const dateTime = getCertificateMonthDateTime(expiry);
+  if (!dateTime) return null;
+
+  const [year, month] = dateTime.split("-").map(Number);
+  const expiresAt = Date.UTC(year, month, 1);
 
   return expiresAt > now ? "current" : "expired";
 }
