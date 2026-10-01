@@ -22,7 +22,7 @@ type PlanetSpec = {
   radius: number;
   surface: PlanetSurfaceStyle;
   palette: [SpaceColorToken, SpaceColorToken, SpaceColorToken];
-    atmosphere: SpaceColorToken | null;
+  atmosphere: SpaceColorToken | null;
   station: number;
   side: -1 | 1;
   elevation: number;

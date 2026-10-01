@@ -139,27 +139,49 @@ function stampCraters(
   context.restore();
 }
 
-function stampGreatStorm(context: CanvasRenderingContext2D, color: RGB) {
+function stampGreatStorm(context: CanvasRenderingContext2D, color: RGB, seed: number) {
   const stormX = WIDTH * 0.34;
   const stormY = HEIGHT * 0.62;
+  const random = createSeededRandom(seed);
   context.save();
   context.translate(stormX, stormY);
   context.rotate(-0.12);
-  const glow = context.createRadialGradient(0, 0, 2, 0, 0, 42);
-  glow.addColorStop(0, rgba(color, 0.75));
-  glow.addColorStop(0.48, rgba(color, 0.58));
-  glow.addColorStop(1, rgba(color, 0));
-  context.fillStyle = glow;
   context.beginPath();
-  context.ellipse(0, 0, 42, 18, 0, 0, Math.PI * 2);
+  context.ellipse(0, 0, 44, 19, 0, 0, Math.PI * 2);
+  context.clip();
+  const core = mix(color, [70, 40, 34], 0.46);
+  const storm = context.createRadialGradient(-8, -3, 2, 0, 0, 45);
+  storm.addColorStop(0, rgba(core, 0.76));
+  storm.addColorStop(0.48, rgba(color, 0.74));
+  storm.addColorStop(0.82, rgba(mix(color, [232, 214, 184], 0.34), 0.72));
+  storm.addColorStop(1, rgba(color, 0.12));
+  context.fillStyle = storm;
+  context.beginPath();
+  context.ellipse(0, 0, 45, 20, 0, 0, Math.PI * 2);
   context.fill();
-  context.strokeStyle = rgba(color, 0.55);
-  context.lineWidth = 2;
-  for (let ring = 0; ring < 3; ring += 1) {
+
+  for (let ribbon = 0; ribbon < 9; ribbon += 1) {
+    const radiusX = 13 + random() * 22;
+    const radiusY = 4 + random() * 8;
+    const start = random() * Math.PI * 2;
     context.beginPath();
-    context.ellipse(0, 0, 15 + ring * 8, 5 + ring * 4, 0, 0.15, Math.PI * 1.72);
+    context.ellipse(
+      (random() - 0.5) * 7,
+      (random() - 0.5) * 4,
+      radiusX,
+      radiusY,
+      (random() - 0.5) * 0.32,
+      start,
+      start + Math.PI * (0.65 + random() * 0.68),
+    );
+    context.strokeStyle = rgba(
+      ribbon % 2 === 0 ? mix(color, [250, 228, 196], 0.3) : core,
+      0.14 + random() * 0.2,
+    );
+    context.lineWidth = 0.8 + random() * 1.5;
     context.stroke();
   }
+
   context.restore();
 }
 
@@ -261,7 +283,7 @@ export function makePlanetSurfaceTextures(
     stampCraters(heightContext, createSeededRandom(seed ^ 0x4f1bbcdc), [36, 36, 36], [224, 224, 224], seed === 1101 ? 46 : 26);
   }
   if (style === "banded" || style === "stormy") {
-    stampGreatStorm(colorContext, colors[2]);
+    stampGreatStorm(colorContext, colors[2], seed ^ 0x7f4a7c15);
   }
 
   const color = makeCanvasTexture(colorCanvas);
