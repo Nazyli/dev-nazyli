@@ -101,9 +101,8 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
         1,
       );
       const arrival = THREE.MathUtils.lerp(0.6, 1, progress);
-      const contactX = THREE.MathUtils.lerp(28, 0, portraitLayout);
       const contactArrival = THREE.MathUtils.smoothstep(progress, 0.84, 0.98);
-      group.current.position.x = THREE.MathUtils.lerp(-55, contactX, progress);
+      group.current.position.x = THREE.MathUtils.lerp(-55, 0, progress);
       group.current.position.y = THREE.MathUtils.lerp(
         0,
         5.5 * portraitLayout,

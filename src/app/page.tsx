@@ -4,6 +4,7 @@ import { SpaceSceneDynamic } from "@/components/space/SpaceSceneDynamic";
 import { CursorReticle } from "@/components/ui/CursorReticle";
 import { SurveyProbe } from "@/components/ui/SurveyProbe";
 import { ObservatoryChrome } from "@/components/ui/ObservatoryChrome";
+import { PlanetaryTourReadout } from "@/components/ui/PlanetaryTourReadout";
 import { WarpOverlay } from "@/components/ui/WarpOverlay";
 import { Hero } from "@/components/sections/Hero";
 import { About } from "@/components/sections/About";
@@ -64,6 +65,7 @@ export default function Home() {
           <Contact />
         </main>
         <ObservatoryChrome />
+        <PlanetaryTourReadout />
         <SurveyProbe />
         <CursorReticle />
       </ScrollProvider>

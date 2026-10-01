@@ -12,6 +12,10 @@ import {
 } from "@/lib/cameraPath";
 import { universeState } from "@/lib/universeState";
 import { useAmbientMotionPaused } from "@/hooks/useAmbientMotionPaused";
+import {
+  getPlanetaryTourPose,
+  updatePlanetaryTourReadout,
+} from "@/lib/planetaryTour";
 
 const tmpPosition = new THREE.Vector3();
 const tmpTarget = new THREE.Vector3();
@@ -44,6 +48,9 @@ export function SpaceCamera() {
   useFrame((state, delta) => {
     const camera = state.camera;
     const reducedMotion = universeState.reducedMotion;
+    updatePlanetaryTourReadout(
+      reducedMotion ? 0 : universeState.progress,
+    );
     if (reducedMotion) {
       if (!hasMoved.current) {
         cameraPath.getPointAt(0, tmpPosition);
@@ -55,20 +62,27 @@ export function SpaceCamera() {
       return;
     }
 
-    cameraPath.getPointAt(
-      mapScrollProgressToCameraPath(
-        universeState.progress,
-        CAMERA_POSITION_STOPS,
-      ),
+    const inPlanetaryTour = getPlanetaryTourPose(
+      universeState.progress,
       tmpPosition,
-    );
-    cameraTargetPath.getPointAt(
-      mapScrollProgressToCameraPath(
-        universeState.progress,
-        CAMERA_TARGET_STOPS,
-      ),
       tmpTarget,
     );
+    if (!inPlanetaryTour) {
+      cameraPath.getPointAt(
+        mapScrollProgressToCameraPath(
+          universeState.progress,
+          CAMERA_POSITION_STOPS,
+        ),
+        tmpPosition,
+      );
+      cameraTargetPath.getPointAt(
+        mapScrollProgressToCameraPath(
+          universeState.progress,
+          CAMERA_TARGET_STOPS,
+        ),
+        tmpTarget,
+      );
+    }
 
     if (!hasMoved.current) {
       camera.position.copy(tmpPosition);

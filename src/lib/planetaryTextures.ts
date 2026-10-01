@@ -1,6 +1,11 @@
 import * as THREE from "three";
 import { createSeededRandom } from "@/lib/random";
 import { getSpaceColor, type SpaceColorToken } from "@/lib/spaceColors";
+import {
+  makeCloudTexture,
+  makeEarthBumpTexture,
+  makeEarthTexture,
+} from "@/lib/textures";
 
 export type PlanetSurfaceStyle = "rocky" | "clouded" | "banded" | "icy" | "stormy";
 
@@ -9,6 +14,69 @@ export type PlanetSurfaceTextures = {
   height: THREE.CanvasTexture;
   clouds: THREE.CanvasTexture | null;
 };
+
+export function makeTerrestrialSurfaceTextures(): PlanetSurfaceTextures {
+  return {
+    color: makeEarthTexture(),
+    height: makeEarthBumpTexture(),
+    clouds: makeCloudTexture(),
+  };
+}
+
+export function makeSolarSurfaceTexture(seed: number) {
+  const canvas = document.createElement("canvas");
+  canvas.width = WIDTH;
+  canvas.height = HEIGHT;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("2d context unavailable");
+  const image = context.createImageData(WIDTH, HEIGHT);
+  const deep = readTokenColor("planet-rust");
+  const mid = readTokenColor("gold");
+  const hot = readTokenColor("planet-cream");
+
+  for (let y = 0; y < HEIGHT; y += 1) {
+    const v = y / HEIGHT;
+    for (let x = 0; x < WIDTH; x += 1) {
+      const u = x / WIDTH;
+      const convection = fractalNoise(u, v, seed, 5);
+      const granules = periodicNoise(u, v, 72, seed ^ 0x6d2b79f5);
+      const filaments = periodicNoise(u, v, 19, seed ^ 0x1b873593);
+      const activity = THREE.MathUtils.clamp(
+        convection * 0.58 + granules * 0.27 + filaments * 0.15,
+        0,
+        1,
+      );
+      const surfaceColor = mix(
+        mix(deep, mid, smoothstep(0.28, 0.7, activity)),
+        hot,
+        smoothstep(0.68, 0.9, activity) * 0.84,
+      );
+      const index = (y * WIDTH + x) * 4;
+      image.data[index] = surfaceColor[0];
+      image.data[index + 1] = surfaceColor[1];
+      image.data[index + 2] = surfaceColor[2];
+      image.data[index + 3] = 255;
+    }
+  }
+
+  context.putImageData(image, 0, 0);
+  const random = createSeededRandom(seed ^ 0x74d2f831);
+  for (let index = 0; index < 26; index += 1) {
+    const x = random() * WIDTH;
+    const y = random() * HEIGHT;
+    const radius = 4 + random() * 24;
+    const flare = context.createRadialGradient(x, y, 0, x, y, radius);
+    flare.addColorStop(0, rgba(hot, 0.42));
+    flare.addColorStop(0.42, rgba(mid, 0.24));
+    flare.addColorStop(1, rgba(deep, 0));
+    context.fillStyle = flare;
+    context.beginPath();
+    context.ellipse(x, y, radius, radius * (0.25 + random() * 0.3), random(), 0, Math.PI * 2);
+    context.fill();
+  }
+
+  return makeCanvasTexture(canvas);
+}
 
 const WIDTH = 512;
 const HEIGHT = 256;

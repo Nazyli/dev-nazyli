@@ -135,7 +135,7 @@ export function SpaceScene({
         <AccretionDisk />
         <ShootingStar />
         <Planet position={[3.4, 0.8, -26]} radius={1} />
-        <Earth position={[7, 12.2, 150]} radius={5.5} />
+        <Earth position={[4, 0.5, 138]} radius={5.5} />
         <SurveySatellite />
         <SpaceCamera />
         <ReadySignal onReady={onReady} keepRendering={demandRender} />

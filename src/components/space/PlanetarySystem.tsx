@@ -1,36 +1,34 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import {
-  CAMERA_POSITION_STOPS,
-  CAMERA_TARGET_STOPS,
-  cameraPath,
-  cameraTargetPath,
-} from "@/lib/cameraPath";
 import { universeState } from "@/lib/universeState";
 import {
+  makeSolarSurfaceTexture,
+  makeTerrestrialSurfaceTextures,
   makePlanetSurfaceTextures,
   type PlanetSurfaceStyle,
   type PlanetSurfaceTextures,
 } from "@/lib/planetaryTextures";
 import { getSpaceColor, type SpaceColorToken } from "@/lib/spaceColors";
+import {
+  PLANETARY_TOUR_BODIES,
+  type PlanetaryTourBodyName,
+  getPlanetaryBodyPosition,
+} from "@/lib/planetaryTour";
 
 type PlanetSpec = {
-  name: string;
+  name: PlanetaryTourBodyName;
   radius: number;
   surface: PlanetSurfaceStyle;
   palette: [SpaceColorToken, SpaceColorToken, SpaceColorToken];
   atmosphere: SpaceColorToken | null;
-  station: number;
-  side: -1 | 1;
-  elevation: number;
   tilt: number;
   spin: number;
   bumpScale: number;
   cloudOpacity?: number;
-  rings?: boolean;
+  rings?: "saturn" | "uranus";
   shape?: [number, number, number];
 };
 
@@ -45,155 +43,181 @@ type MoonSpec = {
   palette: [SpaceColorToken, SpaceColorToken, SpaceColorToken];
 };
 
-const PLANETS: PlanetSpec[] = [
-  {
-    name: "Mercury",
+const PLANET_VISUALS: Record<PlanetaryTourBodyName, Omit<PlanetSpec, "name">> = {
+  Mercury: {
     radius: 1.1,
     surface: "rocky",
     palette: ["planet-basalt", "planet-lunar", "planet-cream"],
     atmosphere: null,
-    station: 1,
-    side: -1,
-    elevation: -0.68,
     tilt: 0.04,
     spin: 0.018,
     bumpScale: 0.025,
   },
-  {
-    name: "Venus",
+  Venus: {
     radius: 1.55,
     surface: "clouded",
     palette: ["planet-tan", "planet-cream", "planet-cloud"],
     atmosphere: "planet-cream",
-    station: 2,
-    side: 1,
-    elevation: 0.68,
     tilt: 0.12,
     spin: -0.012,
     bumpScale: 0.018,
     cloudOpacity: 0.4,
   },
-  {
-    name: "Mars",
+  Earth: {
+    radius: 1.82,
+    surface: "clouded",
+    palette: ["planet-ocean", "planet-aqua", "planet-cloud"],
+    atmosphere: "planet-aqua",
+    tilt: 0.22,
+    spin: 0.018,
+    bumpScale: 0.08,
+    cloudOpacity: 0.3,
+  },
+  Mars: {
     radius: 1.25,
     surface: "rocky",
     palette: ["planet-rust", "planet-ochre", "planet-sand"],
     atmosphere: "planet-rust",
-    station: 3,
-    side: -1,
-    elevation: 0.68,
     tilt: 0.32,
     spin: 0.022,
     bumpScale: 0.03,
   },
-  {
-    name: "Jupiter",
-    radius: 3.1,
-    surface: "banded",
-    palette: ["planet-tan", "planet-cream", "planet-rust"],
-    atmosphere: "planet-tan",
-    station: 4,
-    side: 1,
-    elevation: -0.68,
-    tilt: 0.08,
-    spin: 0.028,
-    bumpScale: 0.012,
-    cloudOpacity: 0.16,
-  },
-  {
-    name: "Uranus",
-    radius: 2.05,
-    surface: "icy",
-    palette: ["planet-ice", "planet-aqua", "planet-cloud"],
-    atmosphere: "planet-ice",
-    station: 5,
-    side: -1,
-    elevation: -0.68,
-    tilt: 1.3,
-    spin: -0.016,
-    bumpScale: 0.008,
-    cloudOpacity: 0.14,
-    rings: true,
-  },
-  {
-    name: "Neptune",
-    radius: 2.35,
-    surface: "stormy",
-    palette: ["planet-ocean", "planet-cobalt", "planet-aqua"],
-    atmosphere: "planet-cobalt",
-    station: 6,
-    side: 1,
-    elevation: 0.68,
-    tilt: 0.5,
-    spin: 0.018,
-    bumpScale: 0.012,
-    cloudOpacity: 0.2,
-  },
-  {
-    name: "Ceres",
-    radius: 0.76,
+  Ceres: {
+    radius: 0.88,
     surface: "rocky",
     palette: ["planet-basalt", "planet-lunar", "planet-cream"],
     atmosphere: null,
-    station: 1,
-    side: 1,
-    elevation: 0.54,
     tilt: 0.36,
     spin: 0.014,
     bumpScale: 0.035,
     shape: [0.9, 0.78, 0.86],
   },
-  {
-    name: "Haumea",
-    radius: 0.72,
-    surface: "rocky",
-    palette: ["planet-ice", "planet-lunar", "planet-cloud"],
-    atmosphere: null,
-    station: 3,
-    side: 1,
-    elevation: 0.48,
-    tilt: 0.18,
-    spin: 0.042,
-    bumpScale: 0.025,
-    shape: [1.34, 0.72, 0.82],
+  Jupiter: {
+    radius: 3.1,
+    surface: "banded",
+    palette: ["planet-tan", "planet-cream", "planet-rust"],
+    atmosphere: "planet-tan",
+    tilt: 0.08,
+    spin: 0.028,
+    bumpScale: 0.012,
+    cloudOpacity: 0.16,
   },
-  {
-    name: "Pluto",
+  Saturn: {
+    radius: 2.72,
+    surface: "banded",
+    palette: ["planet-tan", "planet-cream", "planet-ochre"],
+    atmosphere: "planet-tan",
+    tilt: 0.1,
+    spin: 0.024,
+    bumpScale: 0.01,
+    cloudOpacity: 0.12,
+    rings: "saturn",
+  },
+  Uranus: {
+    radius: 2.05,
+    surface: "icy",
+    palette: ["planet-ice", "planet-aqua", "planet-cloud"],
+    atmosphere: "planet-ice",
+    tilt: 1.3,
+    spin: -0.016,
+    bumpScale: 0.008,
+    cloudOpacity: 0.14,
+    rings: "uranus",
+  },
+  Neptune: {
+    radius: 2.35,
+    surface: "stormy",
+    palette: ["planet-ocean", "planet-cobalt", "planet-aqua"],
+    atmosphere: "planet-cobalt",
+    tilt: 0.5,
+    spin: 0.018,
+    bumpScale: 0.012,
+    cloudOpacity: 0.2,
+  },
+  Pluto: {
     radius: 0.9,
     surface: "icy",
     palette: ["planet-ocean", "planet-ice", "planet-cloud"],
     atmosphere: "planet-ice",
-    station: 6,
-    side: -1,
-    elevation: -0.52,
     tilt: 0.3,
     spin: -0.01,
     bumpScale: 0.018,
     cloudOpacity: 0.08,
   },
-  {
-    name: "Eris",
+  Haumea: {
+    radius: 0.72,
+    surface: "rocky",
+    palette: ["planet-ice", "planet-lunar", "planet-cloud"],
+    atmosphere: null,
+    tilt: 0.18,
+    spin: 0.042,
+    bumpScale: 0.025,
+    shape: [1.34, 0.72, 0.82],
+  },
+  Eris: {
     radius: 0.82,
     surface: "icy",
     palette: ["planet-basalt", "planet-ice", "planet-lunar"],
     atmosphere: null,
-    station: 6,
-    side: 1,
-    elevation: 0.52,
     tilt: 0.42,
     spin: 0.009,
     bumpScale: 0.02,
-    cloudOpacity: 0.06,
   },
-];
+};
 
-const URANUS_RINGS = [
+const PLANETS: PlanetSpec[] = PLANETARY_TOUR_BODIES.map(({ name }) => ({
+  name,
+  ...PLANET_VISUALS[name],
+}));
+
+
+
+const PLANET_RINGS = {
+  saturn: [
+    { inner: 1.22, outer: 1.38, color: "planet-lunar", opacity: 0.28 },
+    { inner: 1.4, outer: 1.72, color: "planet-cream", opacity: 0.5 },
+    { inner: 1.74, outer: 1.82, color: "planet-basalt", opacity: 0.16 },
+    { inner: 1.84, outer: 2.05, color: "planet-tan", opacity: 0.38 },
+    { inner: 2.08, outer: 2.36, color: "planet-cream", opacity: 0.22 },
+  ],
+  uranus: [
   { inner: 1.42, outer: 1.58, color: "planet-lunar", opacity: 0.24 },
   { inner: 1.62, outer: 1.72, color: "planet-basalt", opacity: 0.2 },
   { inner: 1.76, outer: 1.92, color: "planet-cream", opacity: 0.14 },
-] as const;
+  ],
+} as const;
 
 const MOONS: MoonSpec[] = [
+  {
+    name: "Moon",
+    host: "Earth",
+    radius: 0.42,
+    orbitRadius: 2.65,
+    inclination: 0.08,
+    phase: 1.8,
+    angularSpeed: 0.035,
+    palette: ["planet-basalt", "planet-lunar", "planet-ice"],
+  },
+  {
+    name: "Phobos",
+    host: "Mars",
+    radius: 0.14,
+    orbitRadius: 1.75,
+    inclination: 0.05,
+    phase: 0.6,
+    angularSpeed: 0.11,
+    palette: ["planet-basalt", "planet-lunar", "planet-rust"],
+  },
+  {
+    name: "Deimos",
+    host: "Mars",
+    radius: 0.1,
+    orbitRadius: 2.25,
+    inclination: 0.12,
+    phase: 3.1,
+    angularSpeed: 0.07,
+    palette: ["planet-basalt", "planet-lunar", "planet-sand"],
+  },
   {
     name: "Io",
     host: "Jupiter",
@@ -233,6 +257,26 @@ const MOONS: MoonSpec[] = [
     phase: 5.5,
     angularSpeed: 0.022,
     palette: ["planet-basalt", "planet-tan", "planet-lunar"],
+  },
+  {
+    name: "Titan",
+    host: "Saturn",
+    radius: 0.36,
+    orbitRadius: 4.25,
+    inclination: 0.3,
+    phase: 4.8,
+    angularSpeed: 0.042,
+    palette: ["planet-ochre", "planet-tan", "planet-cream"],
+  },
+  {
+    name: "Enceladus",
+    host: "Saturn",
+    radius: 0.2,
+    orbitRadius: 3.1,
+    inclination: 0.18,
+    phase: 0.9,
+    angularSpeed: 0.064,
+    palette: ["planet-ice", "planet-cloud", "planet-lunar"],
   },
   {
     name: "Titania",
@@ -305,26 +349,6 @@ function makeAtmosphere(color: SpaceColorToken) {
   });
 }
 
-function getRoutePosition(spec: PlanetSpec, aspect: number) {
-  const position = cameraPath.getPointAt(CAMERA_POSITION_STOPS[spec.station]);
-  const target = cameraTargetPath.getPointAt(CAMERA_TARGET_STOPS[spec.station]);
-  const forward = target.sub(position).normalize();
-  const right = new THREE.Vector3()
-    .crossVectors(new THREE.Vector3(0, 1, 0), forward)
-    .normalize();
-  const up = new THREE.Vector3().crossVectors(forward, right).normalize();
-  const distance = 48 + spec.radius * 2;
-  const halfHeight = distance * Math.tan(THREE.MathUtils.degToRad(55 / 2));
-  const horizontalOffset = halfHeight * aspect * 0.92 * spec.side;
-  const verticalOffset = halfHeight * spec.elevation;
-
-  return position
-    .addScaledVector(forward, distance)
-    .addScaledVector(right, horizontalOffset)
-    .addScaledVector(up, verticalOffset)
-    .toArray() as [number, number, number];
-}
-
 function CelestialPlanet({
   spec,
   textures,
@@ -338,8 +362,10 @@ function CelestialPlanet({
 }) {
   const body = useRef<THREE.Mesh>(null);
   const cloudLayer = useRef<THREE.Mesh>(null);
-  const aspect = useThree((state) => state.size.width / state.size.height);
-  const position = useMemo(() => getRoutePosition(spec, aspect), [aspect, spec]);
+  const position = useMemo(
+    () => getPlanetaryBodyPosition(spec.name, new THREE.Vector3()).toArray() as [number, number, number],
+    [spec.name],
+  );
   const atmosphere = useMemo(
     () => spec.atmosphere ? makeAtmosphere(spec.atmosphere) : null,
     [spec.atmosphere],
@@ -384,8 +410,8 @@ function CelestialPlanet({
         </mesh>
       )}
       {spec.rings && (
-          <group rotation={[Math.PI / 2, 0, 0]}>
-            {URANUS_RINGS.map((ring) => (
+          <group rotation={[spec.rings === "saturn" ? 0.34 : 1.16, 0, 0]}>
+            {PLANET_RINGS[spec.rings].map((ring) => (
               <mesh key={ring.inner}>
                 <ringGeometry
                   args={[spec.radius * ring.inner, spec.radius * ring.outer, 128, 4]}
@@ -450,13 +476,74 @@ function NaturalSatellite({
   );
 }
 
+function SolarCore() {
+  const surface = useMemo(() => makeSolarSurfaceTexture(912735), []);
+  const body = useRef<THREE.Mesh>(null);
+
+  useEffect(() => () => surface.dispose(), [surface]);
+
+  useFrame((_, delta) => {
+    if (!universeState.ambientMotionPaused && !universeState.reducedMotion && body.current) {
+      body.current.rotation.y += delta * 0.008;
+    }
+  });
+
+  return (
+    <group>
+      <pointLight
+        color={getSpaceColor("gold")}
+        intensity={180}
+        distance={180}
+        decay={2}
+      />
+      <mesh ref={body}>
+        <sphereGeometry args={[3.2, 64, 48]} />
+        <meshBasicMaterial map={surface} toneMapped={false} />
+      </mesh>
+      <mesh scale={1.08}>
+        <sphereGeometry args={[3.2, 48, 36]} />
+        <meshBasicMaterial
+          color={getSpaceColor("gold")}
+          transparent
+          opacity={0.075}
+          side={THREE.BackSide}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+function OrbitalPaths() {
+  return (
+    <group rotation={[Math.PI / 2, 0, 0]}>
+      {PLANETARY_TOUR_BODIES.map((body) => (
+        <mesh key={body.name}>
+          <torusGeometry args={[body.orbitRadius, 0.012, 4, 256]} />
+          <meshBasicMaterial
+            color={getSpaceColor("gold-muted")}
+            transparent
+            opacity={0.12}
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 export function PlanetarySystem() {
   const textures = useMemo(
     () =>
       Object.fromEntries(
         PLANETS.map((spec, index) => [
           spec.name,
-          makePlanetSurfaceTextures(spec.surface, 1101 + index * 1301, spec.palette),
+          spec.name === "Earth"
+            ? makeTerrestrialSurfaceTextures()
+            : makePlanetSurfaceTextures(spec.surface, 1101 + index * 1301, spec.palette),
         ]),
       ) as Record<string, PlanetSurfaceTextures>,
     [],
@@ -470,7 +557,6 @@ export function PlanetarySystem() {
     ) as Record<string, PlanetSurfaceTextures>,
     [],
   );
-
   useEffect(
     () => () => {
       Object.values(textures).forEach((surface) => {
@@ -488,6 +574,8 @@ export function PlanetarySystem() {
 
   return (
     <group>
+      <OrbitalPaths />
+      <SolarCore />
       {PLANETS.map((spec) => (
         <CelestialPlanet
           key={spec.name}

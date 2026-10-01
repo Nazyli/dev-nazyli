@@ -81,7 +81,7 @@ export function AsteroidBelt() {
   });
 
   return (
-    <group ref={group} position={[0, 0, 54]} rotation={[0.42, -0.08, 0]}>
+    <group ref={group} position={[0, 0, 44]} rotation={[0.42, -0.08, 0]}>
       <instancedMesh ref={instances} args={[undefined, undefined, ASTEROID_COUNT]}>
         <dodecahedronGeometry args={[1, 0]} />
         <meshStandardMaterial color="white" roughness={1} metalness={0} />
