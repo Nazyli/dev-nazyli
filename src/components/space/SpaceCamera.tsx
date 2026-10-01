@@ -18,6 +18,7 @@ const tmpTarget = new THREE.Vector3();
 
 export function SpaceCamera() {
   const hasMoved = useRef(false);
+  const smoothedTarget = useRef(new THREE.Vector3());
   const invalidate = useThree((state) => state.invalidate);
   const ambientMotionPaused = useAmbientMotionPaused();
 
@@ -48,12 +49,12 @@ export function SpaceCamera() {
         cameraPath.getPointAt(0, tmpPosition);
         cameraTargetPath.getPointAt(0, tmpTarget);
         camera.position.copy(tmpPosition);
+        smoothedTarget.current.copy(tmpTarget);
         camera.lookAt(tmpTarget);
       }
       return;
     }
 
-    hasMoved.current = true;
     cameraPath.getPointAt(
       mapScrollProgressToCameraPath(
         universeState.progress,
@@ -68,6 +69,12 @@ export function SpaceCamera() {
       ),
       tmpTarget,
     );
+
+    if (!hasMoved.current) {
+      camera.position.copy(tmpPosition);
+      smoothedTarget.current.copy(tmpTarget);
+      hasMoved.current = true;
+    }
 
     camera.position.x = THREE.MathUtils.damp(
       camera.position.x,
@@ -87,6 +94,24 @@ export function SpaceCamera() {
       6,
       delta
     );
+    smoothedTarget.current.x = THREE.MathUtils.damp(
+      smoothedTarget.current.x,
+      tmpTarget.x,
+      6,
+      delta,
+    );
+    smoothedTarget.current.y = THREE.MathUtils.damp(
+      smoothedTarget.current.y,
+      tmpTarget.y,
+      6,
+      delta,
+    );
+    smoothedTarget.current.z = THREE.MathUtils.damp(
+      smoothedTarget.current.z,
+      tmpTarget.z,
+      6,
+      delta,
+    );
     if (
       ambientMotionPaused &&
       camera.position.distanceToSquared(tmpPosition) > 0.0001
@@ -94,6 +119,7 @@ export function SpaceCamera() {
       state.invalidate();
     }
 
+    tmpTarget.copy(smoothedTarget.current);
     tmpTarget.x += universeState.mouseX * 0.6;
     tmpTarget.y += universeState.mouseY * 0.4;
     camera.lookAt(tmpTarget);
