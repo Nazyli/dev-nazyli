@@ -380,8 +380,8 @@ function CelestialPlanet({
 
   useFrame((_, delta) => {
     if (universeState.reducedMotion || universeState.ambientMotionPaused) return;
-    if (body.current) body.current.rotation.y += delta * spec.spin;
-    if (cloudLayer.current) cloudLayer.current.rotation.y += delta * spec.spin * 1.18;
+    if (body.current) body.current.rotation.y += delta * spec.spin * 8;
+    if (cloudLayer.current) cloudLayer.current.rotation.y += delta * spec.spin * 8 * 1.18;
   });
 
   return (
