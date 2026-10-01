@@ -386,10 +386,10 @@ export function ObservatoryChrome() {
               }`}
             >
               <span className="text-[9px] tracking-[0.15em]">{section.index}</span>
-              <span className="text-[8px] uppercase tracking-[0.02em] min-[420px]:hidden">
+              <span className="text-[9px] uppercase tracking-[0.02em] min-[420px]:hidden">
                 {section.compact}
               </span>
-              <span className="hidden text-[8px] uppercase tracking-[0.08em] min-[420px]:inline min-[520px]:text-[9px]">
+              <span className="hidden text-[9px] uppercase tracking-[0.08em] min-[420px]:inline min-[520px]:text-[10px]">
                 {section.mobile}
               </span>
             </a>
@@ -413,7 +413,7 @@ export function ObservatoryChrome() {
               <circle cx="8" cy="8" r="1" fill="currentColor" />
               <circle cx="13" cy="8" r="1" fill="currentColor" />
             </svg>
-            <span className="text-[8px] uppercase tracking-[0.08em]">More</span>
+            <span className="text-[9px] uppercase tracking-[0.08em]">More</span>
           </summary>
           <div
             role="group"
