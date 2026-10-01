@@ -16,6 +16,7 @@ import {
   PLANETARY_TOUR_BODIES,
   type PlanetaryTourBodyName,
   getPlanetaryBodyPosition,
+  getPlanetaryTourProgress,
 } from "@/lib/planetaryTour";
 
 type PlanetSpec = {
@@ -388,6 +389,7 @@ function CelestialPlanet({
       <mesh ref={body} scale={spec.shape ?? 1}>
         <sphereGeometry args={[spec.radius, 64, 48]} />
         <meshStandardMaterial
+          key={textures ? "surface-ready" : "surface-placeholder"}
           map={textures?.color ?? null}
           bumpMap={textures?.height ?? null}
           bumpScale={spec.bumpScale}
@@ -469,8 +471,9 @@ function NaturalSatellite({
         <mesh position={[spec.orbitRadius, 0, 0]}>
           <sphereGeometry args={[spec.radius, 32, 24]} />
           <meshStandardMaterial
-          map={textures?.color ?? null}
-          bumpMap={textures?.height ?? null}
+            key={textures ? "surface-ready" : "surface-placeholder"}
+            map={textures?.color ?? null}
+            bumpMap={textures?.height ?? null}
             bumpScale={0.018}
             color={getSpaceColor(textures ? "starlight" : spec.palette[1])}
             roughness={0.98}
@@ -502,6 +505,7 @@ function SolarCore({ surface }: { surface: THREE.CanvasTexture | null }) {
       <mesh ref={body}>
         <sphereGeometry args={[3.2, 64, 48]} />
         <meshBasicMaterial
+          key={surface ? "surface-ready" : "surface-placeholder"}
           map={surface}
           color={getSpaceColor(surface ? "starlight" : "gold")}
           toneMapped={false}
@@ -570,7 +574,21 @@ export function PlanetarySystem() {
       }
       setSolarSurface(surface);
 
-      for (const [index, spec] of PLANETS.entries()) {
+      const pendingPlanets = PLANETS.map((spec, index) => ({
+        spec,
+        index,
+        tourIndex: PLANETARY_TOUR_BODIES.findIndex((body) => body.name === spec.name),
+      }));
+
+      while (pendingPlanets.length > 0) {
+        const currentTourIndex = getPlanetaryTourProgress(universeState.progress) *
+          (PLANETARY_TOUR_BODIES.length - 1);
+        pendingPlanets.sort(
+          (a, b) =>
+            Math.abs(a.tourIndex - currentTourIndex) -
+            Math.abs(b.tourIndex - currentTourIndex),
+        );
+        const { index, spec } = pendingPlanets.shift()!;
         const planetTextures = spec.name === "Earth"
           ? makeTerrestrialSurfaceTextures()
           : await makePlanetSurfaceTextures(
