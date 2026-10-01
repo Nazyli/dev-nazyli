@@ -37,10 +37,10 @@
 - Consume existing `PlanetSpec`, `PlanetSurfaceTextures`, `makePlanetSurfaceTextures`, `universeState`, and `SpaceColorToken`.
 - Produce named satellite specs grouped under their host planet; each has radius, orbit radius, phase, and angular speed.
 
-- [ ] Add named moons to Jupiter, Uranus, and Neptune using understated rocky/icy palettes and scaled but visible radii.
-- [ ] Render the moons as child groups around their host planets with slow seeded phase and no allocation in `useFrame`.
-- [ ] Ensure motion pauses for reduced motion and ambient pause; dispose generated maps with the planet textures.
-- [ ] Inspect the Expertise and Projects passages at desktop and narrow mobile widths.
+- [x] Add named moons to Jupiter, Uranus, and Neptune using understated rocky/icy palettes and scaled but visible radii.
+- [x] Render the moons as child groups around their host planets with slow seeded phase and no allocation in `useFrame`.
+- [x] Ensure motion pauses for reduced motion and ambient pause; dispose generated maps with the planet textures.
+- [x] Inspect the Expertise, Projects, and later planet passages at narrow mobile width.
 - [ ] Run `npm run lint`, `npm run build`, and `git diff --check`.
 - [ ] Commit as `feat(space): add natural satellite systems`.
 

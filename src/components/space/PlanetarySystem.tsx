@@ -33,6 +33,17 @@ type PlanetSpec = {
   rings?: boolean;
 };
 
+type MoonSpec = {
+  name: string;
+  host: string;
+  radius: number;
+  orbitRadius: number;
+  inclination: number;
+  phase: number;
+  angularSpeed: number;
+  palette: [SpaceColorToken, SpaceColorToken, SpaceColorToken];
+};
+
 const PLANETS: PlanetSpec[] = [
   {
     name: "Mercury",
@@ -125,6 +136,79 @@ const URANUS_RINGS = [
   { inner: 1.76, outer: 1.92, color: "planet-cream", opacity: 0.14 },
 ] as const;
 
+const MOONS: MoonSpec[] = [
+  {
+    name: "Io",
+    host: "Jupiter",
+    radius: 0.34,
+    orbitRadius: 4.15,
+    inclination: 0.08,
+    phase: 0.42,
+    angularSpeed: 0.074,
+    palette: ["planet-ochre", "planet-sand", "planet-cream"],
+  },
+  {
+    name: "Europa",
+    host: "Jupiter",
+    radius: 0.3,
+    orbitRadius: 5.25,
+    inclination: -0.12,
+    phase: 2.3,
+    angularSpeed: 0.052,
+    palette: ["planet-cream", "planet-ice", "planet-lunar"],
+  },
+  {
+    name: "Ganymede",
+    host: "Jupiter",
+    radius: 0.42,
+    orbitRadius: 6.7,
+    inclination: 0.16,
+    phase: 4.1,
+    angularSpeed: 0.036,
+    palette: ["planet-basalt", "planet-lunar", "planet-ice"],
+  },
+  {
+    name: "Callisto",
+    host: "Jupiter",
+    radius: 0.37,
+    orbitRadius: 8.35,
+    inclination: -0.05,
+    phase: 5.5,
+    angularSpeed: 0.022,
+    palette: ["planet-basalt", "planet-tan", "planet-lunar"],
+  },
+  {
+    name: "Titania",
+    host: "Uranus",
+    radius: 0.24,
+    orbitRadius: 3.15,
+    inclination: 1.42,
+    phase: 1.3,
+    angularSpeed: 0.045,
+    palette: ["planet-ice", "planet-lunar", "planet-cloud"],
+  },
+  {
+    name: "Oberon",
+    host: "Uranus",
+    radius: 0.22,
+    orbitRadius: 4.05,
+    inclination: 1.5,
+    phase: 3.7,
+    angularSpeed: 0.032,
+    palette: ["planet-basalt", "planet-ice", "planet-lunar"],
+  },
+  {
+    name: "Triton",
+    host: "Neptune",
+    radius: 0.29,
+    orbitRadius: 3.7,
+    inclination: 0.48,
+    phase: 5.2,
+    angularSpeed: -0.04,
+    palette: ["planet-ice", "planet-aqua", "planet-cloud"],
+  },
+];
+
 function makeAtmosphere(color: SpaceColorToken) {
   return new THREE.ShaderMaterial({
     transparent: true,
@@ -177,9 +261,13 @@ function getRoutePosition(spec: PlanetSpec, aspect: number) {
 function CelestialPlanet({
   spec,
   textures,
+  moons,
+  moonTextures,
 }: {
   spec: PlanetSpec;
   textures: PlanetSurfaceTextures;
+  moons: MoonSpec[];
+  moonTextures: Record<string, PlanetSurfaceTextures>;
 }) {
   const body = useRef<THREE.Mesh>(null);
   const cloudLayer = useRef<THREE.Mesh>(null);
@@ -248,6 +336,49 @@ function CelestialPlanet({
             ))}
           </group>
       )}
+      {moons.map((moon) => (
+        <NaturalSatellite
+          key={moon.name}
+          spec={moon}
+          textures={moonTextures[moon.name]}
+        />
+      ))}
+    </group>
+  );
+}
+
+function NaturalSatellite({
+  spec,
+  textures,
+}: {
+  spec: MoonSpec;
+  textures: PlanetSurfaceTextures;
+}) {
+  const orbit = useRef<THREE.Group>(null);
+
+  useFrame((_, delta) => {
+    if (
+      universeState.reducedMotion ||
+      universeState.ambientMotionPaused ||
+      !orbit.current
+    ) return;
+    orbit.current.rotation.y += delta * spec.angularSpeed;
+  });
+
+  return (
+    <group rotation={[spec.inclination, 0, spec.phase]}>
+      <group ref={orbit}>
+        <mesh position={[spec.orbitRadius, 0, 0]}>
+          <sphereGeometry args={[spec.radius, 32, 24]} />
+          <meshStandardMaterial
+            map={textures.color}
+            bumpMap={textures.height}
+            bumpScale={0.018}
+            roughness={0.98}
+            metalness={0}
+          />
+        </mesh>
+      </group>
     </group>
   );
 }
@@ -263,6 +394,15 @@ export function PlanetarySystem() {
       ) as Record<string, PlanetSurfaceTextures>,
     [],
   );
+  const moonTextures = useMemo(
+    () => Object.fromEntries(
+      MOONS.map((moon, index) => [
+        moon.name,
+        makePlanetSurfaceTextures("rocky", 41003 + index * 1543, moon.palette),
+      ]),
+    ) as Record<string, PlanetSurfaceTextures>,
+    [],
+  );
 
   useEffect(
     () => () => {
@@ -271,14 +411,24 @@ export function PlanetarySystem() {
         surface.height.dispose();
         surface.clouds?.dispose();
       });
+      Object.values(moonTextures).forEach((surface) => {
+        surface.color.dispose();
+        surface.height.dispose();
+      });
     },
-    [textures],
+    [moonTextures, textures],
   );
 
   return (
     <group>
       {PLANETS.map((spec) => (
-        <CelestialPlanet key={spec.name} spec={spec} textures={textures[spec.name]} />
+        <CelestialPlanet
+          key={spec.name}
+          spec={spec}
+          textures={textures[spec.name]}
+          moons={MOONS.filter((moon) => moon.host === spec.name)}
+          moonTextures={moonTextures}
+        />
       ))}
     </group>
   );
