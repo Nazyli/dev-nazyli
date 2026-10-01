@@ -34,8 +34,8 @@ export function AccretionDisk({
       position={position}
       rotation={rotation}
       scale={THREE.MathUtils.lerp(
-        0.78,
-        0.58,
+        1.05,
+        0.8,
         THREE.MathUtils.clamp((1.1 - aspect) / 0.64, 0, 1),
       )}
     >
