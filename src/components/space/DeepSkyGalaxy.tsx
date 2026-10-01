@@ -123,7 +123,7 @@ export function DeepSkyGalaxy() {
       ref={group}
       position={position}
       rotation={[0.34, -0.16, 0.24]}
-      scale={0.9}
+      scale={1.8}
     >
       <points geometry={geometry} material={material} />
     </group>
