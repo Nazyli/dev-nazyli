@@ -345,12 +345,12 @@ export function ObservatoryChrome() {
             className={`group relative flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-accent ${
               active === i
                 ? "text-gold"
-                : "text-starlight/55 hover:text-starlight/75"
+                : "text-starlight/70 hover:text-starlight/85"
             }`}
           >
             <span
               aria-hidden
-              className={`whitespace-nowrap pr-1 text-[9px] uppercase tracking-[0.3em] text-starlight/50 opacity-0 transition-opacity duration-200 motion-reduce:transition-none group-hover:opacity-100 ${
+              className={`whitespace-nowrap pr-1 text-[9px] uppercase tracking-[0.3em] text-starlight/70 opacity-0 transition-opacity duration-200 motion-reduce:transition-none group-hover:opacity-100 ${
                 active === i ? "opacity-100" : ""
               }`}
             >
@@ -382,7 +382,7 @@ export function ObservatoryChrome() {
               aria-current={active === i ? "true" : undefined}
               aria-label={section.label}
               className={`flex min-h-11 flex-col items-center justify-center gap-1 font-mono transition-colors focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-                active === i ? "text-gold" : "text-starlight/50"
+                active === i ? "text-gold" : "text-starlight/65"
               }`}
             >
               <span className="text-[9px] tracking-[0.15em]">{section.index}</span>
@@ -405,7 +405,7 @@ export function ObservatoryChrome() {
             className={`flex min-h-11 cursor-pointer list-none flex-col items-center justify-center gap-1 font-mono focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden ${
               moreSectionActive
                 ? "text-gold"
-                : "text-starlight/50"
+                : "text-starlight/65"
             }`}
           >
             <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3 w-3">
