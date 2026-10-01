@@ -5,57 +5,13 @@ import { certificates } from "@/data/certificates";
 import { publishedProjects } from "@/data/projects";
 import { skills } from "@/data/skills";
 import { CONTACT_CARD_URL, CONTACT_LINKS } from "@/data/contact";
+import { SECTION_REGISTRY } from "@/data/sections";
 import {
   handleHashLinkClick,
   navigateToSection,
 } from "@/lib/sectionNavigation";
 import { navigateToCertificate } from "@/lib/certificateNavigation";
 import { navigateToSkill } from "@/lib/skillNavigation";
-
-const SECTIONS = [
-  {
-    id: "s-hero",
-    label: "Deep Field",
-    detail: "Opening view",
-    searchText: "home intro start",
-  },
-  {
-    id: "s-about",
-    label: "Observer",
-    detail: "About Evry",
-    searchText: "profile background biography",
-  },
-  {
-    id: "s-expertise",
-    label: "Star System",
-    detail: "Expertise",
-    searchText: "skills technologies tech stack",
-  },
-  {
-    id: "s-projects",
-    label: "Projects",
-    detail: "Selected work",
-    searchText: "portfolio builds code repositories",
-  },
-  {
-    id: "s-certificates",
-    label: "Certificates",
-    detail: "Learning archive",
-    searchText: "credentials courses certification",
-  },
-  {
-    id: "s-experience",
-    label: "Mission Log",
-    detail: "Experience",
-    searchText: "career history employment roles",
-  },
-  {
-    id: "s-contact",
-    label: "Downlink",
-    detail: "Contact",
-    searchText: "email mail github linkedin social connect info@nazyli.com",
-  },
-] as const;
 
 type NavigatorItem = {
   id: string;
@@ -74,7 +30,7 @@ type NavigatorItem = {
 );
 
 const ITEMS = [
-  ...SECTIONS.map((section) => ({
+  ...SECTION_REGISTRY.map((section) => ({
     id: section.id,
     label: section.label,
     detail: section.detail,

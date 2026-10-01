@@ -19,16 +19,8 @@ import { setAmbientMotionPaused } from "@/lib/universeState";
 import { useAmbientMotionPaused } from "@/hooks/useAmbientMotionPaused";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { SurveyNavigator } from "@/components/ui/SurveyNavigator";
+import { SECTION_REGISTRY } from "@/data/sections";
 
-const SECTIONS = [
-  { id: "s-hero", index: "01", label: "Deep Field", mobile: "Deep", compact: "Deep", target: "TGT 01 · DEEP FIELD" },
-  { id: "s-about", index: "02", label: "Observer", mobile: "About", compact: "About", target: "TGT 02 · OBSERVER" },
-  { id: "s-expertise", index: "03", label: "Star System", mobile: "Skills", compact: "Skills", target: "TGT 03 · STAR SYSTEM" },
-  { id: "s-projects", index: "04", label: "Projects", mobile: "Work", compact: "Work", target: "TGT 04 · PROJECTS" },
-  { id: "s-certificates", index: "05", label: "Certificates", mobile: "Certs", compact: "Cert", target: "TGT 05 · CERTIFICATES" },
-  { id: "s-experience", index: "06", label: "Mission Log", mobile: "Log", compact: "Log", target: "TGT 06 · MISSION LOG" },
-  { id: "s-contact", index: "07", label: "Downlink", mobile: "Contact", compact: "Link", target: "TGT 07 · DOWNLINK" },
-];
 const MOBILE_SECTION_INDICES = [0, 2, 3, 6] as const;
 const MORE_SECTION_INDICES = [1, 4, 5] as const;
 
@@ -140,7 +132,7 @@ export function ObservatoryChrome() {
   useEffect(() => {
     const progress = journeyProgress.current;
     if (!progress) return;
-    const sections = SECTIONS.map((section) =>
+    const sections = SECTION_REGISTRY.map((section) =>
       document.getElementById(section.id),
     ).filter((element): element is HTMLElement => element !== null);
     if (sections.length === 0) return;
@@ -178,7 +170,7 @@ export function ObservatoryChrome() {
           }
         });
 
-        const id = SECTIONS[best].id;
+        const id = SECTION_REGISTRY[best].id;
         if (pendingInitialRoute.current && id !== pendingInitialRoute.current) {
           return;
         }
@@ -236,13 +228,17 @@ export function ObservatoryChrome() {
 
       const id = hash.slice(1);
       navigateToSection(
-        SECTIONS.some((section) => section.id === id) ? id : "s-hero",
+        SECTION_REGISTRY.some((section) => section.id === id)
+          ? id
+          : SECTION_REGISTRY[0].id,
         false,
       );
     };
 
     const initialId = window.location.hash.slice(1);
-    const initialIndex = SECTIONS.findIndex((section) => section.id === initialId);
+    const initialIndex = SECTION_REGISTRY.findIndex(
+      (section) => section.id === initialId,
+    );
     if (initialIndex >= 0) {
       pendingInitialRoute.current = initialId;
       requestAnimationFrame(() => {
@@ -283,7 +279,7 @@ export function ObservatoryChrome() {
           aria-hidden
           className="pointer-events-none absolute left-1/2 hidden -translate-x-1/2 whitespace-nowrap text-starlight/70 md:block"
         >
-          {SECTIONS[active].target}
+        {SECTION_REGISTRY[active].target}
         </p>
 
         <div className="flex items-center gap-2 sm:gap-4">
@@ -335,7 +331,7 @@ export function ObservatoryChrome() {
         aria-label="Sections"
         className="fixed right-5 top-1/2 z-30 hidden -translate-y-1/2 flex-col items-center gap-5 lg:flex"
       >
-        {SECTIONS.map((section, i) => (
+        {SECTION_REGISTRY.map((section, i) => (
           <a
             key={section.id}
             href={`#${section.id}`}
@@ -372,7 +368,7 @@ export function ObservatoryChrome() {
         className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-indigo/30 bg-void/95 px-0 pt-2 pb-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] min-[375px]:gap-x-2 lg:hidden"
       >
         {MOBILE_SECTION_INDICES.map((i) => {
-          const section = SECTIONS[i];
+          const section = SECTION_REGISTRY[i];
 
           return (
             <a
@@ -399,7 +395,7 @@ export function ObservatoryChrome() {
           <summary
             aria-label={
               moreSectionActive
-                ? `More sections. ${SECTIONS[active].label} is current.`
+              ? `More sections. ${SECTION_REGISTRY[active].label} is current.`
                 : "More sections"
             }
             className={`flex min-h-11 cursor-pointer list-none flex-col items-center justify-center gap-1 font-mono focus-visible:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden ${
@@ -421,7 +417,7 @@ export function ObservatoryChrome() {
             className="absolute bottom-full right-0 mb-2 w-56 border border-indigo/60 bg-abyss p-2 shadow-2xl"
           >
             {MORE_SECTION_INDICES.map((i) => {
-              const section = SECTIONS[i];
+              const section = SECTION_REGISTRY[i];
 
               return (
                 <a
