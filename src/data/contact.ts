@@ -2,6 +2,7 @@ import { SITE_URL } from "@/lib/site";
 
 export const CONTACT_EMAIL = "info@nazyli.com";
 export const CONTACT_SUBJECT = "AI engineering inquiry · Nazyli Universe";
+export const CONTACT_CARD_URL = "/evry-nazyli.vcf";
 export const PORTFOLIO_URL = SITE_URL;
 export const GITHUB_PROFILE_URL = "https://github.com/Nazyli";
 export const LINKEDIN_PROFILE_URL = "https://www.linkedin.com/in/evrynazyli/";

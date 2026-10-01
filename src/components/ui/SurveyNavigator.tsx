@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { certificates } from "@/data/certificates";
 import { publishedProjects } from "@/data/projects";
 import { skills } from "@/data/skills";
-import { CONTACT_LINKS } from "@/data/contact";
+import { CONTACT_CARD_URL, CONTACT_LINKS } from "@/data/contact";
 import {
   handleHashLinkClick,
   navigateToSection,
@@ -70,6 +70,7 @@ type NavigatorItem = {
   | { target: "project"; projectIndex: number }
   | { target: "credential"; certificateNo: number }
   | { target: "external"; openInNewTab: boolean }
+  | { target: "download"; fileName: string }
 );
 
 const ITEMS = [
@@ -93,6 +94,16 @@ const ITEMS = [
     target: "external" as const,
     openInNewTab: link.openInNewTab,
   })),
+  {
+    id: "contact-card",
+    label: "Save contact card",
+    detail: "vCard · Address book",
+    searchText: "download vcard contact save address book",
+    kind: "Download",
+    href: CONTACT_CARD_URL,
+    target: "download" as const,
+    fileName: "evry-nazyli.vcf",
+  },
   ...skills.map((skill) => ({
     id: `skill-${skill.id}`,
     label: skill.name,
@@ -236,7 +247,7 @@ export function SurveyNavigator() {
     event: React.MouseEvent<HTMLAnchorElement>,
     item: NavigatorItem,
   ) {
-    if (item.target === "external") {
+    if (item.target === "external" || item.target === "download") {
       if (
         event.button !== 0 ||
         event.metaKey ||
@@ -343,7 +354,8 @@ export function SurveyNavigator() {
             </button>
           </div>
           <label htmlFor="survey-navigator-search" className="sr-only">
-            Search sections, expertise, projects, credentials, and contact channels
+            Search sections, expertise, projects, credentials, contact channels, and
+            downloads
           </label>
           <input
             ref={search}
@@ -379,6 +391,9 @@ export function SurveyNavigator() {
                   resultLinks.current[index] = element as HTMLAnchorElement;
                 }}
                 href={item.href}
+                download={
+                  item.target === "download" ? item.fileName : undefined
+                }
                 target={
                   item.target === "external" && item.openInNewTab
                     ? "_blank"

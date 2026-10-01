@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import {
+  CONTACT_CARD_URL,
   CONTACT_EMAIL,
   CONTACT_LINKS,
   PORTFOLIO_URL,
@@ -154,7 +155,7 @@ export function Contact() {
       </button>
 
       <a
-        href="/evry-nazyli.vcf"
+        href={CONTACT_CARD_URL}
         download
         aria-label="Download Evry Nazyli’s contact card"
         className="print-action contact-reveal mt-3 inline-flex min-h-11 items-center border border-indigo/50 px-4 font-mono text-[10px] uppercase tracking-[0.2em] text-starlight/75 transition-colors hover:border-accent/60 hover:text-accent focus-visible:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
