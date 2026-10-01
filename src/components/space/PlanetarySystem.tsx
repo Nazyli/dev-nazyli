@@ -462,7 +462,7 @@ function NaturalSatellite({
       universeState.ambientMotionPaused ||
       !orbit.current
     ) return;
-    orbit.current.rotation.y += delta * spec.angularSpeed;
+    orbit.current.rotation.y += delta * spec.angularSpeed * 4;
   });
 
   return (
