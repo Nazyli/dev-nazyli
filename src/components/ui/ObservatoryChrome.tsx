@@ -439,7 +439,7 @@ export function ObservatoryChrome() {
                   }`}
                 >
                   <span>{section.label}</span>
-                  <span className="text-[9px] text-starlight/45">{section.index}</span>
+                  <span className="text-[9px] text-starlight/60">{section.index}</span>
                 </a>
               );
             })}

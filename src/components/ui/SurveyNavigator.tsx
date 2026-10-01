@@ -291,9 +291,9 @@ export function SurveyNavigator() {
             placeholder="Search the observatory…"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            className="mt-5 min-h-12 w-full border border-indigo/60 bg-void px-4 font-mono text-sm text-starlight placeholder:text-starlight/40 focus:border-accent/70 focus:outline-none"
+            className="mt-5 min-h-12 w-full border border-indigo/60 bg-void px-4 font-mono text-sm text-starlight placeholder:text-starlight/55 focus:border-accent/70 focus:outline-none"
           />
-          <p className="mt-3 font-mono text-[9px] uppercase tracking-[0.16em] text-starlight/45">
+          <p className="mt-3 font-mono text-[9px] uppercase tracking-[0.16em] text-starlight/60">
             {results.length} destinations · arrows to move · enter to open · esc to close
           </p>
           <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
@@ -324,7 +324,7 @@ export function SurveyNavigator() {
                   <span className="block truncate text-sm text-starlight transition-colors group-hover:text-accent">
                     {item.label}
                   </span>
-                  <span className="mt-1 block truncate font-mono text-[9px] uppercase tracking-[0.1em] text-starlight/45">
+                  <span className="mt-1 block truncate font-mono text-[9px] uppercase tracking-[0.1em] text-starlight/60">
                     {item.detail}
                   </span>
                 </span>
