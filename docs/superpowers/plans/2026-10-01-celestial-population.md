@@ -75,4 +75,4 @@
 - [x] Keep all spins/orbits slow and stopped for reduced motion and ambient pause.
 - [x] Inspect About, Expertise, and Contact at narrow mobile width and keep copy readable.
 - [x] Run `npm run lint`, `npm run build`, and `git diff --check`.
-- [ ] Commit as `feat(space): add dwarf planets and charon`.
+- [x] Commit as `feat(space): add dwarf planets and charon`.
