@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
 import { getSpaceColor } from "@/lib/spaceColors";
@@ -61,6 +61,7 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
   const group = useRef<THREE.Group>(null);
   const cloudRef = useRef<THREE.Mesh>(null);
   const spin = useRef(0);
+  const viewport = useThree((state) => state.size);
 
   const earthMap = useMemo(
     () => (EARTH_TEXTURE_URL ? null : makeEarthTexture()),
@@ -94,8 +95,19 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
     const tiltY = universeState.mouseX * 0.4;
     if (group.current) {
       const progress = THREE.MathUtils.clamp(universeState.progress, 0, 1);
+      const portraitLayout = THREE.MathUtils.clamp(
+        (1.1 - viewport.width / viewport.height) / 0.64,
+        0,
+        1,
+      );
       const arrival = THREE.MathUtils.lerp(0.6, 1, progress);
-      group.current.position.x = THREE.MathUtils.lerp(-55, 0, progress);
+      const contactX = THREE.MathUtils.lerp(28, 0, portraitLayout);
+      group.current.position.x = THREE.MathUtils.lerp(-55, contactX, progress);
+      group.current.position.y = THREE.MathUtils.lerp(
+        0,
+        5 * portraitLayout,
+        progress,
+      );
       group.current.scale.setScalar(arrival);
       group.current.rotation.x = THREE.MathUtils.damp(
         group.current.rotation.x,
