@@ -3,10 +3,13 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { AccretionDisk } from "./AccretionDisk";
+import { AsteroidBelt } from "./AsteroidBelt";
+import { Comet } from "./Comet";
 import { DustClouds } from "./DustClouds";
 import { Earth } from "./Earth";
 import { Nebula } from "./Nebula";
 import { Planet } from "./Planet";
+import { PlanetarySystem } from "./PlanetarySystem";
 import { ShootingStar } from "./ShootingStar";
 import { SpaceCamera } from "./SpaceCamera";
 import { Stars } from "./Stars";
@@ -124,6 +127,9 @@ export function SpaceScene({
         <Nebula />
         <DustClouds />
         <Stars />
+        <AsteroidBelt />
+        <PlanetarySystem />
+        <Comet />
         <AccretionDisk />
         <ShootingStar />
         <Planet position={[3.4, 0.8, -26]} radius={1} />
