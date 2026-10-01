@@ -507,7 +507,7 @@ function SolarCore({ surface }: { surface: THREE.Texture | null }) {
 
   useFrame((_, delta) => {
     if (!universeState.ambientMotionPaused && !universeState.reducedMotion && body.current) {
-      body.current.rotation.y += delta * 0.008;
+      body.current.rotation.y += delta * 0.04;
     }
   });
 
