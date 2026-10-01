@@ -12,13 +12,48 @@ import { navigateToCertificate } from "@/lib/certificateNavigation";
 import { navigateToSkill } from "@/lib/skillNavigation";
 
 const SECTIONS = [
-  { id: "s-hero", label: "Deep Field", detail: "Opening view" },
-  { id: "s-about", label: "Observer", detail: "About Evry" },
-  { id: "s-expertise", label: "Star System", detail: "Expertise" },
-  { id: "s-projects", label: "Projects", detail: "Selected work" },
-  { id: "s-certificates", label: "Certificates", detail: "Learning archive" },
-  { id: "s-experience", label: "Mission Log", detail: "Experience" },
-  { id: "s-contact", label: "Downlink", detail: "Contact" },
+  {
+    id: "s-hero",
+    label: "Deep Field",
+    detail: "Opening view",
+    searchText: "home intro start",
+  },
+  {
+    id: "s-about",
+    label: "Observer",
+    detail: "About Evry",
+    searchText: "profile background biography",
+  },
+  {
+    id: "s-expertise",
+    label: "Star System",
+    detail: "Expertise",
+    searchText: "skills technologies tech stack",
+  },
+  {
+    id: "s-projects",
+    label: "Projects",
+    detail: "Selected work",
+    searchText: "portfolio builds code repositories",
+  },
+  {
+    id: "s-certificates",
+    label: "Certificates",
+    detail: "Learning archive",
+    searchText: "credentials courses certification",
+  },
+  {
+    id: "s-experience",
+    label: "Mission Log",
+    detail: "Experience",
+    searchText: "career history employment roles",
+  },
+  {
+    id: "s-contact",
+    label: "Downlink",
+    detail: "Contact",
+    searchText: "email mail github linkedin social connect info@nazyli.com",
+  },
 ] as const;
 
 type NavigatorItem = {
@@ -40,7 +75,7 @@ const ITEMS = [
     id: section.id,
     label: section.label,
     detail: section.detail,
-    searchText: "",
+    searchText: section.searchText,
     kind: "Section",
     href: `#${section.id}`,
     target: "section" as const,
