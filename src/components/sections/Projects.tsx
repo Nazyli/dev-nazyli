@@ -13,6 +13,7 @@ import { getProjectIndexFromHash, updateProjectHash } from "@/lib/projectNavigat
 import { scrollController } from "@/lib/scrollController";
 import { handleHashLinkClick } from "@/lib/sectionNavigation";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { GITHUB_PROFILE_URL } from "@/data/contact";
 
 export function Projects() {
   const root = useRef<HTMLElement>(null);
@@ -622,7 +623,7 @@ export function Projects() {
                 No project details have been published here yet.
               </p>
               <a
-                href="https://github.com/Nazyli"
+                href={GITHUB_PROFILE_URL}
                 target="_blank"
                 rel="noreferrer"
                 className="mt-7 inline-flex min-h-11 w-fit items-center border border-accent/50 px-4 font-mono text-[10px] uppercase tracking-[0.2em] text-accent transition-colors hover:bg-accent/10 hover:text-starlight focus-visible:bg-accent/10"

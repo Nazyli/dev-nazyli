@@ -1,6 +1,10 @@
+import { SITE_URL } from "@/lib/site";
+
 export const CONTACT_EMAIL = "info@nazyli.com";
 export const CONTACT_SUBJECT = "AI engineering inquiry · Nazyli Universe";
-export const PORTFOLIO_URL = "https://nazyli.com";
+export const PORTFOLIO_URL = SITE_URL;
+export const GITHUB_PROFILE_URL = "https://github.com/Nazyli";
+export const LINKEDIN_PROFILE_URL = "https://www.linkedin.com/in/evrynazyli/";
 
 export const CONTACT_LINKS = [
   {
@@ -15,7 +19,7 @@ export const CONTACT_LINKS = [
   {
     id: "github",
     label: "GitHub",
-    href: "https://github.com/Nazyli",
+    href: GITHUB_PROFILE_URL,
     detail: "github.com/Nazyli",
     searchText: "code repositories projects",
     primary: false,
@@ -24,7 +28,7 @@ export const CONTACT_LINKS = [
   {
     id: "linkedin",
     label: "LinkedIn",
-    href: "https://www.linkedin.com/in/evrynazyli/",
+    href: LINKEDIN_PROFILE_URL,
     detail: "Professional profile",
     searchText: "career network profile",
     primary: false,

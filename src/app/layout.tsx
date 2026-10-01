@@ -1,8 +1,12 @@
 import type { Metadata, Viewport } from "next";
+import {
+  GITHUB_PROFILE_URL,
+  LINKEDIN_PROFILE_URL,
+} from "@/data/contact";
+import { SITE_URL } from "@/lib/site";
 import { fontVariables } from "./fonts";
 import "./globals.css";
 
-const SITE_URL = "https://nazyli.com";
 const SITE_DESCRIPTION =
   "Portfolio of Evry Nazyli, AI Engineer. A journey through the universe - intelligent systems, LLM applications, and backend engineering.";
 
@@ -59,10 +63,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     jobTitle: "AI Engineer",
     description: SITE_DESCRIPTION,
     knowsAbout: ["LLM systems", "Voice AI", "Backend engineering"],
-    sameAs: [
-      "https://github.com/Nazyli",
-      "https://www.linkedin.com/in/evrynazyli/",
-    ],
+    sameAs: [GITHUB_PROFILE_URL, LINKEDIN_PROFILE_URL],
   };
 
   return (
