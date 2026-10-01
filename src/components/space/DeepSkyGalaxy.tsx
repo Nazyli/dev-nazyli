@@ -9,7 +9,7 @@ import { getSpaceColor } from "@/lib/spaceColors";
 import { universeState } from "@/lib/universeState";
 
 const STAR_COUNT = 1500;
-const PROJECTS_STATION = 3;
+const HERO_STATION = 0;
 const ARM_COUNT = 4;
 const GALAXY_RADIUS = 8.5;
 
@@ -69,20 +69,20 @@ function makeStarTexture() {
 }
 
 function getRoutePosition(aspect: number) {
-  const camera = cameraPath.getPointAt(CAMERA_POSITION_STOPS[PROJECTS_STATION]);
-  const target = cameraTargetPath.getPointAt(CAMERA_TARGET_STOPS[PROJECTS_STATION]);
+  const camera = cameraPath.getPointAt(CAMERA_POSITION_STOPS[HERO_STATION]);
+  const target = cameraTargetPath.getPointAt(CAMERA_TARGET_STOPS[HERO_STATION]);
   const forward = target.sub(camera).normalize();
   const right = new THREE.Vector3()
     .crossVectors(new THREE.Vector3(0, 1, 0), forward)
     .normalize();
   const up = new THREE.Vector3().crossVectors(forward, right).normalize();
-  const distance = 46;
+  const distance = 74;
   const halfHeight = distance * Math.tan(THREE.MathUtils.degToRad(55 / 2));
 
   return camera
     .addScaledVector(forward, distance)
-    .addScaledVector(right, halfHeight * aspect * 0.56)
-    .addScaledVector(up, -halfHeight * 0.28)
+    .addScaledVector(right, -halfHeight * aspect * 0.36)
+    .addScaledVector(up, halfHeight * 0.12)
     .toArray() as [number, number, number];
 }
 
