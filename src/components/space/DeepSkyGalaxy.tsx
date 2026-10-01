@@ -81,8 +81,8 @@ function getRoutePosition(aspect: number) {
 
   return camera
     .addScaledVector(forward, distance)
-    .addScaledVector(right, halfHeight * aspect * 0.5)
-    .addScaledVector(up, -halfHeight * 0.6)
+    .addScaledVector(right, halfHeight * aspect * 0.8)
+    .addScaledVector(up, -halfHeight * 0.32)
     .toArray() as [number, number, number];
 }
 
@@ -122,8 +122,8 @@ export function DeepSkyGalaxy() {
     <group
       ref={group}
       position={position}
-      rotation={[0.34, -0.16, 0.24]}
-      scale={0.18}
+      rotation={[1.2, -0.16, 0.24]}
+      scale={0.2}
     >
       <points geometry={geometry} material={material} />
     </group>
