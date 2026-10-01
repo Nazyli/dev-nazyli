@@ -3,7 +3,13 @@
 import { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { cameraPath, cameraTargetPath } from "@/lib/cameraPath";
+import {
+  CAMERA_POSITION_STOPS,
+  CAMERA_TARGET_STOPS,
+  cameraPath,
+  cameraTargetPath,
+  mapScrollProgressToCameraPath,
+} from "@/lib/cameraPath";
 import { universeState } from "@/lib/universeState";
 import { useAmbientMotionPaused } from "@/hooks/useAmbientMotionPaused";
 
@@ -48,9 +54,20 @@ export function SpaceCamera() {
     }
 
     hasMoved.current = true;
-    const t = universeState.progress;
-    cameraPath.getPointAt(t, tmpPosition);
-    cameraTargetPath.getPointAt(t, tmpTarget);
+    cameraPath.getPointAt(
+      mapScrollProgressToCameraPath(
+        universeState.progress,
+        CAMERA_POSITION_STOPS,
+      ),
+      tmpPosition,
+    );
+    cameraTargetPath.getPointAt(
+      mapScrollProgressToCameraPath(
+        universeState.progress,
+        CAMERA_TARGET_STOPS,
+      ),
+      tmpTarget,
+    );
 
     camera.position.x = THREE.MathUtils.damp(
       camera.position.x,
