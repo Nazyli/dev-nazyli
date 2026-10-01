@@ -201,7 +201,7 @@ export function Expertise() {
             }`}
           >
             <div className="text-center">
-              <p className="font-mono text-[8px] uppercase tracking-[0.25em] text-starlight/60">
+              <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-starlight/60">
                 Core focus
               </p>
               <p className="mt-2 font-display text-lg font-medium tracking-tight text-starlight">
