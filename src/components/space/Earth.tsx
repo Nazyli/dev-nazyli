@@ -1,17 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
 import { getSpaceColor } from "@/lib/spaceColors";
 import {
-  EARTH_CLOUD_URL,
-  EARTH_TEXTURE_URL,
-  makeCloudTexture,
-  makeEarthBumpTexture,
-  makeEarthTexture,
-} from "@/lib/textures";
+  disposeGeneratedSurfaceTextures,
+  makeTerrestrialSurfaceTextures,
+  type PlanetSurfaceTextures,
+} from "@/lib/planetaryTextures";
 
 type EarthProps = {
   position?: [number, number, number];
@@ -62,25 +60,24 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
   const cloudRef = useRef<THREE.Mesh>(null);
   const spin = useRef(0);
   const viewport = useThree((state) => state.size);
+  const [surface, setSurface] = useState<PlanetSurfaceTextures | null>(null);
 
-  const earthMap = useMemo(
-    () => (EARTH_TEXTURE_URL ? null : makeEarthTexture()),
-    []
-  );
-  const earthBump = useMemo(() => makeEarthBumpTexture(), []);
-  const cloudMap = useMemo(
-    () => (EARTH_CLOUD_URL ? null : makeCloudTexture()),
-    []
-  );
-
-  useEffect(
-    () => () => {
-      earthMap?.dispose();
-      earthBump.dispose();
-      cloudMap?.dispose();
-    },
-    [cloudMap, earthBump, earthMap],
-  );
+  useEffect(() => {
+    let disposed = false;
+    let loadedSurface: PlanetSurfaceTextures | null = null;
+    void makeTerrestrialSurfaceTextures().then((result) => {
+      loadedSurface = result;
+      if (disposed) {
+        disposeGeneratedSurfaceTextures([result]);
+      } else {
+        setSurface(result);
+      }
+    });
+    return () => {
+      disposed = true;
+      if (loadedSurface) disposeGeneratedSurfaceTextures([loadedSurface]);
+    };
+  }, []);
 
   useFrame((_, delta) => {
     if (universeState.reducedMotion) {
@@ -130,21 +127,24 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
         <mesh rotation={[0.2, 0, 0]}>
           <sphereGeometry args={[radius, 64, 64]} />
           <meshStandardMaterial
-            map={earthMap ?? undefined}
-            bumpMap={earthBump}
-            bumpScale={0.08}
+            map={surface?.color ?? undefined}
+            bumpMap={surface?.height ?? undefined}
+            bumpScale={0.035}
+            color={getSpaceColor(surface ? "starlight" : "planet-aqua")}
             emissive={getSpaceColor("starlight")}
-            emissiveMap={earthMap ?? undefined}
+            emissiveMap={surface?.color ?? undefined}
             emissiveIntensity={0.1}
             roughness={0.9}
             metalness={0.05}
           />
         </mesh>
-        {cloudMap && (
+        {surface?.clouds && (
           <mesh ref={cloudRef} scale={1.012}>
             <sphereGeometry args={[radius, 48, 48]} />
             <meshStandardMaterial
-              map={cloudMap}
+              map={surface.cloudsAreAlphaMap ? undefined : surface.clouds}
+              alphaMap={surface.cloudsAreAlphaMap ? surface.clouds : undefined}
+              color={getSpaceColor("starlight")}
               transparent
               opacity={0.28}
               depthWrite={false}

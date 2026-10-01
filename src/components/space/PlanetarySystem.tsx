@@ -8,6 +8,12 @@ import {
   makeSolarSurfaceTexture,
   makeTerrestrialSurfaceTextures,
   makePlanetSurfaceTextures,
+  loadPlanetImageSurface,
+  loadSolarImageTexture,
+  loadPlanetImageTexture,
+  PLANET_IMAGE_TEXTURES,
+  disposeGeneratedSurfaceTextures,
+  disposeGeneratedTexture,
   type PlanetSurfaceStyle,
   type PlanetSurfaceTextures,
 } from "@/lib/planetaryTextures";
@@ -402,7 +408,9 @@ function CelestialPlanet({
         <mesh ref={cloudLayer} scale={1.012}>
           <sphereGeometry args={[spec.radius, 48, 36]} />
           <meshStandardMaterial
-            map={textures.clouds}
+            map={textures.cloudsAreAlphaMap ? undefined : textures.clouds}
+            alphaMap={textures.cloudsAreAlphaMap ? textures.clouds : undefined}
+            color={getSpaceColor("starlight")}
             transparent
             opacity={spec.cloudOpacity ?? 0.24}
             depthWrite={false}
@@ -485,7 +493,7 @@ function NaturalSatellite({
   );
 }
 
-function SolarCore({ surface }: { surface: THREE.CanvasTexture | null }) {
+function SolarCore({ surface }: { surface: THREE.Texture | null }) {
   const body = useRef<THREE.Mesh>(null);
 
   useFrame((_, delta) => {
@@ -551,25 +559,21 @@ function OrbitalPaths() {
 export function PlanetarySystem() {
   const [textures, setTextures] = useState<Record<string, PlanetSurfaceTextures>>({});
   const [moonTextures, setMoonTextures] = useState<Record<string, PlanetSurfaceTextures>>({});
-  const [solarSurface, setSolarSurface] = useState<THREE.CanvasTexture | null>(null);
+  const [solarSurface, setSolarSurface] = useState<THREE.Texture | null>(null);
 
   useEffect(() => {
     let disposed = false;
-    let surface: THREE.CanvasTexture | null = null;
+    let surface: THREE.Texture | null = null;
     const planetSurfaces: PlanetSurfaceTextures[] = [];
     const satelliteSurfaces: PlanetSurfaceTextures[] = [];
-    const disposeTextures = (surfaces: PlanetSurfaceTextures[]) => {
-      surfaces.forEach((texture) => {
-        texture.color.dispose();
-        texture.height.dispose();
-        texture.clouds?.dispose();
-      });
-    };
-
     const generateTextures = async () => {
-      surface = await makeSolarSurfaceTexture(912735);
+      try {
+        surface = await loadSolarImageTexture();
+      } catch {
+        surface = await makeSolarSurfaceTexture(912735);
+      }
       if (disposed) {
-        surface.dispose();
+        disposeGeneratedTexture(surface);
         return;
       }
       setSolarSurface(surface);
@@ -589,17 +593,28 @@ export function PlanetarySystem() {
             Math.abs(b.tourIndex - currentTourIndex),
         );
         const { index, spec } = pendingPlanets.shift()!;
-        const planetTextures = spec.name === "Earth"
-          ? makeTerrestrialSurfaceTextures()
-          : await makePlanetSurfaceTextures(
+        let planetTextures: PlanetSurfaceTextures;
+        if (spec.name === "Earth") {
+          planetTextures = await makeTerrestrialSurfaceTextures();
+        } else if (PLANET_IMAGE_TEXTURES[spec.name]) {
+          try {
+            planetTextures = await loadPlanetImageSurface(spec.name);
+          } catch {
+            planetTextures = await makePlanetSurfaceTextures(
+              spec.surface,
+              1101 + index * 1301,
+              spec.palette,
+            );
+          }
+        } else {
+          planetTextures = await makePlanetSurfaceTextures(
             spec.surface,
             1101 + index * 1301,
             spec.palette,
           );
+        }
         if (disposed) {
-          planetTextures.color.dispose();
-          planetTextures.height.dispose();
-          planetTextures.clouds?.dispose();
+          disposeGeneratedSurfaceTextures([planetTextures]);
           return;
         }
         planetSurfaces.push(planetTextures);
@@ -607,15 +622,24 @@ export function PlanetarySystem() {
       }
 
       for (const [index, moon] of MOONS.entries()) {
-        const moonSurface = await makePlanetSurfaceTextures(
-          "rocky",
-          41003 + index * 1543,
-          moon.palette,
-        );
+        let moonSurface: PlanetSurfaceTextures;
+        try {
+          moonSurface = moon.name === "Moon"
+            ? { color: await loadPlanetImageTexture("/textures/planetary/2k_moon.jpg"), height: null, clouds: null }
+            : await makePlanetSurfaceTextures(
+              "rocky",
+              41003 + index * 1543,
+              moon.palette,
+            );
+        } catch {
+          moonSurface = await makePlanetSurfaceTextures(
+            "rocky",
+            41003 + index * 1543,
+            moon.palette,
+          );
+        }
         if (disposed) {
-          moonSurface.color.dispose();
-          moonSurface.height.dispose();
-          moonSurface.clouds?.dispose();
+          disposeGeneratedSurfaceTextures([moonSurface]);
           return;
         }
         satelliteSurfaces.push(moonSurface);
@@ -626,9 +650,9 @@ export function PlanetarySystem() {
     void generateTextures().catch(() => {});
     return () => {
       disposed = true;
-      surface?.dispose();
-      disposeTextures(planetSurfaces);
-      disposeTextures(satelliteSurfaces);
+      disposeGeneratedTexture(surface);
+      disposeGeneratedSurfaceTextures(planetSurfaces);
+      disposeGeneratedSurfaceTextures(satelliteSurfaces);
     };
   }, []);
 

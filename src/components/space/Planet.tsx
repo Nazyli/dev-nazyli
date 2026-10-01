@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
+import { getSpaceColor } from "@/lib/spaceColors";
+import { makePlanetTexture, makeRingTexture } from "@/lib/textures";
 import {
-  PLANET_TEXTURE_URL,
-  makePlanetTexture,
-  makeRingTexture,
-} from "@/lib/textures";
+  disposeGeneratedTexture,
+  loadPlanetImageTexture,
+} from "@/lib/planetaryTextures";
 
 type PlanetProps = {
   position: [number, number, number];
@@ -17,20 +18,30 @@ type PlanetProps = {
 
 export function Planet({ position, radius = 2 }: PlanetProps) {
   const body = useRef<THREE.Mesh>(null);
-
-  const map = useMemo(
-    () => (PLANET_TEXTURE_URL ? null : makePlanetTexture()),
-    []
-  );
+  const [map, setMap] = useState<THREE.Texture | null>(null);
   const ringMap = useMemo(() => makeRingTexture(), []);
 
-  useEffect(
-    () => () => {
-      map?.dispose();
+  useEffect(() => {
+    let disposed = false;
+    let generatedMap: THREE.Texture | null = null;
+    void loadPlanetImageTexture("/textures/planetary/2k_saturn.jpg")
+      .then((texture) => {
+        if (!disposed) setMap(texture);
+      })
+      .catch(() => {
+        generatedMap = makePlanetTexture();
+        if (disposed) {
+          disposeGeneratedTexture(generatedMap);
+        } else {
+          setMap(generatedMap);
+        }
+      });
+    return () => {
+      disposed = true;
+      disposeGeneratedTexture(generatedMap);
       ringMap.dispose();
-    },
-    [map, ringMap],
-  );
+    };
+  }, [ringMap]);
 
   useFrame((_, delta) => {
     if (universeState.reducedMotion || universeState.ambientMotionPaused) return;
@@ -45,6 +56,7 @@ export function Planet({ position, radius = 2 }: PlanetProps) {
         <sphereGeometry args={[radius, 64, 64]} />
         <meshStandardMaterial
           map={map ?? undefined}
+          color={map ? getSpaceColor("starlight") : getSpaceColor("planet-tan")}
           roughness={0.92}
           metalness={0.02}
         />

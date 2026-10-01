@@ -6,25 +6,97 @@ import {
   makeEarthBumpTexture,
   makeEarthTexture,
 } from "@/lib/textures";
+import type { PlanetaryTourBodyName } from "@/lib/planetaryTour";
 
 export type PlanetSurfaceStyle = "rocky" | "clouded" | "banded" | "icy" | "stormy";
 
 export type PlanetSurfaceTextures = {
-  color: THREE.CanvasTexture;
-  height: THREE.CanvasTexture;
-  clouds: THREE.CanvasTexture | null;
+  color: THREE.Texture;
+  height: THREE.Texture | null;
+  clouds: THREE.Texture | null;
+  cloudsAreAlphaMap?: boolean;
 };
+
+const textureLoader = new THREE.TextureLoader();
+const loadedTextures = new Map<string, Promise<THREE.Texture>>();
+
+export const PLANET_IMAGE_TEXTURES: Partial<Record<PlanetaryTourBodyName, string>> = {
+  Mercury: "/textures/planetary/2k_mercury.jpg",
+  Venus: "/textures/planetary/2k_venus_surface.jpg",
+  Earth: "/textures/planetary/2k_earth_daymap.jpg",
+  Mars: "/textures/planetary/2k_mars.jpg",
+  Jupiter: "/textures/planetary/2k_jupiter.jpg",
+  Saturn: "/textures/planetary/2k_saturn.jpg",
+  Uranus: "/textures/planetary/2k_uranus.jpg",
+  Neptune: "/textures/planetary/2k_neptune.jpg",
+};
+
+function loadImageTexture(url: string, color = true) {
+  let pending = loadedTextures.get(url);
+  if (!pending) {
+    pending = textureLoader.loadAsync(url).then((texture) => {
+      if (color) texture.colorSpace = THREE.SRGBColorSpace;
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.anisotropy = 4;
+      texture.userData.sharedPlanetTexture = true;
+      return texture;
+    });
+    loadedTextures.set(url, pending);
+    void pending.catch(() => loadedTextures.delete(url));
+  }
+  return pending;
+}
+
+export async function loadPlanetImageTexture(url: string) {
+  return loadImageTexture(url);
+}
+
+export async function loadPlanetImageSurface(name: PlanetaryTourBodyName): Promise<PlanetSurfaceTextures> {
+  const colorUrl = PLANET_IMAGE_TEXTURES[name];
+  if (!colorUrl) throw new Error(`No image texture available for ${name}`);
+
+  if (name !== "Earth") {
+    return { color: await loadImageTexture(colorUrl), height: null, clouds: null };
+  }
+
+  return {
+    color: await loadImageTexture(colorUrl),
+    height: null,
+    clouds: await loadImageTexture("/textures/planetary/2k_earth_clouds.jpg", false),
+    cloudsAreAlphaMap: true,
+  };
+}
+
+export async function loadSolarImageTexture() {
+  return loadImageTexture("/textures/planetary/2k_sun.jpg");
+}
+
+export function disposeGeneratedSurfaceTextures(surfaces: PlanetSurfaceTextures[]) {
+  surfaces.forEach(({ color, height, clouds }) => {
+    for (const texture of [color, height, clouds]) {
+      if (texture && !texture.userData.sharedPlanetTexture) texture.dispose();
+    }
+  });
+}
+
+export function disposeGeneratedTexture(texture: THREE.Texture | null) {
+  if (texture && !texture.userData.sharedPlanetTexture) texture.dispose();
+}
 
 function yieldToBrowser() {
   return new Promise<void>((resolve) => window.setTimeout(resolve, 0));
 }
 
-export function makeTerrestrialSurfaceTextures(): PlanetSurfaceTextures {
-  return {
-    color: makeEarthTexture(),
-    height: makeEarthBumpTexture(),
-    clouds: makeCloudTexture(),
-  };
+export async function makeTerrestrialSurfaceTextures(): Promise<PlanetSurfaceTextures> {
+  try {
+    return await loadPlanetImageSurface("Earth");
+  } catch {
+    return {
+      color: makeEarthTexture(),
+      height: makeEarthBumpTexture(),
+      clouds: makeCloudTexture(),
+    };
+  }
 }
 
 export async function makeSolarSurfaceTexture(seed: number) {

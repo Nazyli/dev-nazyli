@@ -176,6 +176,26 @@ export function Contact() {
         <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/75">
           Evry Nazyli - 2026
         </p>
+        <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.12em] text-starlight/45">
+          Planet maps: {" "}
+          <a
+            href="https://www.solarsystemscope.com/textures/"
+            target="_blank"
+            rel="noreferrer"
+            className="underline decoration-indigo/70 underline-offset-2 transition-colors hover:text-accent focus-visible:text-accent"
+          >
+            Solar System Scope
+          </a>
+          {" · "}
+          <a
+            href="https://creativecommons.org/licenses/by/4.0/"
+            target="_blank"
+            rel="noreferrer"
+            className="underline decoration-indigo/70 underline-offset-2 transition-colors hover:text-accent focus-visible:text-accent"
+          >
+            CC BY 4.0
+          </a>
+        </p>
       </footer>
     </section>
   );
