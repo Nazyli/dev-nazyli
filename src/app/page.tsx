@@ -12,8 +12,36 @@ import { Projects } from "@/components/sections/Projects";
 import { Certificates } from "@/components/sections/Certificates";
 import { Experience } from "@/components/sections/Experience";
 import { Contact } from "@/components/sections/Contact";
+import { publishedProjects } from "@/data/projects";
+import { SITE_URL } from "@/lib/site";
 
 export default function Home() {
+  const projectStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${SITE_URL}/#projects`,
+    name: "Selected software projects",
+    numberOfItems: publishedProjects.length,
+    itemListElement: publishedProjects.map((project, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "SoftwareSourceCode",
+        "@id": `${SITE_URL}/#project-${project.id}`,
+        name: project.title,
+        description: project.description,
+        url: `${SITE_URL}/#project-${project.id}`,
+        ...(project.repositoryUrl
+          ? { codeRepository: project.repositoryUrl }
+          : {}),
+        ...(project.technologies?.length
+          ? { keywords: project.technologies }
+          : {}),
+        creator: { "@id": `${SITE_URL}/#person` },
+      },
+    })),
+  };
+
   return (
     <EntranceProvider>
       <ScrollProvider>
@@ -21,6 +49,12 @@ export default function Home() {
         <WarpOverlay />
         <div aria-hidden className="obs-vignette pointer-events-none fixed inset-0 z-[5]" />
         <main id="main" tabIndex={-1} className="relative z-10">
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(projectStructuredData).replace(/</g, "\\u003c"),
+            }}
+          />
           <Hero />
           <About />
           <Expertise />

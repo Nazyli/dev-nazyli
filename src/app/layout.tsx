@@ -57,13 +57,26 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "Person",
-    name: "Evry Nazyli",
-    url: SITE_URL,
-    jobTitle: "AI Engineer",
-    description: SITE_DESCRIPTION,
-    knowsAbout: ["LLM systems", "Voice AI", "Backend engineering"],
-    sameAs: [GITHUB_PROFILE_URL, LINKEDIN_PROFILE_URL],
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": `${SITE_URL}/#person`,
+        name: "Evry Nazyli",
+        url: SITE_URL,
+        jobTitle: "AI Engineer",
+        description: SITE_DESCRIPTION,
+        knowsAbout: ["LLM systems", "Voice AI", "Backend engineering"],
+        sameAs: [GITHUB_PROFILE_URL, LINKEDIN_PROFILE_URL],
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        name: "Nazyli Universe",
+        url: SITE_URL,
+        inLanguage: "en",
+        publisher: { "@id": `${SITE_URL}/#person` },
+      },
+    ],
   };
 
   return (
