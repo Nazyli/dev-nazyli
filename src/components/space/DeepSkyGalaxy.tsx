@@ -76,13 +76,13 @@ function getRoutePosition(aspect: number) {
     .crossVectors(new THREE.Vector3(0, 1, 0), forward)
     .normalize();
   const up = new THREE.Vector3().crossVectors(forward, right).normalize();
-  const distance = 74;
+  const distance = 30;
   const halfHeight = distance * Math.tan(THREE.MathUtils.degToRad(55 / 2));
 
   return camera
     .addScaledVector(forward, distance)
-    .addScaledVector(right, -halfHeight * aspect * 0.36)
-    .addScaledVector(up, halfHeight * 0.12)
+    .addScaledVector(right, halfHeight * aspect * 0.5)
+    .addScaledVector(up, -halfHeight * 0.6)
     .toArray() as [number, number, number];
 }
 
@@ -123,7 +123,7 @@ export function DeepSkyGalaxy() {
       ref={group}
       position={position}
       rotation={[0.34, -0.16, 0.24]}
-      scale={0.9}
+      scale={0.18}
     >
       <points geometry={geometry} material={material} />
     </group>
