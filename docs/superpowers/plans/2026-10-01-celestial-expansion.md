@@ -4,7 +4,7 @@
 
 **Goal:** Add the six missing solar-system planets plus a sparse asteroid belt and a comet to the existing space journey.
 
-**Architecture:** A focused scene component owns the six added planets and shares a small set of generated texture maps. Separate scene components own the instanced asteroid belt and comet; `SpaceScene` only composes these with the existing scene.
+**Architecture:** A focused scene component owns the six added planets and their palette-specific seeded surface, relief, and cloud maps from `planetaryTextures.ts`. Separate scene components own the instanced asteroid belt and comet; `SpaceScene` only composes these with the existing scene.
 
 **Tech Stack:** Next.js 16 App Router, TypeScript, Three.js 0.182, React Three Fiber 9.
 
@@ -15,7 +15,7 @@
 - Keep the Deep Space Observatory palette and restrained visual density.
 - Canvas remains decorative; portfolio content stays in the DOM.
 - Do not add dependencies, downloaded assets, ad-hoc palette colors, or postprocessing.
-- Use low-resolution generated textures, low-poly spheres, and instancing.
+- Use compact generated textures, low-poly spheres, and instancing.
 - Respect reduced motion and the ambient-motion pause control.
 
 ## Review Focus
@@ -38,11 +38,11 @@
 - Consumes existing theme colors through `getSpaceColor` and `universeState`.
 - Produces a decorative R3F component rendering Mercury, Venus, Mars, Jupiter, Uranus, and Neptune as configured landmarks.
 
-- [ ] Build a reusable low-poly planetary mesh with four surface styles: rocky, cloudy, broad-banded, and ice-banded.
-- [ ] Generate compact seeded canvas textures once per style, reuse them across configured bodies, and dispose textures on unmount.
-- [ ] Place six planets along the camera route with restrained scale and clear separation from the page's text regions.
-- [ ] Make slow rotation respect reduced motion and `ambientMotionPaused`.
-- [ ] Add the component to `SpaceScene` while retaining the existing Saturn-like ringed planet and Earth.
+- [x] Build low-poly planetary meshes with distinct rocky, cloudy, banded, icy, and stormy surface styles.
+- [x] Generate seeded color, relief, and cloud maps with visible crater and storm detail; dispose textures on unmount.
+- [x] Place six planets along the camera route and add a thin Uranian ring.
+- [x] Make slow rotation respect reduced motion and `ambientMotionPaused`.
+- [x] Add the component to `SpaceScene` while retaining the existing Saturn-like ringed planet and Earth.
 
 ### Task 2: Add background landmarks
 
@@ -55,10 +55,10 @@
 - `AsteroidBelt` renders a single instanced mesh with deterministic positions and slow group rotation.
 - `Comet` renders one small body and a short translucent tail using existing palette tokens.
 
-- [ ] Construct a sparse asteroid annulus with a single `InstancedMesh`, bounded geometry count, and seeded placement.
-- [ ] Construct a compact comet with a tapered, low-opacity tail and place it outside the main text focus.
-- [ ] Pause ambient motion under reduced motion and the existing pause control.
-- [ ] Compose both objects into `SpaceScene`.
+- [x] Construct a sparse asteroid annulus with a single `InstancedMesh`, bounded geometry count, and seeded placement.
+- [x] Construct a compact comet with a tapered, low-opacity tail and place it outside the main text focus.
+- [x] Pause ambient motion under reduced motion and the existing pause control.
+- [x] Compose both objects into `SpaceScene`.
 
 ### Task 3: Verify the integrated scene
 

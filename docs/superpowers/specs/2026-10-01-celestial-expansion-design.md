@@ -8,10 +8,10 @@ Give the existing scroll-through-space portfolio a fuller planetary cast and a f
 
 - Keep the existing ringed planet and Earth as the Saturn and Earth landmarks.
 - Add Mercury, Venus, Mars, Jupiter, Uranus, and Neptune as small background landmarks across the camera route, completing the eight-planet set.
-- Give each new body a restrained procedural surface treatment: rocky texture for Mercury and Mars, cloud cover for Venus, broad bands for Jupiter, and cool atmospheric bands for Uranus and Neptune.
+- Give each new body its own palette-specific color and relief maps: stamped craters for Mercury and Mars, swirling cloud decks for Venus, turbulent bands and a storm system for Jupiter, and distinct ice-band and storm patterns for Uranus and Neptune. Use thin edge-lit atmospheres and a narrow Uranian ring to keep the models readable at portfolio scale.
 - Add one sparse, instanced asteroid belt and one distant comet with a short tapered tail. Both sit away from section copy and use the existing space palette.
 - Keep celestial objects decorative and non-interactive in the Canvas. DOM continues to own all portfolio content.
-- Reuse low-resolution procedural textures, low-poly spheres, and instancing. Do not add dependencies, downloaded assets, new colors, or heavy postprocessing.
+- Generate compact, seeded, seamless procedural maps from the existing theme tokens; use relief and transparent cloud layers where the planet calls for them. Keep the spheres low-poly, the asteroid belt instanced, and the rendering free of new dependencies, downloaded assets, or heavy postprocessing.
 - Pause ambient rotation with the existing motion controls and respect reduced-motion behavior.
 
 ## Verification
