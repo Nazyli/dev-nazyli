@@ -59,6 +59,7 @@
 - [x] Construct a compact comet with a tapered, low-opacity tail and place it outside the main text focus.
 - [x] Pause ambient motion under reduced motion and the existing pause control.
 - [x] Compose both objects into `SpaceScene`.
+- [x] Reduce asteroid size and density after observing the field crossing foreground copy.
 
 ### Task 3: Verify the integrated scene
 
