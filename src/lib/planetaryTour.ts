@@ -80,7 +80,7 @@ const CAMERA_POINTS = [
       new THREE.Vector3(
         body.viewDistance * 0.2 * (index % 2 === 0 ? 1 : -1),
         body.viewDistance * 0.44,
-        body.viewDistance,
+        -body.viewDistance,
       ),
     ),
   ),
@@ -103,8 +103,8 @@ const TARGET_POINTS = [
   new THREE.Vector3(4, 3.5, 138),
 ];
 
-const cameraTour = new THREE.CatmullRomCurve3(CAMERA_POINTS, false, "catmullrom", 0.45);
-const targetTour = new THREE.CatmullRomCurve3(TARGET_POINTS, false, "catmullrom", 0.45);
+const cameraTour = new THREE.CatmullRomCurve3(CAMERA_POINTS, false, "centripetal");
+const targetTour = new THREE.CatmullRomCurve3(TARGET_POINTS, false, "centripetal");
 const BODY_INDEX = new Map(
   PLANETARY_TOUR_BODIES.map((body, index) => [body.name, index]),
 );
