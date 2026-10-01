@@ -140,6 +140,7 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
         <mesh rotation={[0.2, 0, 0]}>
           <sphereGeometry args={[radius, 64, 64]} />
           <meshStandardMaterial
+            key={`${surface ? "surface-ready" : "surface-placeholder"}-${nightMap ? "night-ready" : "night-placeholder"}`}
             map={surface?.color ?? undefined}
             bumpMap={surface?.height ?? undefined}
             bumpScale={0.035}
