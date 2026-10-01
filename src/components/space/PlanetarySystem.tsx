@@ -168,7 +168,11 @@ const PLANET_VISUALS: Record<PlanetaryTourBodyName, Omit<PlanetSpec, "name">> = 
 const PLANETS: PlanetSpec[] = PLANETARY_TOUR_BODIES.map(({ name }) => ({
   name,
   ...PLANET_VISUALS[name],
-}));
+})).filter((spec) => spec.name !== "Saturn");
+const SATURN_POSITION = getPlanetaryBodyPosition(
+  "Saturn",
+  new THREE.Vector3(),
+).toArray() as [number, number, number];
 
 
 
@@ -585,6 +589,15 @@ export function PlanetarySystem() {
           moonTextures={moonTextures}
         />
       ))}
+      <group position={SATURN_POSITION}>
+        {MOONS.filter((moon) => moon.host === "Saturn").map((moon) => (
+          <NaturalSatellite
+            key={moon.name}
+            spec={moon}
+            textures={moonTextures[moon.name]}
+          />
+        ))}
+      </group>
     </group>
   );
 }

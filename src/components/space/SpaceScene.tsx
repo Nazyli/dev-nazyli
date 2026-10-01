@@ -2,6 +2,7 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useSyncExternalStore } from "react";
+import * as THREE from "three";
 import { AccretionDisk } from "./AccretionDisk";
 import { AsteroidBelt } from "./AsteroidBelt";
 import { Comet } from "./Comet";
@@ -17,8 +18,13 @@ import { Stars } from "./Stars";
 import { SurveySatellite } from "./SurveySatellite";
 import { useAmbientMotionPaused } from "@/hooks/useAmbientMotionPaused";
 import { getSpaceColor } from "@/lib/spaceColors";
+import { getPlanetaryBodyPosition } from "@/lib/planetaryTour";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+const SATURN_POSITION = getPlanetaryBodyPosition(
+  "Saturn",
+  new THREE.Vector3(),
+).toArray() as [number, number, number];
 
 function subscribeToVisibility(onChange: () => void) {
   document.addEventListener("visibilitychange", onChange);
@@ -134,7 +140,7 @@ export function SpaceScene({
         <Comet />
         <AccretionDisk />
         <ShootingStar />
-        <Planet position={[3.4, 0.8, -26]} radius={1} />
+        <Planet position={SATURN_POSITION} radius={2.72} />
         <Earth position={[4, 0.5, 138]} radius={5.5} />
         <SurveySatellite />
         <SpaceCamera />
