@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
@@ -360,7 +360,7 @@ function CelestialPlanet({
   moonTextures,
 }: {
   spec: PlanetSpec;
-  textures: PlanetSurfaceTextures;
+  textures: PlanetSurfaceTextures | undefined;
   moons: MoonSpec[];
   moonTextures: Record<string, PlanetSurfaceTextures>;
 }) {
@@ -388,14 +388,15 @@ function CelestialPlanet({
       <mesh ref={body} scale={spec.shape ?? 1}>
         <sphereGeometry args={[spec.radius, 64, 48]} />
         <meshStandardMaterial
-          map={textures.color}
-          bumpMap={textures.height}
+          map={textures?.color ?? null}
+          bumpMap={textures?.height ?? null}
           bumpScale={spec.bumpScale}
+          color={getSpaceColor(textures ? "starlight" : spec.palette[1])}
           roughness={0.96}
           metalness={0}
         />
       </mesh>
-      {textures.clouds && (
+      {textures?.clouds && (
         <mesh ref={cloudLayer} scale={1.012}>
           <sphereGeometry args={[spec.radius, 48, 36]} />
           <meshStandardMaterial
@@ -449,7 +450,7 @@ function NaturalSatellite({
   textures,
 }: {
   spec: MoonSpec;
-  textures: PlanetSurfaceTextures;
+  textures: PlanetSurfaceTextures | undefined;
 }) {
   const orbit = useRef<THREE.Group>(null);
 
@@ -468,9 +469,10 @@ function NaturalSatellite({
         <mesh position={[spec.orbitRadius, 0, 0]}>
           <sphereGeometry args={[spec.radius, 32, 24]} />
           <meshStandardMaterial
-            map={textures.color}
-            bumpMap={textures.height}
+          map={textures?.color ?? null}
+          bumpMap={textures?.height ?? null}
             bumpScale={0.018}
+            color={getSpaceColor(textures ? "starlight" : spec.palette[1])}
             roughness={0.98}
             metalness={0}
           />
@@ -480,11 +482,8 @@ function NaturalSatellite({
   );
 }
 
-function SolarCore() {
-  const surface = useMemo(() => makeSolarSurfaceTexture(912735), []);
+function SolarCore({ surface }: { surface: THREE.CanvasTexture | null }) {
   const body = useRef<THREE.Mesh>(null);
-
-  useEffect(() => () => surface.dispose(), [surface]);
 
   useFrame((_, delta) => {
     if (!universeState.ambientMotionPaused && !universeState.reducedMotion && body.current) {
@@ -502,7 +501,11 @@ function SolarCore() {
       />
       <mesh ref={body}>
         <sphereGeometry args={[3.2, 64, 48]} />
-        <meshBasicMaterial map={surface} toneMapped={false} />
+        <meshBasicMaterial
+          map={surface}
+          color={getSpaceColor(surface ? "starlight" : "gold")}
+          toneMapped={false}
+        />
       </mesh>
       <mesh scale={1.08}>
         <sphereGeometry args={[3.2, 48, 36]} />
@@ -542,46 +545,79 @@ function OrbitalPaths() {
 }
 
 export function PlanetarySystem() {
-  const textures = useMemo(
-    () =>
-      Object.fromEntries(
-        PLANETS.map((spec, index) => [
-          spec.name,
-          spec.name === "Earth"
-            ? makeTerrestrialSurfaceTextures()
-            : makePlanetSurfaceTextures(spec.surface, 1101 + index * 1301, spec.palette),
-        ]),
-      ) as Record<string, PlanetSurfaceTextures>,
-    [],
-  );
-  const moonTextures = useMemo(
-    () => Object.fromEntries(
-      MOONS.map((moon, index) => [
-        moon.name,
-        makePlanetSurfaceTextures("rocky", 41003 + index * 1543, moon.palette),
-      ]),
-    ) as Record<string, PlanetSurfaceTextures>,
-    [],
-  );
-  useEffect(
-    () => () => {
-      Object.values(textures).forEach((surface) => {
-        surface.color.dispose();
-        surface.height.dispose();
-        surface.clouds?.dispose();
+  const [textures, setTextures] = useState<Record<string, PlanetSurfaceTextures>>({});
+  const [moonTextures, setMoonTextures] = useState<Record<string, PlanetSurfaceTextures>>({});
+  const [solarSurface, setSolarSurface] = useState<THREE.CanvasTexture | null>(null);
+
+  useEffect(() => {
+    let disposed = false;
+    let surface: THREE.CanvasTexture | null = null;
+    const planetSurfaces: PlanetSurfaceTextures[] = [];
+    const satelliteSurfaces: PlanetSurfaceTextures[] = [];
+    const disposeTextures = (surfaces: PlanetSurfaceTextures[]) => {
+      surfaces.forEach((texture) => {
+        texture.color.dispose();
+        texture.height.dispose();
+        texture.clouds?.dispose();
       });
-      Object.values(moonTextures).forEach((surface) => {
-        surface.color.dispose();
-        surface.height.dispose();
-      });
-    },
-    [moonTextures, textures],
-  );
+    };
+
+    const generateTextures = async () => {
+      surface = await makeSolarSurfaceTexture(912735);
+      if (disposed) {
+        surface.dispose();
+        return;
+      }
+      setSolarSurface(surface);
+
+      for (const [index, spec] of PLANETS.entries()) {
+        const planetTextures = spec.name === "Earth"
+          ? makeTerrestrialSurfaceTextures()
+          : await makePlanetSurfaceTextures(
+            spec.surface,
+            1101 + index * 1301,
+            spec.palette,
+          );
+        if (disposed) {
+          planetTextures.color.dispose();
+          planetTextures.height.dispose();
+          planetTextures.clouds?.dispose();
+          return;
+        }
+        planetSurfaces.push(planetTextures);
+        setTextures((current) => ({ ...current, [spec.name]: planetTextures }));
+      }
+
+      for (const [index, moon] of MOONS.entries()) {
+        const moonSurface = await makePlanetSurfaceTextures(
+          "rocky",
+          41003 + index * 1543,
+          moon.palette,
+        );
+        if (disposed) {
+          moonSurface.color.dispose();
+          moonSurface.height.dispose();
+          moonSurface.clouds?.dispose();
+          return;
+        }
+        satelliteSurfaces.push(moonSurface);
+        setMoonTextures((current) => ({ ...current, [moon.name]: moonSurface }));
+      }
+    };
+
+    void generateTextures().catch(() => {});
+    return () => {
+      disposed = true;
+      surface?.dispose();
+      disposeTextures(planetSurfaces);
+      disposeTextures(satelliteSurfaces);
+    };
+  }, []);
 
   return (
     <group>
       <OrbitalPaths />
-      <SolarCore />
+      <SolarCore surface={solarSurface} />
       {PLANETS.map((spec) => (
         <CelestialPlanet
           key={spec.name}

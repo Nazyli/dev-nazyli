@@ -216,7 +216,7 @@
 
 /* Warp entrance overlay — pure transform/opacity streaks (compositor thread) */
 .warp-overlay {
-  background-color: var(--color-void);
+  background-color: transparent;
 }
 
 .warp-streak {

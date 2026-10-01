@@ -54,11 +54,11 @@ const STREAKS: Streak[] = Array.from({ length: 56 }, (_, i) => {
   return { angle, length, width, duration, delay, opacity, color };
 });
 
-const READY_MIN = 900;
+const READY_MIN = 450;
 const READY_MIN_REDUCED = 400;
-const TIMEOUT = 2600;
+const TIMEOUT = 1400;
 const TIMEOUT_REDUCED = 800;
-const FADE_MS = 650;
+const FADE_MS = 450;
 
 export function WarpOverlay() {
   const { ready } = useEntrance();

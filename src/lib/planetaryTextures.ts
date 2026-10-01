@@ -15,6 +15,10 @@ export type PlanetSurfaceTextures = {
   clouds: THREE.CanvasTexture | null;
 };
 
+function yieldToBrowser() {
+  return new Promise<void>((resolve) => window.setTimeout(resolve, 0));
+}
+
 export function makeTerrestrialSurfaceTextures(): PlanetSurfaceTextures {
   return {
     color: makeEarthTexture(),
@@ -23,7 +27,7 @@ export function makeTerrestrialSurfaceTextures(): PlanetSurfaceTextures {
   };
 }
 
-export function makeSolarSurfaceTexture(seed: number) {
+export async function makeSolarSurfaceTexture(seed: number) {
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
@@ -57,6 +61,7 @@ export function makeSolarSurfaceTexture(seed: number) {
       image.data[index + 2] = surfaceColor[2];
       image.data[index + 3] = 255;
     }
+    if (y > 0 && y % 16 === 0) await yieldToBrowser();
   }
 
   context.putImageData(image, 0, 0);
@@ -253,11 +258,11 @@ function stampGreatStorm(context: CanvasRenderingContext2D, color: RGB, seed: nu
   context.restore();
 }
 
-export function makePlanetSurfaceTextures(
+export async function makePlanetSurfaceTextures(
   style: PlanetSurfaceStyle,
   seed: number,
   palette: [SpaceColorToken, SpaceColorToken, SpaceColorToken],
-): PlanetSurfaceTextures {
+): Promise<PlanetSurfaceTextures> {
   const colors = palette.map(readTokenColor) as [RGB, RGB, RGB];
   const colorCanvas = document.createElement("canvas");
   colorCanvas.width = WIDTH;
@@ -339,6 +344,7 @@ export function makePlanetSurfaceTextures(
       cloudImage.data[index + 2] = 224;
       cloudImage.data[index + 3] = Math.round(cloud * 210);
     }
+    if (y > 0 && y % 16 === 0) await yieldToBrowser();
   }
 
   colorContext.putImageData(colorImage, 0, 0);
