@@ -8,6 +8,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import {
+  handleHashLinkClick,
   handleSectionLinkClick,
   navigateToSection,
 } from "@/lib/sectionNavigation";
@@ -28,6 +29,8 @@ const SECTIONS = [
   { id: "s-experience", index: "06", label: "Mission Log", mobile: "Log", compact: "Log", target: "TGT 06 · MISSION LOG" },
   { id: "s-contact", index: "07", label: "Downlink", mobile: "Contact", compact: "Link", target: "TGT 07 · DOWNLINK" },
 ];
+const MOBILE_SECTION_INDICES = [0, 2, 3, 6] as const;
+const MORE_SECTION_INDICES = [1, 4, 5] as const;
 
 let clockValue: string | null = null;
 const clockListeners = new Set<() => void>();
@@ -92,7 +95,9 @@ export function ObservatoryChrome() {
   const [active, setActive] = useState(0);
   const ambientMotionPaused = useAmbientMotionPaused();
   const reducedMotion = useReducedMotion();
+  const moreSectionActive = MORE_SECTION_INDICES.some((index) => index === active);
   const journeyProgress = useRef<HTMLDivElement>(null);
+  const moreSections = useRef<HTMLDetailsElement>(null);
   const pendingInitialRoute = useRef<string | null>(null);
 
   useEffect(() => {
@@ -327,28 +332,82 @@ export function ObservatoryChrome() {
 
       <nav
         aria-label="Sections"
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-7 border-t border-indigo/30 bg-void/95 px-0 pt-2 pb-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] min-[375px]:gap-x-2 lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-indigo/30 bg-void/95 px-0 pt-2 pb-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] min-[375px]:gap-x-2 lg:hidden"
       >
-        {SECTIONS.map((section, i) => (
-          <a
-            key={section.id}
-            href={`#${section.id}`}
-            onClick={(event) => handleSectionLinkClick(event, section.id)}
-            aria-current={active === i ? "true" : undefined}
-            aria-label={section.label}
-            className={`flex min-h-11 flex-col items-center justify-center gap-1 font-mono transition-colors focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-              active === i ? "text-gold" : "text-starlight/50"
+        {MOBILE_SECTION_INDICES.map((i) => {
+          const section = SECTIONS[i];
+
+          return (
+            <a
+              key={section.id}
+              href={`#${section.id}`}
+              onClick={(event) => handleSectionLinkClick(event, section.id)}
+              aria-current={active === i ? "true" : undefined}
+              aria-label={section.label}
+              className={`flex min-h-11 flex-col items-center justify-center gap-1 font-mono transition-colors focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+                active === i ? "text-gold" : "text-starlight/50"
+              }`}
+            >
+              <span className="text-[9px] tracking-[0.15em]">{section.index}</span>
+              <span className="text-[8px] uppercase tracking-[0.02em] min-[420px]:hidden">
+                {section.compact}
+              </span>
+              <span className="hidden text-[8px] uppercase tracking-[0.08em] min-[420px]:inline min-[520px]:text-[9px]">
+                {section.mobile}
+              </span>
+            </a>
+          );
+        })}
+        <details ref={moreSections} className="relative min-w-0">
+          <summary
+            aria-label={
+              moreSectionActive
+                ? `More sections. ${SECTIONS[active].label} is current.`
+                : "More sections"
+            }
+            className={`flex min-h-11 cursor-pointer list-none flex-col items-center justify-center gap-1 font-mono focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden ${
+              moreSectionActive
+                ? "text-gold"
+                : "text-starlight/50"
             }`}
           >
-            <span className="text-[9px] tracking-[0.15em]">{section.index}</span>
-            <span className="text-[8px] uppercase tracking-[0.02em] min-[420px]:hidden">
-              {section.compact}
-            </span>
-            <span className="hidden text-[8px] uppercase tracking-[0.08em] min-[420px]:inline min-[520px]:text-[9px]">
-              {section.mobile}
-            </span>
-          </a>
-        ))}
+            <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3 w-3">
+              <circle cx="3" cy="8" r="1" fill="currentColor" />
+              <circle cx="8" cy="8" r="1" fill="currentColor" />
+              <circle cx="13" cy="8" r="1" fill="currentColor" />
+            </svg>
+            <span className="text-[8px] uppercase tracking-[0.08em]">More</span>
+          </summary>
+          <div
+            role="group"
+            aria-label="Other sections"
+            className="absolute bottom-full right-0 mb-2 w-56 border border-indigo/60 bg-abyss p-2 shadow-2xl"
+          >
+            {MORE_SECTION_INDICES.map((i) => {
+              const section = SECTIONS[i];
+
+              return (
+                <a
+                  key={section.id}
+                  href={`#${section.id}`}
+                  aria-current={active === i ? "true" : undefined}
+                  onClick={(event) =>
+                    handleHashLinkClick(event, () => {
+                      if (moreSections.current) moreSections.current.open = false;
+                      navigateToSection(section.id);
+                    })
+                  }
+                  className={`flex min-h-11 items-center justify-between gap-4 px-3 font-mono text-[10px] uppercase tracking-[0.15em] transition-colors hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+                    active === i ? "text-gold" : "text-starlight/70"
+                  }`}
+                >
+                  <span>{section.label}</span>
+                  <span className="text-[9px] text-starlight/45">{section.index}</span>
+                </a>
+              );
+            })}
+          </div>
+        </details>
       </nav>
     </>
   );
