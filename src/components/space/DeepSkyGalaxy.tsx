@@ -81,8 +81,8 @@ function getRoutePosition(aspect: number) {
 
   return camera
     .addScaledVector(forward, distance)
-    .addScaledVector(right, halfHeight * aspect * 0.72)
-    .addScaledVector(up, -halfHeight * 0.42)
+    .addScaledVector(right, halfHeight * aspect * 0.56)
+    .addScaledVector(up, -halfHeight * 0.28)
     .toArray() as [number, number, number];
 }
 
