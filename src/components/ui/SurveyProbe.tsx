@@ -251,7 +251,7 @@ export function SurveyProbe() {
     <canvas
       ref={canvasRef}
       aria-hidden
-      className="pointer-events-none fixed inset-0 z-[55] opacity-0 transition-opacity duration-500 motion-reduce:transition-none"
+      className="pointer-events-none fixed inset-0 z-[55] h-screen w-screen opacity-0 transition-opacity duration-500 motion-reduce:transition-none"
     />
   );
 }
