@@ -82,16 +82,20 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
   );
 
   useFrame((_, delta) => {
-    if (universeState.reducedMotion) return;
+    if (universeState.reducedMotion) {
+      if (group.current) {
+        group.current.position.x = -55;
+        group.current.scale.setScalar(0.6);
+      }
+      return;
+    }
     if (!universeState.ambientMotionPaused) spin.current += delta * 0.05;
     const tiltX = universeState.mouseY * 0.25;
     const tiltY = universeState.mouseX * 0.4;
     if (group.current) {
-      const arrival = THREE.MathUtils.clamp(
-        (universeState.progress - 0.9) / 0.1,
-        0,
-        1
-      );
+      const progress = THREE.MathUtils.clamp(universeState.progress, 0, 1);
+      const arrival = THREE.MathUtils.lerp(0.6, 1, progress);
+      group.current.position.x = THREE.MathUtils.lerp(-55, 0, progress);
       group.current.scale.setScalar(arrival);
       group.current.rotation.x = THREE.MathUtils.damp(
         group.current.rotation.x,
@@ -115,6 +119,9 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
             map={earthMap ?? undefined}
             bumpMap={earthBump}
             bumpScale={0.5}
+            emissive={getSpaceColor("starlight")}
+            emissiveMap={earthMap ?? undefined}
+            emissiveIntensity={0.7}
             roughness={0.9}
             metalness={0.05}
           />

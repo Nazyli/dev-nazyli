@@ -5,11 +5,13 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
 import { createSeededRandom } from "@/lib/random";
+import { cameraPath } from "@/lib/cameraPath";
 import { getSpaceColor } from "@/lib/spaceColors";
 
 const DISTANT_COUNT = 1100;
 const BRIGHT_COUNT = 36;
 const GALAXY_COUNT = 700;
+const starfieldPosition = cameraPath.getPointAt(0);
 
 function makeStarSprite() {
   const canvas = document.createElement("canvas");
@@ -105,17 +107,19 @@ export function Stars() {
     return geometry;
   }, []);
 
-  useFrame((_, delta) => {
-    if (universeState.reducedMotion || universeState.ambientMotionPaused) return;
+  useFrame((state, delta) => {
     if (group.current) {
-      group.current.rotation.y += delta * 0.004;
+      group.current.position.copy(state.camera.position);
+      if (!universeState.reducedMotion && !universeState.ambientMotionPaused) {
+        group.current.rotation.y += delta * 0.004;
+      }
     }
   });
 
   if (!sprite) return null;
 
   return (
-    <group ref={group}>
+    <group ref={group} position={starfieldPosition}>
       <points geometry={distantGeometry}>
         <pointsMaterial
           map={sprite}
