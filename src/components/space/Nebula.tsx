@@ -73,15 +73,18 @@ export function Nebula() {
       universeState.ambientMotionPaused ||
       !group.current
     ) return;
-    const damp = (a: number, b: number) => THREE.MathUtils.damp(a, b, 3, delta);
     const t = state.clock.elapsedTime;
-    group.current.position.x = damp(
+    group.current.position.x = THREE.MathUtils.damp(
       group.current.position.x,
-      universeState.mouseX * 2.4
+      universeState.mouseX * 2.4,
+      3,
+      delta,
     );
-    group.current.position.y = damp(
+    group.current.position.y = THREE.MathUtils.damp(
       group.current.position.y,
-      universeState.mouseY * 1.5
+      universeState.mouseY * 1.5,
+      3,
+      delta,
     );
     group.current.rotation.y += delta * 0.02;
     group.current.scale.setScalar(1 + Math.sin(t * 0.12) * 0.02);
