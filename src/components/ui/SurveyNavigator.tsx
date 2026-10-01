@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { certificates } from "@/data/certificates";
 import { publishedProjects } from "@/data/projects";
 import { skills } from "@/data/skills";
+import { CONTACT_LINKS } from "@/data/contact";
 import {
   handleHashLinkClick,
   navigateToSection,
@@ -68,6 +69,7 @@ type NavigatorItem = {
   | { target: "skill"; skillId: string }
   | { target: "project"; projectIndex: number }
   | { target: "credential"; certificateNo: number }
+  | { target: "external"; openInNewTab: boolean }
 );
 
 const ITEMS = [
@@ -80,6 +82,16 @@ const ITEMS = [
     href: `#${section.id}`,
     target: "section" as const,
     sectionId: section.id,
+  })),
+  ...CONTACT_LINKS.map((link) => ({
+    id: `contact-${link.id}`,
+    label: link.label,
+    detail: link.detail,
+    searchText: link.searchText,
+    kind: "Contact",
+    href: link.href,
+    target: "external" as const,
+    openInNewTab: link.openInNewTab,
   })),
   ...skills.map((skill) => ({
     id: `skill-${skill.id}`,
@@ -224,6 +236,21 @@ export function SurveyNavigator() {
     event: React.MouseEvent<HTMLAnchorElement>,
     item: NavigatorItem,
   ) {
+    if (item.target === "external") {
+      if (
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
+      }
+
+      closeNavigator();
+      return;
+    }
+
     if (item.target === "section") {
       handleHashLinkClick(event, () => {
         closeNavigator();
@@ -316,7 +343,7 @@ export function SurveyNavigator() {
             </button>
           </div>
           <label htmlFor="survey-navigator-search" className="sr-only">
-            Search sections, expertise, projects, and credentials
+            Search sections, expertise, projects, credentials, and contact channels
           </label>
           <input
             ref={search}
@@ -352,6 +379,21 @@ export function SurveyNavigator() {
                   resultLinks.current[index] = element as HTMLAnchorElement;
                 }}
                 href={item.href}
+                target={
+                  item.target === "external" && item.openInNewTab
+                    ? "_blank"
+                    : undefined
+                }
+                rel={
+                  item.target === "external" && item.openInNewTab
+                    ? "noreferrer"
+                    : undefined
+                }
+                aria-label={
+                  item.target === "external" && item.openInNewTab
+                    ? `${item.label} (opens in a new tab)`
+                    : undefined
+                }
                 onClick={(event) => handleResultClick(event, item)}
                 className="group flex min-h-14 items-center justify-between gap-4 border-b border-indigo/25 px-3 py-2 transition-colors last:border-b-0 hover:bg-indigo/15 focus-visible:bg-indigo/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
               >

@@ -3,10 +3,11 @@
 import { useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-
-const EMAIL_ADDRESS = "info@nazyli.com";
-const EMAIL_SUBJECT = "AI engineering inquiry · Nazyli Universe";
-const PORTFOLIO_URL = "https://nazyli.com";
+import {
+  CONTACT_EMAIL,
+  CONTACT_LINKS,
+  PORTFOLIO_URL,
+} from "@/data/contact";
 const CONTACT_STATUS_MESSAGES = {
   idle: "",
   emailCopied: "Email address copied.",
@@ -40,16 +41,6 @@ export function Contact() {
     { scope: root },
   );
 
-  const links = [
-    {
-      label: "Email Evry",
-      href: `mailto:${EMAIL_ADDRESS}?subject=${encodeURIComponent(EMAIL_SUBJECT)}`,
-      primary: true,
-    },
-    { label: "GitHub", href: "https://github.com/Nazyli" },
-    { label: "LinkedIn", href: "https://www.linkedin.com/in/evrynazyli/" },
-  ];
-
   return (
     <section
       id="s-contact"
@@ -72,7 +63,7 @@ export function Contact() {
       </p>
 
       <ul className="contact-reveal mt-14 grid w-full max-w-2xl grid-cols-3 items-stretch justify-center gap-x-2 max-[360px]:mt-8 sm:flex sm:items-center sm:gap-12">
-        {links.map((link, i) => (
+        {CONTACT_LINKS.map((link, i) => (
           <li key={link.label}>
             <div className={link.primary ? "flex flex-col items-center" : ""}>
               <a
@@ -93,13 +84,13 @@ export function Contact() {
                   type="button"
                   onClick={async () => {
                     try {
-                      await navigator.clipboard.writeText(EMAIL_ADDRESS);
+                      await navigator.clipboard.writeText(CONTACT_EMAIL);
                       setCopyStatus("emailCopied");
                     } catch {
                       setCopyStatus("emailUnavailable");
                     }
                   }}
-                  aria-label={`Copy ${EMAIL_ADDRESS} to clipboard`}
+                  aria-label={`Copy ${CONTACT_EMAIL} to clipboard`}
                   className="print-action inline-flex min-h-11 w-full items-center justify-center gap-2 px-2 font-mono text-[9px] uppercase tracking-[0.1em] text-starlight/70 transition-colors hover:text-accent focus-visible:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:w-auto"
                 >
                   <svg
