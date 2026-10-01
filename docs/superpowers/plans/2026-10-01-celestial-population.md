@@ -59,4 +59,20 @@
 - [ ] Dispose geometry/material on unmount and pause any slow rotation for reduced motion/ambient pause.
 - [x] Inspect Projects and Experience passages at narrow mobile width.
 - [x] Run `npm run lint`, `npm run build`, and `git diff --check`.
-- [ ] Commit as `feat(space): add a distant spiral galaxy`.
+- [x] Commit as `feat(space): add a distant spiral galaxy`.
+
+### Task 3: Dwarf planets and a companion moon
+
+**Files:**
+- Modify: `src/components/space/PlanetarySystem.tsx`
+
+**Interfaces:**
+- Consume existing planet specs, procedural surface textures, color tokens, and route placement.
+- Add Ceres, Haumea, Pluto, Eris, and Pluto’s moon Charon to the data-driven planetary system.
+
+- [x] Give the four dwarf planets distinct, restrained palettes and textured surfaces; keep Haumea visibly elongated.
+- [x] Place dwarf planets across their appropriate route regions, with Charon orbiting Pluto as a child body.
+- [x] Keep all spins/orbits slow and stopped for reduced motion and ambient pause.
+- [x] Inspect About, Expertise, and Contact at narrow mobile width and keep copy readable.
+- [x] Run `npm run lint`, `npm run build`, and `git diff --check`.
+- [ ] Commit as `feat(space): add dwarf planets and charon`.

@@ -11,12 +11,14 @@ The site keeps its restrained Deep Space Observatory identity. New bodies use mu
 ## Architecture
 
 - Natural satellites are children of their host planet groups, so they travel with the planet as camera stations change. Their local orbit groups animate slowly and stop for reduced motion or ambient pause.
+- The four dwarf planets have distinct rocky/icy surfaces; Haumea has a visibly elongated body and Charon orbits Pluto.
 - A dedicated deep-sky component owns one spiral galaxy made from a deterministic, low-density point cloud. It is positioned beside the route rather than behind headline copy.
 - New geometry and texture resources are memoized and disposed with their owning component. No dependency or remote image assets are added.
 
 ## Acceptance
 
 - The solar-system passage includes visible moons with distinct sizes, orbit radii, and muted rocky or icy surfaces.
+- Ceres, Haumea, Pluto, Eris, and Charon extend the small-body population at several route stations.
 - Moons remain attached to their host planets and move slowly without per-frame object allocation.
 - A distant spiral galaxy is readable as a structured object at its route station without competing with text.
 - Reduced-motion and ambient pause stop all new orbital animation.

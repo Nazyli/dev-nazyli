@@ -31,6 +31,7 @@ type PlanetSpec = {
   bumpScale: number;
   cloudOpacity?: number;
   rings?: boolean;
+  shape?: [number, number, number];
 };
 
 type MoonSpec = {
@@ -128,6 +129,62 @@ const PLANETS: PlanetSpec[] = [
     bumpScale: 0.012,
     cloudOpacity: 0.2,
   },
+  {
+    name: "Ceres",
+    radius: 0.76,
+    surface: "rocky",
+    palette: ["planet-basalt", "planet-lunar", "planet-cream"],
+    atmosphere: null,
+    station: 1,
+    side: 1,
+    elevation: 0.54,
+    tilt: 0.36,
+    spin: 0.014,
+    bumpScale: 0.035,
+    shape: [0.9, 0.78, 0.86],
+  },
+  {
+    name: "Haumea",
+    radius: 0.72,
+    surface: "rocky",
+    palette: ["planet-ice", "planet-lunar", "planet-cloud"],
+    atmosphere: null,
+    station: 3,
+    side: 1,
+    elevation: 0.48,
+    tilt: 0.18,
+    spin: 0.042,
+    bumpScale: 0.025,
+    shape: [1.34, 0.72, 0.82],
+  },
+  {
+    name: "Pluto",
+    radius: 0.9,
+    surface: "icy",
+    palette: ["planet-ocean", "planet-ice", "planet-cloud"],
+    atmosphere: "planet-ice",
+    station: 6,
+    side: -1,
+    elevation: -0.52,
+    tilt: 0.3,
+    spin: -0.01,
+    bumpScale: 0.018,
+    cloudOpacity: 0.08,
+  },
+  {
+    name: "Eris",
+    radius: 0.82,
+    surface: "icy",
+    palette: ["planet-basalt", "planet-ice", "planet-lunar"],
+    atmosphere: null,
+    station: 6,
+    side: 1,
+    elevation: 0.52,
+    tilt: 0.42,
+    spin: 0.009,
+    bumpScale: 0.02,
+    cloudOpacity: 0.06,
+  },
 ];
 
 const URANUS_RINGS = [
@@ -206,6 +263,16 @@ const MOONS: MoonSpec[] = [
     phase: 5.2,
     angularSpeed: -0.04,
     palette: ["planet-ice", "planet-aqua", "planet-cloud"],
+  },
+  {
+    name: "Charon",
+    host: "Pluto",
+    radius: 0.24,
+    orbitRadius: 1.7,
+    inclination: 0.1,
+    phase: 0.2,
+    angularSpeed: 0.024,
+    palette: ["planet-basalt", "planet-lunar", "planet-ice"],
   },
 ];
 
@@ -288,7 +355,7 @@ function CelestialPlanet({
 
   return (
     <group position={position} rotation={[spec.tilt, 0, 0]}>
-      <mesh ref={body}>
+      <mesh ref={body} scale={spec.shape ?? 1}>
         <sphereGeometry args={[spec.radius, 64, 48]} />
         <meshStandardMaterial
           map={textures.color}
