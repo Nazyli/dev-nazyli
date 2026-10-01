@@ -71,6 +71,10 @@ export async function loadSolarImageTexture() {
   return loadImageTexture("/textures/planetary/2k_sun.jpg");
 }
 
+export async function loadEarthNightTexture() {
+  return loadImageTexture("/textures/planetary/2k_earth_nightmap.jpg");
+}
+
 export function disposeGeneratedSurfaceTextures(surfaces: PlanetSurfaceTextures[]) {
   surfaces.forEach(({ color, height, clouds }) => {
     for (const texture of [color, height, clouds]) {

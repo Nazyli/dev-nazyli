@@ -6,7 +6,9 @@ import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
 import { getSpaceColor } from "@/lib/spaceColors";
 import {
+  disposeGeneratedTexture,
   disposeGeneratedSurfaceTextures,
+  loadEarthNightTexture,
   makeTerrestrialSurfaceTextures,
   type PlanetSurfaceTextures,
 } from "@/lib/planetaryTextures";
@@ -61,10 +63,12 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
   const spin = useRef(0);
   const viewport = useThree((state) => state.size);
   const [surface, setSurface] = useState<PlanetSurfaceTextures | null>(null);
+  const [nightMap, setNightMap] = useState<THREE.Texture | null>(null);
 
   useEffect(() => {
     let disposed = false;
     let loadedSurface: PlanetSurfaceTextures | null = null;
+    let loadedNightMap: THREE.Texture | null = null;
     void makeTerrestrialSurfaceTextures().then((result) => {
       loadedSurface = result;
       if (disposed) {
@@ -73,9 +77,18 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
         setSurface(result);
       }
     });
+    void loadEarthNightTexture().then((texture) => {
+      loadedNightMap = texture;
+      if (disposed) {
+        disposeGeneratedTexture(texture);
+      } else {
+        setNightMap(texture);
+      }
+    }).catch(() => {});
     return () => {
       disposed = true;
       if (loadedSurface) disposeGeneratedSurfaceTextures([loadedSurface]);
+      disposeGeneratedTexture(loadedNightMap);
     };
   }, []);
 
@@ -132,8 +145,8 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
             bumpScale={0.035}
             color={getSpaceColor(surface ? "starlight" : "planet-aqua")}
             emissive={getSpaceColor("starlight")}
-            emissiveMap={surface?.color ?? undefined}
-            emissiveIntensity={0.1}
+            emissiveMap={nightMap ?? undefined}
+            emissiveIntensity={nightMap ? 1.25 : 0.1}
             roughness={0.9}
             metalness={0.05}
           />
