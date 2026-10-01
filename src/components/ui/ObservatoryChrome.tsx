@@ -101,6 +101,36 @@ export function ObservatoryChrome() {
   const pendingInitialRoute = useRef<string | null>(null);
 
   useEffect(() => {
+    const closeWhenOutside = (event: Event) => {
+      const menu = moreSections.current;
+      if (!menu?.open) return;
+      if (event.target instanceof Node && menu.contains(event.target)) return;
+      menu.open = false;
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      const menu = moreSections.current;
+      if (
+        event.key !== "Escape" ||
+        !menu?.open ||
+        document.querySelector("dialog[open]")
+      ) return;
+
+      event.preventDefault();
+      menu.open = false;
+      menu.querySelector("summary")?.focus();
+    };
+
+    document.addEventListener("pointerdown", closeWhenOutside);
+    document.addEventListener("focusin", closeWhenOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeWhenOutside);
+      document.removeEventListener("focusin", closeWhenOutside);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
+
+  useEffect(() => {
     const progress = journeyProgress.current;
     if (!progress) return;
     const sections = SECTIONS.map((section) =>
