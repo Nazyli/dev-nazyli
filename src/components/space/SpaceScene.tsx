@@ -121,9 +121,9 @@ export function SpaceScene({
       >
         <InvalidateOnDemand enabled={pageVisible && demandRender} />
         <ContextLossSignal onContextLost={onContextLost} />
-        <ambientLight intensity={0.3} />
-        <directionalLight position={[14, 5, 9]} intensity={3.2} color={getSpaceColor("starlight")} />
-        <directionalLight position={[-10, -4, -6]} intensity={0.5} color={getSpaceColor("indigo")} />
+        <ambientLight intensity={0.12} />
+        <directionalLight position={[-14, 5, -9]} intensity={2.4} color={getSpaceColor("planet-cream")} />
+        <directionalLight position={[10, -4, 6]} intensity={0.16} color={getSpaceColor("nebula-blue")} />
         <Nebula />
         <DustClouds />
         <Stars />

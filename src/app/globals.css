@@ -18,6 +18,18 @@
   --color-nebula-teal: #12323e;
   --color-dust: #2a4a5c;
   --color-gold-muted: #c2a06a;
+  --color-planet-basalt: #4d4c49;
+  --color-planet-lunar: #918b80;
+  --color-planet-cream: #d2c4aa;
+  --color-planet-ochre: #b37b51;
+  --color-planet-rust: #9a4f37;
+  --color-planet-sand: #c89063;
+  --color-planet-tan: #ae8f6c;
+  --color-planet-ice: #a8c3c8;
+  --color-planet-aqua: #5e8992;
+  --color-planet-ocean: #183b68;
+  --color-planet-cobalt: #315b92;
+  --color-planet-cloud: #e3e0d5;
 }
 
 @layer base {

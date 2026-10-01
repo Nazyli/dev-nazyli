@@ -8,7 +8,19 @@ export type SpaceColorToken =
   | "nebula-blue"
   | "nebula-teal"
   | "dust"
-  | "gold-muted";
+  | "gold-muted"
+  | "planet-basalt"
+  | "planet-lunar"
+  | "planet-cream"
+  | "planet-ochre"
+  | "planet-rust"
+  | "planet-sand"
+  | "planet-tan"
+  | "planet-ice"
+  | "planet-aqua"
+  | "planet-ocean"
+  | "planet-cobalt"
+  | "planet-cloud";
 
 const colorCache = new Map<SpaceColorToken, string>();
 

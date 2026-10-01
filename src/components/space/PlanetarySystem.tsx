@@ -22,7 +22,7 @@ type PlanetSpec = {
   radius: number;
   surface: PlanetSurfaceStyle;
   palette: [SpaceColorToken, SpaceColorToken, SpaceColorToken];
-  atmosphere: SpaceColorToken;
+    atmosphere: SpaceColorToken | null;
   station: number;
   side: -1 | 1;
   elevation: number;
@@ -38,84 +38,84 @@ const PLANETS: PlanetSpec[] = [
     name: "Mercury",
     radius: 1.1,
     surface: "rocky",
-    palette: ["indigo", "dust", "starlight"],
-    atmosphere: "nebula-blue",
+    palette: ["planet-basalt", "planet-lunar", "planet-cream"],
+    atmosphere: null,
     station: 1,
     side: -1,
     elevation: -0.68,
     tilt: 0.04,
     spin: 0.018,
-    bumpScale: 0.11,
+    bumpScale: 0.025,
   },
   {
     name: "Venus",
     radius: 1.55,
     surface: "clouded",
-    palette: ["gold-muted", "gold", "starlight"],
-    atmosphere: "gold-muted",
+    palette: ["planet-tan", "planet-cream", "planet-cloud"],
+    atmosphere: "planet-cream",
     station: 2,
     side: 1,
     elevation: 0.68,
     tilt: 0.12,
     spin: -0.012,
-    bumpScale: 0.045,
-    cloudOpacity: 0.52,
+    bumpScale: 0.018,
+    cloudOpacity: 0.4,
   },
   {
     name: "Mars",
     radius: 1.25,
     surface: "rocky",
-    palette: ["indigo", "gold-muted", "gold"],
-    atmosphere: "gold-muted",
+    palette: ["planet-rust", "planet-ochre", "planet-sand"],
+    atmosphere: "planet-rust",
     station: 3,
     side: -1,
     elevation: 0.68,
     tilt: 0.32,
     spin: 0.022,
-    bumpScale: 0.085,
+    bumpScale: 0.03,
   },
   {
     name: "Jupiter",
     radius: 3.1,
     surface: "banded",
-    palette: ["abyss", "gold-muted", "starlight"],
-    atmosphere: "gold-muted",
+    palette: ["planet-tan", "planet-cream", "planet-rust"],
+    atmosphere: "planet-tan",
     station: 4,
     side: 1,
     elevation: -0.68,
     tilt: 0.08,
     spin: 0.028,
-    bumpScale: 0.035,
-    cloudOpacity: 0.23,
+    bumpScale: 0.012,
+    cloudOpacity: 0.16,
   },
   {
     name: "Uranus",
     radius: 2.05,
     surface: "icy",
-    palette: ["nebula-blue", "nebula-teal", "accent"],
-    atmosphere: "nebula-teal",
+    palette: ["planet-ice", "planet-aqua", "planet-cloud"],
+    atmosphere: "planet-ice",
     station: 5,
     side: -1,
     elevation: -0.68,
     tilt: 1.3,
     spin: -0.016,
-    bumpScale: 0.025,
-    cloudOpacity: 0.2,
+    bumpScale: 0.008,
+    cloudOpacity: 0.14,
     rings: true,
   },
   {
     name: "Neptune",
     radius: 2.35,
     surface: "stormy",
-    palette: ["indigo", "nebula-blue", "accent"],
-    atmosphere: "nebula-blue",
+    palette: ["planet-ocean", "planet-cobalt", "planet-aqua"],
+    atmosphere: "planet-cobalt",
     station: 6,
     side: 1,
     elevation: 0.68,
     tilt: 0.5,
     spin: 0.018,
-    bumpScale: 0.04,
-    cloudOpacity: 0.28,
+    bumpScale: 0.012,
+    cloudOpacity: 0.2,
   },
 ];
 
@@ -127,7 +127,7 @@ function makeAtmosphere(color: SpaceColorToken) {
     blending: THREE.AdditiveBlending,
     uniforms: {
       uColor: { value: new THREE.Color(getSpaceColor(color)) },
-      uIntensity: { value: 0.34 },
+      uIntensity: { value: 0.16 },
     },
     vertexShader: `
       varying vec3 vNormal;
@@ -179,9 +179,12 @@ function CelestialPlanet({
   const cloudLayer = useRef<THREE.Mesh>(null);
   const aspect = useThree((state) => state.size.width / state.size.height);
   const position = useMemo(() => getRoutePosition(spec, aspect), [aspect, spec]);
-  const atmosphere = useMemo(() => makeAtmosphere(spec.atmosphere), [spec.atmosphere]);
+  const atmosphere = useMemo(
+    () => spec.atmosphere ? makeAtmosphere(spec.atmosphere) : null,
+    [spec.atmosphere],
+  );
 
-  useEffect(() => () => atmosphere.dispose(), [atmosphere]);
+  useEffect(() => () => atmosphere?.dispose(), [atmosphere]);
 
   useFrame((_, delta) => {
     if (universeState.reducedMotion || universeState.ambientMotionPaused) return;
@@ -192,42 +195,44 @@ function CelestialPlanet({
   return (
     <group position={position} rotation={[spec.tilt, 0, 0]}>
       <mesh ref={body}>
-        <sphereGeometry args={[spec.radius, 48, 32]} />
+        <sphereGeometry args={[spec.radius, 64, 48]} />
         <meshStandardMaterial
           map={textures.color}
           bumpMap={textures.height}
           bumpScale={spec.bumpScale}
-          emissive={getSpaceColor("starlight")}
-          emissiveMap={textures.color}
-          emissiveIntensity={0.12}
           roughness={0.96}
           metalness={0}
         />
       </mesh>
       {textures.clouds && (
         <mesh ref={cloudLayer} scale={1.012}>
-          <sphereGeometry args={[spec.radius, 40, 28]} />
-          <meshBasicMaterial
+          <sphereGeometry args={[spec.radius, 48, 36]} />
+          <meshStandardMaterial
             map={textures.clouds}
-            color={getSpaceColor("starlight")}
             transparent
             opacity={spec.cloudOpacity ?? 0.24}
             depthWrite={false}
+            roughness={1}
+            metalness={0}
           />
         </mesh>
       )}
-      <mesh scale={1.065} material={atmosphere}>
-        <sphereGeometry args={[spec.radius, 40, 28]} />
-      </mesh>
+      {atmosphere && (
+        <mesh scale={1.045} material={atmosphere}>
+          <sphereGeometry args={[spec.radius, 48, 36]} />
+        </mesh>
+      )}
       {spec.rings && (
         <mesh rotation={[Math.PI / 2, 0, 0]}>
           <ringGeometry args={[spec.radius * 1.42, spec.radius * 1.92, 96, 4]} />
-          <meshBasicMaterial
-            color={getSpaceColor("dust")}
+          <meshStandardMaterial
+            color={getSpaceColor("planet-cream")}
             transparent
-            opacity={0.56}
+            opacity={0.38}
             side={THREE.DoubleSide}
             depthWrite={false}
+            roughness={0.9}
+            metalness={0}
           />
         </mesh>
       )}

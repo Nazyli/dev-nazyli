@@ -28,7 +28,7 @@ function Atmosphere({ radius }: { radius: number }) {
         blending: THREE.AdditiveBlending,
         uniforms: {
           uColor: { value: new THREE.Color(getSpaceColor("accent")) },
-          uIntensity: { value: 0.6 },
+          uIntensity: { value: 0.32 },
         },
         vertexShader: `
           varying vec3 vNormal;
@@ -102,13 +102,16 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
       );
       const arrival = THREE.MathUtils.lerp(0.6, 1, progress);
       const contactX = THREE.MathUtils.lerp(28, 0, portraitLayout);
+      const contactArrival = THREE.MathUtils.smoothstep(progress, 0.84, 0.98);
       group.current.position.x = THREE.MathUtils.lerp(-55, contactX, progress);
       group.current.position.y = THREE.MathUtils.lerp(
         0,
-        5 * portraitLayout,
-        progress,
+        5.5 * portraitLayout,
+        contactArrival,
       );
-      group.current.scale.setScalar(arrival);
+      group.current.scale.setScalar(
+        arrival * THREE.MathUtils.lerp(1, 0.82, portraitLayout * contactArrival),
+      );
       group.current.rotation.x = THREE.MathUtils.damp(
         group.current.rotation.x,
         tiltX,
@@ -130,10 +133,10 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
           <meshStandardMaterial
             map={earthMap ?? undefined}
             bumpMap={earthBump}
-            bumpScale={0.5}
+            bumpScale={0.08}
             emissive={getSpaceColor("starlight")}
             emissiveMap={earthMap ?? undefined}
-            emissiveIntensity={0.7}
+            emissiveIntensity={0.1}
             roughness={0.9}
             metalness={0.05}
           />
@@ -141,11 +144,13 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
         {cloudMap && (
           <mesh ref={cloudRef} scale={1.012}>
             <sphereGeometry args={[radius, 48, 48]} />
-            <meshBasicMaterial
+            <meshStandardMaterial
               map={cloudMap}
               transparent
-              opacity={0.35}
+              opacity={0.28}
               depthWrite={false}
+              roughness={1}
+              metalness={0}
             />
           </mesh>
         )}
