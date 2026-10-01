@@ -559,7 +559,7 @@ export function Projects() {
                                     navigateToSkill(skill.id),
                                   )
                                 }
-                                className="inline-flex min-h-11 items-center text-accent underline decoration-accent/40 underline-offset-4 hover:text-starlight focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                                className="inline-flex min-h-11 items-center text-accent underline decoration-accent/40 underline-offset-4 hover:text-starlight focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                               >
                                 {technology}
                               </a>

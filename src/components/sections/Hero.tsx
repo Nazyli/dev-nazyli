@@ -82,7 +82,7 @@ export function Hero() {
           <Link
             href="#s-about"
             onClick={(event) => handleSectionLinkClick(event, "s-about")}
-            className="hero-reveal mt-10 inline-flex min-h-11 items-center gap-3 font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/75 transition-colors hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
+            className="hero-reveal mt-10 inline-flex min-h-11 items-center gap-3 font-mono text-[10px] uppercase tracking-[0.3em] text-starlight/75 transition-colors hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
           >
             <span>[ Begin survey ]</span>
             <svg

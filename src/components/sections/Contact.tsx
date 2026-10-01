@@ -77,7 +77,7 @@ export function Contact() {
             <div className={link.primary ? "flex flex-col items-center" : ""}>
               <a
                 href={link.href}
-                className={`group flex min-h-11 w-full flex-col items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-[0.08em] transition-colors duration-300 focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-accent sm:w-auto sm:text-xs sm:tracking-[0.3em] ${
+                className={`group flex min-h-11 w-full flex-col items-center justify-center gap-2 font-mono text-[10px] uppercase tracking-[0.08em] transition-colors duration-300 focus-visible:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:w-auto sm:text-xs sm:tracking-[0.3em] ${
                   link.primary
                     ? "border border-accent/50 px-2 text-accent hover:bg-accent/10 focus-visible:bg-accent/10 sm:px-4"
                     : "px-2 text-starlight/70 hover:text-accent"
@@ -100,7 +100,7 @@ export function Contact() {
                     }
                   }}
                   aria-label={`Copy ${EMAIL_ADDRESS} to clipboard`}
-                  className="print-action inline-flex min-h-11 w-full items-center justify-center gap-2 px-2 font-mono text-[9px] uppercase tracking-[0.1em] text-starlight/70 transition-colors hover:text-accent focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent sm:w-auto"
+                  className="print-action inline-flex min-h-11 w-full items-center justify-center gap-2 px-2 font-mono text-[9px] uppercase tracking-[0.1em] text-starlight/70 transition-colors hover:text-accent focus-visible:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:w-auto"
                 >
                   <svg
                     aria-hidden="true"
@@ -166,7 +166,7 @@ export function Contact() {
         href="/evry-nazyli.vcf"
         download
         aria-label="Download Evry Nazyli’s contact card"
-        className="print-action contact-reveal mt-3 inline-flex min-h-11 items-center border border-indigo/50 px-4 font-mono text-[10px] uppercase tracking-[0.2em] text-starlight/75 transition-colors hover:border-accent/60 hover:text-accent focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
+        className="print-action contact-reveal mt-3 inline-flex min-h-11 items-center border border-indigo/50 px-4 font-mono text-[10px] uppercase tracking-[0.2em] text-starlight/75 transition-colors hover:border-accent/60 hover:text-accent focus-visible:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
       >
         Save contact
       </a>

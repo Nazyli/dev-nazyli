@@ -271,7 +271,7 @@ export function Expertise() {
                 <a
                   href={`#project-${project.id}`}
                   aria-label={`View project record: ${project.title}`}
-                  className="flex min-h-11 items-center justify-between gap-4 px-1 py-2 text-starlight/80 transition-colors hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                  className="flex min-h-11 items-center justify-between gap-4 px-1 py-2 text-starlight/80 transition-colors hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                 >
                   <span className="font-display text-sm tracking-tight">
                     {project.title}
@@ -287,7 +287,7 @@ export function Expertise() {
                 <a
                   href={`#credential-${certificate.no}`}
                   aria-label={`View credential record: ${certificate.title}`}
-                  className="flex min-h-11 items-center justify-between gap-4 px-1 py-2 text-starlight/80 transition-colors hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                  className="flex min-h-11 items-center justify-between gap-4 px-1 py-2 text-starlight/80 transition-colors hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                 >
                   <span className="font-display text-sm tracking-tight">
                     {certificate.title}

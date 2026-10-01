@@ -237,7 +237,7 @@ export function SurveyNavigator() {
         aria-label="Search destinations"
         title="Search destinations (/ or Ctrl or Command + K)"
         onClick={openNavigator}
-        className="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 border-l border-indigo/30 pl-3 text-starlight/70 transition-colors hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none sm:pl-4"
+        className="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 border-l border-indigo/30 pl-3 text-starlight/70 transition-colors hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none sm:pl-4"
       >
         <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5">
           <circle cx="7" cy="7" r="4.25" fill="none" stroke="currentColor" />
@@ -275,7 +275,7 @@ export function SurveyNavigator() {
               type="button"
               onClick={closeNavigator}
               aria-label="Close search destinations"
-              className="flex min-h-11 min-w-11 items-center justify-center border border-indigo/60 font-mono text-sm text-starlight/70 transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              className="flex min-h-11 min-w-11 items-center justify-center border border-indigo/60 font-mono text-sm text-starlight/70 transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
               <span aria-hidden="true">×</span>
             </button>
@@ -318,7 +318,7 @@ export function SurveyNavigator() {
                 }}
                 href={item.href}
                 onClick={(event) => handleResultClick(event, item)}
-                className="group flex min-h-14 items-center justify-between gap-4 border-b border-indigo/25 px-3 py-2 transition-colors last:border-b-0 hover:bg-indigo/15 focus-visible:bg-indigo/20 focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent"
+                className="group flex min-h-14 items-center justify-between gap-4 border-b border-indigo/25 px-3 py-2 transition-colors last:border-b-0 hover:bg-indigo/15 focus-visible:bg-indigo/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
               >
                 <span className="min-w-0">
                   <span className="block truncate text-sm text-starlight transition-colors group-hover:text-accent">

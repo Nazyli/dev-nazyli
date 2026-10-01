@@ -225,7 +225,7 @@ export function CertificateArchive({
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Title, provider, or skill"
-          className="mt-2 min-h-11 w-full border border-indigo/50 bg-abyss/55 px-3 font-mono text-xs text-starlight placeholder:text-starlight/55 focus:border-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          className="mt-2 min-h-11 w-full border border-indigo/50 bg-abyss/55 px-3 font-mono text-xs text-starlight placeholder:text-starlight/55 focus:border-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         />
       </div>
 
@@ -240,7 +240,7 @@ export function CertificateArchive({
               type="button"
               aria-pressed={provider === source}
               onClick={() => setProvider(source)}
-              className="min-h-11 max-w-full border border-indigo/50 px-3 py-2 text-left font-mono text-[9px] uppercase leading-relaxed tracking-[0.12em] text-starlight/65 transition-colors hover:border-accent/50 hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent aria-pressed:border-gold/60 aria-pressed:text-gold"
+              className="min-h-11 max-w-full border border-indigo/50 px-3 py-2 text-left font-mono text-[9px] uppercase leading-relaxed tracking-[0.12em] text-starlight/65 transition-colors hover:border-accent/50 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent aria-pressed:border-gold/60 aria-pressed:text-gold"
             >
               {source}
             </button>
@@ -259,7 +259,7 @@ export function CertificateArchive({
               type="button"
               aria-pressed={validity === filter.value}
               onClick={() => setValidity(filter.value)}
-              className="min-h-11 max-w-full border border-indigo/50 px-3 py-2 text-left font-mono text-[9px] uppercase leading-relaxed tracking-[0.12em] text-starlight/65 transition-colors hover:border-accent/50 hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent aria-pressed:border-gold/60 aria-pressed:text-gold"
+              className="min-h-11 max-w-full border border-indigo/50 px-3 py-2 text-left font-mono text-[9px] uppercase leading-relaxed tracking-[0.12em] text-starlight/65 transition-colors hover:border-accent/50 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent aria-pressed:border-gold/60 aria-pressed:text-gold"
             >
               {filter.label}
             </button>
@@ -284,7 +284,7 @@ export function CertificateArchive({
             onClick={exportMatchingCertificates}
             disabled={matchingCertificates.length === 0}
             aria-label={`Export ${matchingCertificates.length} matching credentials as CSV`}
-            className="inline-flex min-h-11 items-center border border-indigo/50 px-3 font-mono text-[9px] uppercase tracking-[0.14em] text-starlight/70 transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex min-h-11 items-center border border-indigo/50 px-3 font-mono text-[9px] uppercase tracking-[0.14em] text-starlight/70 transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-40"
           >
             Export CSV
           </button>
@@ -296,7 +296,7 @@ export function CertificateArchive({
                 setProvider("All sources");
                 setValidity("all");
               }}
-              className="inline-flex min-h-11 items-center px-2 font-mono text-[9px] uppercase tracking-[0.14em] text-accent underline decoration-accent/40 underline-offset-4 hover:text-starlight focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              className="inline-flex min-h-11 items-center px-2 font-mono text-[9px] uppercase tracking-[0.14em] text-accent underline decoration-accent/40 underline-offset-4 hover:text-starlight focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
               Clear all filters
             </button>
@@ -337,7 +337,7 @@ export function CertificateArchive({
                     id={`credential-${certificate.no}`}
                     className="group border-b border-indigo/30 last:border-b-0"
                   >
-                    <summary className="flex cursor-pointer list-none items-center gap-4 py-5 marker:hidden focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-accent sm:gap-6 sm:py-6 [&::-webkit-details-marker]:hidden">
+                    <summary className="flex cursor-pointer list-none items-center gap-4 py-5 marker:hidden focus-visible:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:gap-6 sm:py-6 [&::-webkit-details-marker]:hidden">
                       <ConstellationMark certificate={certificate} />
                       <span className="min-w-0 flex-1">
                         <span className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
@@ -401,7 +401,7 @@ export function CertificateArchive({
                                       navigateToSkill(skill.id),
                                     )
                                   }
-                                  className="inline-flex min-h-11 items-center text-accent underline decoration-accent/40 underline-offset-4 hover:text-starlight focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                                  className="inline-flex min-h-11 items-center text-accent underline decoration-accent/40 underline-offset-4 hover:text-starlight focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                                 >
                                   {skillName}
                                 </a>
@@ -416,7 +416,7 @@ export function CertificateArchive({
                         <a
                           href={`#credential-${certificate.no}`}
                           aria-label={`Link to ${certificate.title} in the credential archive`}
-                          className="inline-flex min-h-11 items-center font-mono text-[9px] uppercase tracking-[0.18em] text-accent underline decoration-accent/40 underline-offset-4 hover:text-starlight focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                          className="inline-flex min-h-11 items-center font-mono text-[9px] uppercase tracking-[0.18em] text-accent underline decoration-accent/40 underline-offset-4 hover:text-starlight focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                         >
                           Record link
                         </a>
@@ -447,7 +447,7 @@ export function CertificateArchive({
                             }
                           }}
                           aria-label={`Copy citation and record link for ${certificate.title}`}
-                          className="inline-flex min-h-11 items-center border border-indigo/50 px-3 font-mono text-[9px] uppercase tracking-[0.18em] text-starlight/70 transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                          className="inline-flex min-h-11 items-center border border-indigo/50 px-3 font-mono text-[9px] uppercase tracking-[0.18em] text-starlight/70 transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                         >
                           {copiedCertificate === certificate.no
                             ? "Citation copied"

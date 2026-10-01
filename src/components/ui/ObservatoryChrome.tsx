@@ -298,7 +298,7 @@ export function ObservatoryChrome() {
                 ambientMotionPaused ? "Resume ambient motion" : "Pause ambient motion"
               }
               onClick={() => setAmbientMotionPaused(!ambientMotionPaused)}
-              className="inline-flex min-h-11 items-center justify-center gap-2 border-l border-indigo/30 pl-3 text-starlight/70 transition-colors hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none sm:pl-4"
+              className="inline-flex min-h-11 items-center justify-center gap-2 border-l border-indigo/30 pl-3 text-starlight/70 transition-colors hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none sm:pl-4"
             >
               <svg
                 aria-hidden="true"
@@ -342,7 +342,7 @@ export function ObservatoryChrome() {
             onClick={(event) => handleSectionLinkClick(event, section.id)}
             aria-current={active === i ? "true" : undefined}
             aria-label={section.label}
-            className={`group relative flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-accent ${
+            className={`group relative flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent ${
               active === i
                 ? "text-gold"
                 : "text-starlight/70 hover:text-starlight/85"
@@ -381,7 +381,7 @@ export function ObservatoryChrome() {
               onClick={(event) => handleSectionLinkClick(event, section.id)}
               aria-current={active === i ? "true" : undefined}
               aria-label={section.label}
-              className={`flex min-h-11 flex-col items-center justify-center gap-1 font-mono transition-colors focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+              className={`flex min-h-11 flex-col items-center justify-center gap-1 font-mono transition-colors focus-visible:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
                 active === i ? "text-gold" : "text-starlight/65"
               }`}
             >
@@ -402,7 +402,7 @@ export function ObservatoryChrome() {
                 ? `More sections. ${SECTIONS[active].label} is current.`
                 : "More sections"
             }
-            className={`flex min-h-11 cursor-pointer list-none flex-col items-center justify-center gap-1 font-mono focus-visible:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden ${
+            className={`flex min-h-11 cursor-pointer list-none flex-col items-center justify-center gap-1 font-mono focus-visible:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden ${
               moreSectionActive
                 ? "text-gold"
                 : "text-starlight/65"
@@ -434,7 +434,7 @@ export function ObservatoryChrome() {
                       navigateToSection(section.id);
                     })
                   }
-                  className={`flex min-h-11 items-center justify-between gap-4 px-3 font-mono text-[10px] uppercase tracking-[0.15em] transition-colors hover:text-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+                  className={`flex min-h-11 items-center justify-between gap-4 px-3 font-mono text-[10px] uppercase tracking-[0.15em] transition-colors hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
                     active === i ? "text-gold" : "text-starlight/70"
                   }`}
                 >
