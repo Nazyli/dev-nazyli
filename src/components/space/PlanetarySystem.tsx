@@ -521,8 +521,10 @@ function SolarCore() {
 }
 
 function OrbitalPaths() {
+  const inclination = THREE.MathUtils.degToRad(8);
+
   return (
-    <group rotation={[Math.PI / 2, 0, 0]}>
+    <group rotation={[Math.PI / 2 - inclination, 0, 0]}>
       {PLANETARY_TOUR_BODIES.map((body) => (
         <mesh key={body.name}>
           <torusGeometry args={[body.orbitRadius, 0.012, 4, 256]} />

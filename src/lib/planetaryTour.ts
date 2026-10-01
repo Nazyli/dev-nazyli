@@ -66,11 +66,22 @@ export function updatePlanetaryTourReadout(progress: number) {
 }
 
 const BODY_POSITIONS = PLANETARY_TOUR_BODIES.map(
-  ({ orbitRadius, x, y }) => new THREE.Vector3(
-    x,
-    y,
-    Math.sqrt(Math.max(0, orbitRadius * orbitRadius - x * x)),
-  ),
+  ({ orbitRadius, x, y }, index) => {
+    const orbitalPhase = THREE.MathUtils.degToRad(58 - index * 2.6);
+    const localPhase = Math.asin(
+      THREE.MathUtils.clamp(x / orbitRadius, -1, 1),
+    );
+    const phase = -orbitalPhase + localPhase * 0.35;
+
+    const orbitalInclination = THREE.MathUtils.degToRad(8);
+    const depth = Math.cos(phase) * orbitRadius;
+
+    return new THREE.Vector3(
+      Math.sin(phase) * orbitRadius,
+      y + depth * Math.sin(orbitalInclination),
+      depth * Math.cos(orbitalInclination),
+    );
+  },
 );
 
 const CAMERA_POINTS = [
