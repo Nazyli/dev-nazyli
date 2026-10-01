@@ -1,8 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import {
+  CAMERA_POSITION_STOPS,
+  CAMERA_TARGET_STOPS,
+  cameraPath,
+  cameraTargetPath,
+} from "@/lib/cameraPath";
 import { universeState } from "@/lib/universeState";
 import {
   makePlanetSurfaceTextures,
@@ -13,11 +19,13 @@ import { getSpaceColor, type SpaceColorToken } from "@/lib/spaceColors";
 
 type PlanetSpec = {
   name: string;
-  position: [number, number, number];
   radius: number;
   surface: PlanetSurfaceStyle;
   palette: [SpaceColorToken, SpaceColorToken, SpaceColorToken];
   atmosphere: SpaceColorToken;
+  station: number;
+  side: -1 | 1;
+  elevation: number;
   tilt: number;
   spin: number;
   bumpScale: number;
@@ -28,22 +36,26 @@ type PlanetSpec = {
 const PLANETS: PlanetSpec[] = [
   {
     name: "Mercury",
-    position: [-4, 9, 10],
     radius: 1.1,
     surface: "rocky",
     palette: ["indigo", "dust", "starlight"],
     atmosphere: "nebula-blue",
+    station: 1,
+    side: -1,
+    elevation: -0.68,
     tilt: 0.04,
     spin: 0.018,
     bumpScale: 0.11,
   },
   {
     name: "Venus",
-    position: [4, -8, 23],
     radius: 1.55,
     surface: "clouded",
     palette: ["gold-muted", "gold", "starlight"],
     atmosphere: "gold-muted",
+    station: 2,
+    side: 1,
+    elevation: 0.68,
     tilt: 0.12,
     spin: -0.012,
     bumpScale: 0.045,
@@ -51,22 +63,26 @@ const PLANETS: PlanetSpec[] = [
   },
   {
     name: "Mars",
-    position: [-5, 9, 44],
     radius: 1.25,
     surface: "rocky",
     palette: ["indigo", "gold-muted", "gold"],
     atmosphere: "gold-muted",
+    station: 3,
+    side: -1,
+    elevation: 0.68,
     tilt: 0.32,
     spin: 0.022,
     bumpScale: 0.085,
   },
   {
     name: "Jupiter",
-    position: [0, 12, 70],
     radius: 3.1,
     surface: "banded",
     palette: ["abyss", "gold-muted", "starlight"],
     atmosphere: "gold-muted",
+    station: 4,
+    side: 1,
+    elevation: -0.68,
     tilt: 0.08,
     spin: 0.028,
     bumpScale: 0.035,
@@ -74,11 +90,13 @@ const PLANETS: PlanetSpec[] = [
   },
   {
     name: "Uranus",
-    position: [5, -12, 92],
     radius: 2.05,
     surface: "icy",
     palette: ["nebula-blue", "nebula-teal", "accent"],
     atmosphere: "nebula-teal",
+    station: 5,
+    side: -1,
+    elevation: -0.68,
     tilt: 1.3,
     spin: -0.016,
     bumpScale: 0.025,
@@ -87,11 +105,13 @@ const PLANETS: PlanetSpec[] = [
   },
   {
     name: "Neptune",
-    position: [-5, 10, 112],
     radius: 2.35,
     surface: "stormy",
     palette: ["indigo", "nebula-blue", "accent"],
     atmosphere: "nebula-blue",
+    station: 6,
+    side: 1,
+    elevation: 0.68,
     tilt: 0.5,
     spin: 0.018,
     bumpScale: 0.04,
@@ -128,6 +148,26 @@ function makeAtmosphere(color: SpaceColorToken) {
   });
 }
 
+function getRoutePosition(spec: PlanetSpec, aspect: number) {
+  const position = cameraPath.getPointAt(CAMERA_POSITION_STOPS[spec.station]);
+  const target = cameraTargetPath.getPointAt(CAMERA_TARGET_STOPS[spec.station]);
+  const forward = target.sub(position).normalize();
+  const right = new THREE.Vector3()
+    .crossVectors(new THREE.Vector3(0, 1, 0), forward)
+    .normalize();
+  const up = new THREE.Vector3().crossVectors(forward, right).normalize();
+  const distance = 48 + spec.radius * 2;
+  const halfHeight = distance * Math.tan(THREE.MathUtils.degToRad(55 / 2));
+  const horizontalOffset = halfHeight * aspect * 0.92 * spec.side;
+  const verticalOffset = halfHeight * spec.elevation;
+
+  return position
+    .addScaledVector(forward, distance)
+    .addScaledVector(right, horizontalOffset)
+    .addScaledVector(up, verticalOffset)
+    .toArray() as [number, number, number];
+}
+
 function CelestialPlanet({
   spec,
   textures,
@@ -137,6 +177,8 @@ function CelestialPlanet({
 }) {
   const body = useRef<THREE.Mesh>(null);
   const cloudLayer = useRef<THREE.Mesh>(null);
+  const aspect = useThree((state) => state.size.width / state.size.height);
+  const position = useMemo(() => getRoutePosition(spec, aspect), [aspect, spec]);
   const atmosphere = useMemo(() => makeAtmosphere(spec.atmosphere), [spec.atmosphere]);
 
   useEffect(() => () => atmosphere.dispose(), [atmosphere]);
@@ -148,7 +190,7 @@ function CelestialPlanet({
   });
 
   return (
-    <group position={spec.position} rotation={[spec.tilt, 0, 0]}>
+    <group position={position} rotation={[spec.tilt, 0, 0]}>
       <mesh ref={body}>
         <sphereGeometry args={[spec.radius, 48, 32]} />
         <meshStandardMaterial

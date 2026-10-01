@@ -40,7 +40,7 @@
 
 - [x] Build low-poly planetary meshes with distinct rocky, cloudy, banded, icy, and stormy surface styles.
 - [x] Generate seeded color, relief, and cloud maps with visible crater and storm detail; dispose textures on unmount.
-- [x] Place six planets along the camera route and add a thin Uranian ring.
+- [x] Place each planet at a separate camera-route milestone, compute edge offsets for the active viewport, and add a thin Uranian ring.
 - [x] Make slow rotation respect reduced motion and `ambientMotionPaused`.
 - [x] Add the component to `SpaceScene` while retaining the existing Saturn-like ringed planet and Earth.
 
