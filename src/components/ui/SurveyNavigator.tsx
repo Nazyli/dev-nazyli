@@ -398,8 +398,24 @@ export function SurveyNavigator() {
                 className="group flex min-h-14 items-center justify-between gap-4 border-b border-indigo/25 px-3 py-2 transition-colors last:border-b-0 hover:bg-indigo/15 focus-visible:bg-indigo/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
               >
                 <span className="min-w-0">
-                  <span className="block truncate text-sm text-starlight transition-colors group-hover:text-accent">
-                    {item.label}
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className="truncate text-sm text-starlight transition-colors group-hover:text-accent">
+                      {item.label}
+                    </span>
+                    {item.target === "external" && item.openInNewTab && (
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 16 16"
+                        className="h-3 w-3 shrink-0 text-gold/75"
+                      >
+                        <path
+                          d="M9 3h4v4M13 3 7 9M11 9v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1"
+                        />
+                      </svg>
+                    )}
                   </span>
                   <span className="mt-1 block truncate font-mono text-[9px] uppercase tracking-[0.1em] text-starlight/60">
                     {item.detail}
