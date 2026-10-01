@@ -119,6 +119,12 @@ const PLANETS: PlanetSpec[] = [
   },
 ];
 
+const URANUS_RINGS = [
+  { inner: 1.42, outer: 1.58, color: "planet-lunar", opacity: 0.24 },
+  { inner: 1.62, outer: 1.72, color: "planet-basalt", opacity: 0.2 },
+  { inner: 1.76, outer: 1.92, color: "planet-cream", opacity: 0.14 },
+] as const;
+
 function makeAtmosphere(color: SpaceColorToken) {
   return new THREE.ShaderMaterial({
     transparent: true,
@@ -223,18 +229,24 @@ function CelestialPlanet({
         </mesh>
       )}
       {spec.rings && (
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[spec.radius * 1.42, spec.radius * 1.92, 96, 4]} />
-          <meshStandardMaterial
-            color={getSpaceColor("planet-cream")}
-            transparent
-            opacity={0.38}
-            side={THREE.DoubleSide}
-            depthWrite={false}
-            roughness={0.9}
-            metalness={0}
-          />
-        </mesh>
+          <group rotation={[Math.PI / 2, 0, 0]}>
+            {URANUS_RINGS.map((ring) => (
+              <mesh key={ring.inner}>
+                <ringGeometry
+                  args={[spec.radius * ring.inner, spec.radius * ring.outer, 128, 4]}
+                />
+                <meshStandardMaterial
+                  color={getSpaceColor(ring.color)}
+                  transparent
+                  opacity={ring.opacity}
+                  side={THREE.DoubleSide}
+                  depthWrite={false}
+                  roughness={0.92}
+                  metalness={0}
+                />
+              </mesh>
+            ))}
+          </group>
       )}
     </group>
   );
