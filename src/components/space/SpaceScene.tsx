@@ -5,6 +5,7 @@ import { useEffect, useRef, useSyncExternalStore } from "react";
 import { AccretionDisk } from "./AccretionDisk";
 import { AsteroidBelt } from "./AsteroidBelt";
 import { Comet } from "./Comet";
+import { DeepSkyGalaxy } from "./DeepSkyGalaxy";
 import { DustClouds } from "./DustClouds";
 import { Earth } from "./Earth";
 import { Nebula } from "./Nebula";
@@ -126,6 +127,7 @@ export function SpaceScene({
         <directionalLight position={[10, -4, 6]} intensity={0.16} color={getSpaceColor("nebula-blue")} />
         <Nebula />
         <DustClouds />
+        <DeepSkyGalaxy />
         <Stars />
         <AsteroidBelt />
         <PlanetarySystem />

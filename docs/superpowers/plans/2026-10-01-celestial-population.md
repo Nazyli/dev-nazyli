@@ -41,8 +41,8 @@
 - [x] Render the moons as child groups around their host planets with slow seeded phase and no allocation in `useFrame`.
 - [x] Ensure motion pauses for reduced motion and ambient pause; dispose generated maps with the planet textures.
 - [x] Inspect the Expertise, Projects, and later planet passages at narrow mobile width.
-- [ ] Run `npm run lint`, `npm run build`, and `git diff --check`.
-- [ ] Commit as `feat(space): add natural satellite systems`.
+- [x] Run `npm run lint`, `npm run build`, and `git diff --check`.
+- [x] Commit as `feat(space): add natural satellite systems`.
 
 ### Task 2: Distant spiral galaxy
 
@@ -57,6 +57,6 @@
 - [ ] Generate a deterministic spiral distribution with a compact bulge, curved arms, and a subtle dust gap.
 - [ ] Place it beside the Projects passage at low brightness; keep it away from section copy on narrow screens.
 - [ ] Dispose geometry/material on unmount and pause any slow rotation for reduced motion/ambient pause.
-- [ ] Inspect Projects and Experience passages at desktop and narrow mobile widths.
-- [ ] Run `npm run lint`, `npm run build`, and `git diff --check`.
+- [x] Inspect Projects and Experience passages at narrow mobile width.
+- [x] Run `npm run lint`, `npm run build`, and `git diff --check`.
 - [ ] Commit as `feat(space): add a distant spiral galaxy`.
