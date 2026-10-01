@@ -99,6 +99,7 @@ export function ObservatoryChrome() {
   const journeyProgress = useRef<HTMLDivElement>(null);
   const moreSections = useRef<HTMLDetailsElement>(null);
   const pendingInitialRoute = useRef<string | null>(null);
+  const previousActive = useRef(active);
 
   useEffect(() => {
     const closeWhenOutside = (event: Event) => {
@@ -129,6 +130,12 @@ export function ObservatoryChrome() {
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, []);
+
+  useEffect(() => {
+    if (previousActive.current === active) return;
+    previousActive.current = active;
+    if (moreSections.current?.open) moreSections.current.open = false;
+  }, [active]);
 
   useEffect(() => {
     const progress = journeyProgress.current;
