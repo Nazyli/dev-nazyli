@@ -21,7 +21,7 @@ npm install
 npm run dev        # http://localhost:3000
 npm run lint
 npm run build
-npm run start      # serve production build
+npm run start      # preview the static export at http://localhost:3000
 ```
 
 The published-project and public-experience selectors can be checked with:
