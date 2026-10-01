@@ -170,6 +170,15 @@ const PLANET_VISUALS: Record<PlanetaryTourBodyName, Omit<PlanetSpec, "name">> = 
     spin: 0.009,
     bumpScale: 0.02,
   },
+  Makemake: {
+    radius: 0.78,
+    surface: "icy",
+    palette: ["planet-rust", "planet-ochre", "planet-cream"],
+    atmosphere: null,
+    tilt: 0.24,
+    spin: 0.012,
+    bumpScale: 0.016,
+  },
 };
 
 const PLANETS: PlanetSpec[] = PLANETARY_TOUR_BODIES.map(({ name }) => ({
@@ -567,46 +576,38 @@ export function PlanetarySystem() {
     const planetSurfaces: PlanetSurfaceTextures[] = [];
     const satelliteSurfaces: PlanetSurfaceTextures[] = [];
     const generateTextures = async () => {
-      try {
-        surface = await loadSolarImageTexture();
-      } catch {
-        surface = await makeSolarSurfaceTexture(912735);
-      }
-      if (disposed) {
-        disposeGeneratedTexture(surface);
-        return;
-      }
-      setSolarSurface(surface);
+      const solarSurfaceTask = loadSolarImageTexture().catch(() =>
+        makeSolarSurfaceTexture(912735),
+      );
+      void solarSurfaceTask.then((solarTexture) => {
+        if (disposed) {
+          disposeGeneratedTexture(solarTexture);
+          return;
+        }
+        surface = solarTexture;
+        setSolarSurface(solarTexture);
+      }).catch(() => {});
+      const moonSurfaceTask = loadPlanetImageTexture("/textures/planetary/2k_moon.jpg")
+        .then((color) => ({ color, height: null, clouds: null }))
+        .catch(() => makePlanetSurfaceTextures("rocky", 41003, MOONS[0].palette));
+      void moonSurfaceTask.then((moonSurface) => {
+        if (disposed) {
+          disposeGeneratedSurfaceTextures([moonSurface]);
+          return;
+        }
+        satelliteSurfaces.push(moonSurface);
+        setMoonTextures((current) => ({ ...current, Moon: moonSurface }));
+      }).catch(() => {});
+      const imageBackedPlanets = PLANETS.map((spec, index) => ({ spec, index }))
+        .filter(({ spec }) => spec.name === "Earth" || PLANET_IMAGE_TEXTURES[spec.name]);
 
-      const pendingPlanets = PLANETS.map((spec, index) => ({
-        spec,
-        index,
-        tourIndex: PLANETARY_TOUR_BODIES.findIndex((body) => body.name === spec.name),
-      }));
-
-      while (pendingPlanets.length > 0) {
-        const currentTourIndex = getPlanetaryTourProgress(universeState.progress) *
-          (PLANETARY_TOUR_BODIES.length - 1);
-        pendingPlanets.sort(
-          (a, b) =>
-            Math.abs(a.tourIndex - currentTourIndex) -
-            Math.abs(b.tourIndex - currentTourIndex),
-        );
-        const { index, spec } = pendingPlanets.shift()!;
+      await Promise.all(imageBackedPlanets.map(async ({ spec, index }) => {
         let planetTextures: PlanetSurfaceTextures;
-        if (spec.name === "Earth") {
-          planetTextures = await makeTerrestrialSurfaceTextures();
-        } else if (PLANET_IMAGE_TEXTURES[spec.name]) {
-          try {
-            planetTextures = await loadPlanetImageSurface(spec.name);
-          } catch {
-            planetTextures = await makePlanetSurfaceTextures(
-              spec.surface,
-              1101 + index * 1301,
-              spec.palette,
-            );
-          }
-        } else {
+        try {
+          planetTextures = spec.name === "Earth"
+            ? await makeTerrestrialSurfaceTextures()
+            : await loadPlanetImageSurface(spec.name);
+        } catch {
           planetTextures = await makePlanetSurfaceTextures(
             spec.surface,
             1101 + index * 1301,
@@ -619,22 +620,52 @@ export function PlanetarySystem() {
         }
         planetSurfaces.push(planetTextures);
         setTextures((current) => ({ ...current, [spec.name]: planetTextures }));
+      }));
+
+      if (disposed) return;
+
+      const pendingPlanets = PLANETS.map((spec, index) => ({ spec, index }))
+        .filter(({ spec }) => spec.name !== "Earth" && !PLANET_IMAGE_TEXTURES[spec.name])
+        .map(({ spec, index }) => ({
+          spec,
+          index,
+          tourIndex: PLANETARY_TOUR_BODIES.findIndex((body) => body.name === spec.name),
+        }));
+
+      while (pendingPlanets.length > 0) {
+        const currentTourIndex = getPlanetaryTourProgress(universeState.progress) *
+          (PLANETARY_TOUR_BODIES.length - 1);
+        pendingPlanets.sort(
+          (a, b) =>
+            Math.abs(a.tourIndex - currentTourIndex) -
+            Math.abs(b.tourIndex - currentTourIndex),
+        );
+        const { index, spec } = pendingPlanets.shift()!;
+        const planetTextures = await makePlanetSurfaceTextures(
+          spec.surface,
+          1101 + index * 1301,
+          spec.palette,
+        );
+        if (disposed) {
+          disposeGeneratedSurfaceTextures([planetTextures]);
+          return;
+        }
+        planetSurfaces.push(planetTextures);
+        setTextures((current) => ({ ...current, [spec.name]: planetTextures }));
       }
 
-      for (const [index, moon] of MOONS.entries()) {
+      for (const [index, moon] of MOONS.slice(1).entries()) {
         let moonSurface: PlanetSurfaceTextures;
         try {
-          moonSurface = moon.name === "Moon"
-            ? { color: await loadPlanetImageTexture("/textures/planetary/2k_moon.jpg"), height: null, clouds: null }
-            : await makePlanetSurfaceTextures(
-              "rocky",
-              41003 + index * 1543,
-              moon.palette,
-            );
+          moonSurface = await makePlanetSurfaceTextures(
+            "rocky",
+            41003 + (index + 1) * 1543,
+            moon.palette,
+          );
         } catch {
           moonSurface = await makePlanetSurfaceTextures(
             "rocky",
-            41003 + index * 1543,
+            41003 + (index + 1) * 1543,
             moon.palette,
           );
         }

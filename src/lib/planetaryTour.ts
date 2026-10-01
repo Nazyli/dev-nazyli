@@ -19,6 +19,7 @@ export const PLANETARY_TOUR_BODIES = [
   { name: "Neptune", radius: 2.35, orbitRadius: 99, x: -3.2, y: 0.22, viewDistance: 13.6 },
   { name: "Pluto", radius: 0.9, orbitRadius: 108, x: 3.4, y: -0.25, viewDistance: 7.4 },
   { name: "Haumea", radius: 0.72, orbitRadius: 116, x: -2, y: 0.36, viewDistance: 7.2 },
+  { name: "Makemake", radius: 0.78, orbitRadius: 120, x: -4.5, y: 0.18, viewDistance: 7.2 },
   { name: "Eris", radius: 0.82, orbitRadius: 123, x: -5, y: -0.12, viewDistance: 7.4 },
 ] as const;
 

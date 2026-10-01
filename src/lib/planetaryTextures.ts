@@ -25,10 +25,12 @@ export const PLANET_IMAGE_TEXTURES: Partial<Record<PlanetaryTourBodyName, string
   Venus: "/textures/planetary/2k_venus_surface.jpg",
   Earth: "/textures/planetary/2k_earth_daymap.jpg",
   Mars: "/textures/planetary/2k_mars.jpg",
+  Ceres: "/textures/planetary/2k_ceres_fictional.jpg",
   Jupiter: "/textures/planetary/2k_jupiter.jpg",
   Saturn: "/textures/planetary/2k_saturn.jpg",
   Uranus: "/textures/planetary/2k_uranus.jpg",
   Neptune: "/textures/planetary/2k_neptune.jpg",
+  Makemake: "/textures/planetary/2k_makemake_fictional.jpg",
 };
 
 function loadImageTexture(url: string, color = true) {

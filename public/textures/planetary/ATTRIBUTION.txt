@@ -1,7 +1,8 @@
-Planet, Earth, Moon, and Sun maps in this directory are from Solar System Scope.
+Planet, dwarf planet, Earth, Moon, and Sun maps in this directory are from Solar System Scope.
 Source: https://www.solarsystemscope.com/textures/
 License: Creative Commons Attribution 4.0 International (CC BY 4.0)
 License details: https://creativecommons.org/licenses/by/4.0/
 
 The maps are based on NASA elevation and imagery data and are adapted by Solar System Scope.
 The source notes that some unmapped areas use fictional terrain and colors are more saturated.
+The 2K Ceres and Makemake maps are listed by Solar System Scope in its fictional texture set.
