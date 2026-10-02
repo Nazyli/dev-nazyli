@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
@@ -17,6 +17,7 @@ type EarthProps = {
   position?: [number, number, number];
   radius?: number;
   onTexturesReady?: () => void;
+  children?: ReactNode;
 };
 
 function makeAtmosphereTexture() {
@@ -50,14 +51,13 @@ function Atmosphere({ radius }: { radius: number }) {
   if (!texture) return null;
 
   return (
-    <sprite position={[0, 0, 0]} scale={[radius * 5.2, radius * 5.2, 1]} renderOrder={1}>
+    <sprite position={[0, 0, 0]} scale={[radius * 5.2, radius * 5.2, 1]}>
       <spriteMaterial
         map={texture}
         color={getSpaceColor("accent")}
         transparent
         opacity={0.72}
         depthWrite={false}
-        depthTest={false}
         blending={THREE.AdditiveBlending}
         toneMapped={false}
       />
@@ -69,6 +69,7 @@ export function Earth({
   position = [0, 2.2, 80],
   radius = 5.5,
   onTexturesReady,
+  children,
 }: EarthProps) {
   const group = useRef<THREE.Group>(null);
   const cloudRef = useRef<THREE.Mesh>(null);
@@ -128,11 +129,7 @@ export function Earth({
       const arrival = THREE.MathUtils.lerp(0.6, 1, progress);
       const contactArrival = THREE.MathUtils.smoothstep(progress, 0.84, 0.98);
       group.current.position.x = THREE.MathUtils.lerp(-55, 0, progress);
-      group.current.position.y = THREE.MathUtils.lerp(
-        0,
-        5.5 * portraitLayout,
-        contactArrival,
-      );
+      group.current.position.y = 0;
       group.current.scale.setScalar(
         arrival * THREE.MathUtils.lerp(1, 0.82, portraitLayout * contactArrival),
       );
@@ -183,6 +180,7 @@ export function Earth({
           </mesh>
         )}
         <Atmosphere radius={radius} />
+        {children}
       </group>
     </group>
   );

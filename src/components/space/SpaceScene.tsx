@@ -175,11 +175,12 @@ export function SpaceScene({
         <AccretionDisk />
         <ShootingStar />
         <Earth
-          position={[4, 0.5, 138]}
+          position={[0, 2.2, 138]}
           radius={5.5}
           onTexturesReady={markEarthTexturesReady}
-        />
-        <SurveySatellite />
+        >
+          <SurveySatellite />
+        </Earth>
         <SpaceCamera />
         <ReadySignal
           onReady={onReady}

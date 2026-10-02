@@ -11,6 +11,7 @@ const ORBIT_RADIUS = 8.2;
 
 export function SurveySatellite() {
   const orbit = useRef<THREE.Group>(null);
+  const spinner = useRef<THREE.Group>(null);
   const downlinkPing = useRef<THREE.Mesh>(null);
   const downlinkMaterial = useRef<THREE.MeshBasicMaterial>(null);
   const downlinkPhase = useRef(0);
@@ -24,7 +25,11 @@ export function SurveySatellite() {
       1,
     );
     orbit.current.scale.setScalar(arrival);
-    orbit.current.rotation.z = Math.PI - 0.55 + arrival * 1.1;
+    orbit.current.rotation.set(Math.PI / 4, 0, Math.PI - 0.55 + arrival * 1.1);
+
+    if (spinner.current && !universeState.ambientMotionPaused) {
+      spinner.current.rotation.z += delta * 0.3;
+    }
 
     if (downlinkPing.current && downlinkMaterial.current) {
       if (!universeState.ambientMotionPaused) {
@@ -37,29 +42,30 @@ export function SurveySatellite() {
   });
 
   return (
-    <group ref={orbit} position={[7, 12.2, 150]}>
-      <mesh ref={downlinkPing} position={[0, 0, -5.54]} visible={false}>
-        <ringGeometry args={[0.9, 0.94, 96]} />
-        <meshBasicMaterial
-          ref={downlinkMaterial}
-          color={getSpaceColor("accent")}
-          transparent
-          opacity={0}
-          depthWrite={false}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
+    <group ref={orbit} position={[0, 0, 0]}>
       <mesh rotation={[0, 0, 0.18]}>
-        <ringGeometry args={[ORBIT_RADIUS - 0.025, ORBIT_RADIUS + 0.025, 96]} />
+        <ringGeometry args={[ORBIT_RADIUS - 0.008, ORBIT_RADIUS + 0.008, 96]} />
         <meshBasicMaterial
-          color={getSpaceColor("indigo")}
+          color={getSpaceColor("gold-muted")}
           transparent
-          opacity={0.8}
+          opacity={0.3}
           depthWrite={false}
           side={THREE.DoubleSide}
         />
       </mesh>
-      <group position={[ORBIT_RADIUS, 0, 0]}>
+      <group ref={spinner}>
+        <mesh ref={downlinkPing} position={[5.5, 0, 0]} rotation={[0, Math.PI / 2, 0]} visible={false}>
+          <ringGeometry args={[0.9, 0.94, 96]} />
+          <meshBasicMaterial
+            ref={downlinkMaterial}
+            color={getSpaceColor("accent")}
+            transparent
+            opacity={0}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+        <group position={[ORBIT_RADIUS, 0, 0]}>
         <mesh>
           <boxGeometry args={[0.46, 0.42, 0.42]} />
           <meshStandardMaterial color={getSpaceColor("gold")} roughness={0.65} metalness={0.35} />
@@ -80,6 +86,7 @@ export function SurveySatellite() {
           <boxGeometry args={[1.02, 0.025, 0.012]} />
           <meshBasicMaterial color={getSpaceColor("accent")} />
         </mesh>
+        </group>
       </group>
     </group>
   );
