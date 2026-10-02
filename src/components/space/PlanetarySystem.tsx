@@ -19,6 +19,7 @@ import {
 } from "@/lib/planetaryTextures";
 import { getSpaceColor, type SpaceColorToken } from "@/lib/spaceColors";
 import {
+  PLANETARY_DIAGONAL_POINTS,
   PLANETARY_TOUR_BODIES,
   type PlanetaryTourBodyName,
   getPlanetaryBodyPosition,
@@ -451,7 +452,7 @@ function CelestialPlanet({
 
   useFrame((_, delta) => {
     const visibility = universeState.reducedMotion
-      ? 0
+      ? 1
       : getPlanetaryBodyVisibility(universeState.progress, spec.name);
     if (group.current) {
       group.current.visible = visibility > 0.001;
@@ -652,18 +653,39 @@ function SolarCore({ surface }: { surface: THREE.Texture | null }) {
   );
 }
 
-function OrbitalPaths() {
-  const inclination = THREE.MathUtils.degToRad(8);
+function TrajectoryPath() {
+  const trajectory = useMemo(() => {
+    const geometry = new THREE.BufferGeometry().setFromPoints([
+      ...PLANETARY_DIAGONAL_POINTS,
+    ]);
+    const material = new THREE.LineBasicMaterial({
+      color: new THREE.Color(getSpaceColor("gold-muted")),
+      transparent: true,
+      opacity: 0.22,
+      depthWrite: false,
+      toneMapped: false,
+    });
+    return new THREE.Line(geometry, material);
+  }, []);
+
+  useEffect(
+    () => () => {
+      trajectory.geometry.dispose();
+      (trajectory.material as THREE.Material).dispose();
+    },
+    [trajectory],
+  );
 
   return (
-    <group rotation={[Math.PI / 2 - inclination, 0, 0]}>
-      {PLANETARY_TOUR_BODIES.map((body) => (
-        <mesh key={body.name}>
-          <torusGeometry args={[body.orbitRadius, 0.012, 4, 256]} />
+    <group>
+      <primitive object={trajectory} />
+      {PLANETARY_DIAGONAL_POINTS.map((point, index) => (
+        <mesh key={index} position={point}>
+          <sphereGeometry args={[0.09, 12, 12]} />
           <meshBasicMaterial
-            color={getSpaceColor("gold-muted")}
+            color={getSpaceColor("gold")}
             transparent
-            opacity={0.12}
+            opacity={0.65}
             depthWrite={false}
             toneMapped={false}
           />
@@ -685,7 +707,7 @@ export function PlanetarySystem({
 
   useFrame(() => {
     if (saturnMoons.current) {
-      saturnMoons.current.visible = !universeState.reducedMotion &&
+      saturnMoons.current.visible =
         getPlanetaryBodyVisibility(universeState.progress, "Saturn") > 0.001;
     }
   });
@@ -781,7 +803,7 @@ export function PlanetarySystem({
 
   return (
     <group>
-      <OrbitalPaths />
+      <TrajectoryPath />
       <SolarCore surface={solarSurface} />
       {PLANETS.map((spec) => (
         <CelestialPlanet

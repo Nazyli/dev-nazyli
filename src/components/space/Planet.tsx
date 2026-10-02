@@ -48,7 +48,7 @@ export function Planet({ position, radius = 2 }: PlanetProps) {
 
   useFrame((_, delta) => {
     const visibility = universeState.reducedMotion
-      ? 0
+      ? 1
       : getPlanetaryBodyVisibility(universeState.progress, "Saturn");
     if (group.current) {
       group.current.visible = visibility > 0.001;

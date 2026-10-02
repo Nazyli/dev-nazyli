@@ -53,8 +53,7 @@ export function SpaceCamera() {
     );
     if (reducedMotion) {
       if (!hasMoved.current) {
-        cameraPath.getPointAt(0, tmpPosition);
-        cameraTargetPath.getPointAt(0, tmpTarget);
+        getPlanetaryTourPose(0, tmpPosition, tmpTarget);
         camera.position.copy(tmpPosition);
         smoothedTarget.current.copy(tmpTarget);
         camera.lookAt(tmpTarget);
