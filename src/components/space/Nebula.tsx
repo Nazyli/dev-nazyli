@@ -74,20 +74,25 @@ export function Nebula() {
       !group.current
     ) return;
     const t = state.clock.elapsedTime;
+    const textureDrift = [-0.012, 0.008, -0.006];
+    cloudTextures.forEach((texture, index) => {
+      texture.offset.x = (t * textureDrift[index] + 1) % 1;
+    });
     group.current.position.x = THREE.MathUtils.damp(
       group.current.position.x,
-      universeState.mouseX * 2.4,
+      universeState.mouseX * 2.4 + Math.sin(t * 0.13) * 0.58,
       3,
       delta,
     );
     group.current.position.y = THREE.MathUtils.damp(
       group.current.position.y,
-      universeState.mouseY * 1.5,
+      universeState.mouseY * 1.5 + Math.sin(t * 0.09) * 0.36,
       3,
       delta,
     );
     group.current.rotation.y += delta * 0.02;
-    group.current.scale.setScalar(1 + Math.sin(t * 0.12) * 0.02);
+    group.current.rotation.z = Math.sin(t * 0.065) * 0.022;
+    group.current.scale.setScalar(1 + Math.sin(t * 0.16) * 0.035);
   });
 
   return (

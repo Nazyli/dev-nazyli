@@ -207,6 +207,63 @@ const PLANET_RINGS = {
   ],
 } as const;
 
+function makeSolarGlowTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 512;
+  const context = canvas.getContext("2d");
+  if (!context) return null;
+
+  const center = 256;
+  const glow = context.createRadialGradient(center, center, 0, center, center, center);
+  glow.addColorStop(0, "rgba(255, 239, 206, 0.48)");
+  glow.addColorStop(0.2, "rgba(255, 211, 151, 0.4)");
+  glow.addColorStop(0.48, "rgba(255, 173, 105, 0.22)");
+  glow.addColorStop(0.78, "rgba(255, 143, 74, 0.055)");
+  glow.addColorStop(1, "rgba(255, 123, 54, 0)");
+  context.fillStyle = glow;
+  context.fillRect(0, 0, 512, 512);
+
+  context.save();
+  context.filter = "blur(7px)";
+  for (let index = 0; index < 34; index += 1) {
+    const seed = index * 2.399963229728653;
+    const start = 0.26 + ((index * 37) % 18) / 100;
+    const end = 0.62 + ((index * 53) % 34) / 100;
+    const bend = Math.sin(seed * 1.7) * 0.05;
+    const angle = seed;
+    const startRadius = center * start;
+    const endRadius = center * Math.min(end, 0.96);
+    const controlRadius = (startRadius + endRadius) * 0.54;
+    const alpha = 0.025 + ((index * 29) % 18) / 600;
+    const startX = center + Math.cos(angle) * startRadius;
+    const startY = center + Math.sin(angle) * startRadius;
+    const endX = center + Math.cos(angle + bend * 1.8) * endRadius;
+    const endY = center + Math.sin(angle + bend * 1.8) * endRadius;
+    const plume = context.createLinearGradient(startX, startY, endX, endY);
+    plume.addColorStop(0, "rgba(255, 218, 171, 0)");
+    plume.addColorStop(0.18, `rgba(255, 218, 171, ${alpha})`);
+    plume.addColorStop(0.72, `rgba(255, 183, 116, ${alpha * 0.58})`);
+    plume.addColorStop(1, "rgba(255, 157, 88, 0)");
+    context.beginPath();
+    context.moveTo(startX, startY);
+    context.quadraticCurveTo(
+      center + Math.cos(angle + bend) * controlRadius,
+      center + Math.sin(angle + bend) * controlRadius,
+      endX,
+      endY,
+    );
+    context.strokeStyle = plume;
+    context.lineWidth = 3 + ((index * 17) % 12) / 3;
+    context.stroke();
+  }
+  context.restore();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 const MOONS: MoonSpec[] = [
   {
     name: "Moon",
@@ -348,7 +405,7 @@ function makeAtmosphere(color: SpaceColorToken) {
     blending: THREE.AdditiveBlending,
     uniforms: {
       uColor: { value: new THREE.Color(getSpaceColor(color)) },
-      uIntensity: { value: 0.16 },
+      uIntensity: { value: 0.105 },
     },
     vertexShader: `
       varying vec3 vNormal;
@@ -362,7 +419,8 @@ function makeAtmosphere(color: SpaceColorToken) {
       uniform vec3 uColor;
       uniform float uIntensity;
       void main() {
-        float rim = pow(1.0 - abs(dot(normalize(vNormal), vec3(0.0, 0.0, 1.0))), 3.2);
+        float limb = 1.0 - abs(dot(normalize(vNormal), vec3(0.0, 0.0, 1.0)));
+        float rim = smoothstep(0.02, 0.94, pow(limb, 1.45));
         gl_FragColor = vec4(uColor, rim * uIntensity);
       }
     `,
@@ -504,20 +562,40 @@ function NaturalSatellite({
 
 function SolarCore({ surface }: { surface: THREE.Texture | null }) {
   const body = useRef<THREE.Mesh>(null);
+  const corona = useRef<THREE.SpriteMaterial>(null);
+  const glow = useMemo(() => makeSolarGlowTexture(), []);
 
-  useFrame((_, delta) => {
-    if (!universeState.ambientMotionPaused && !universeState.reducedMotion && body.current) {
-      body.current.rotation.y += delta * 0.04;
+  useEffect(() => () => glow?.dispose(), [glow]);
+
+  useFrame((state, delta) => {
+    if (!universeState.ambientMotionPaused && !universeState.reducedMotion) {
+      if (body.current) body.current.rotation.y += delta * 0.04;
+      if (corona.current) {
+        corona.current.opacity = 0.76 + Math.sin(state.clock.elapsedTime * 0.7) * 0.06;
+      }
     }
   });
 
   return (
     <group>
+      {glow && (
+        <sprite position={[0, 0, 0]} scale={[30, 30, 1]} renderOrder={-1}>
+          <spriteMaterial
+            ref={corona}
+            map={glow}
+            transparent
+            opacity={0.82}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+            toneMapped={false}
+          />
+        </sprite>
+      )}
       <pointLight
-        color={getSpaceColor("gold")}
-        intensity={180}
-        distance={180}
-        decay={2}
+        color={getSpaceColor("planet-cream")}
+        intensity={3600}
+        distance={210}
+        decay={1.65}
       />
       <mesh ref={body}>
         <sphereGeometry args={[3.2, 64, 48]} />
@@ -525,18 +603,6 @@ function SolarCore({ surface }: { surface: THREE.Texture | null }) {
           key={surface ? "surface-ready" : "surface-placeholder"}
           map={surface}
           color={getSpaceColor(surface ? "starlight" : "gold")}
-          toneMapped={false}
-        />
-      </mesh>
-      <mesh scale={1.08}>
-        <sphereGeometry args={[3.2, 48, 36]} />
-        <meshBasicMaterial
-          color={getSpaceColor("gold")}
-          transparent
-          opacity={0.075}
-          side={THREE.BackSide}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
           toneMapped={false}
         />
       </mesh>

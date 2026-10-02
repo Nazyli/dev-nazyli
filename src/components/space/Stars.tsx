@@ -13,6 +13,12 @@ const BRIGHT_COUNT = 36;
 const GALAXY_COUNT = 700;
 const starfieldPosition = cameraPath.getPointAt(0);
 
+type StarTwinkleData = {
+  phases: Float32Array;
+  frequencies: Float32Array;
+  baseColors: Float32Array;
+};
+
 function makeStarSprite() {
   const canvas = document.createElement("canvas");
   canvas.width = 64;
@@ -87,15 +93,30 @@ export function Stars() {
 
   const brightGeometry = useMemo(() => {
     const positions = new Float32Array(BRIGHT_COUNT * 3);
-    randomSpherePositions(
-      BRIGHT_COUNT,
-      28,
-      60,
-      positions,
-      createSeededRandom(20202),
-    );
+    const phases = new Float32Array(BRIGHT_COUNT);
+    const frequencies = new Float32Array(BRIGHT_COUNT);
+    const baseColors = new Float32Array(BRIGHT_COUNT * 3);
+    const random = createSeededRandom(20202);
+    randomSpherePositions(BRIGHT_COUNT, 28, 60, positions, random);
+
+    const cool = new THREE.Color(getSpaceColor("planet-ice"));
+    const warm = new THREE.Color(getSpaceColor("starlight"));
+    const tint = new THREE.Color();
+    for (let index = 0; index < BRIGHT_COUNT; index += 1) {
+      const i3 = index * 3;
+      tint.copy(cool).lerp(warm, 0.25 + random() * 0.65);
+      const brightness = 0.7 + random() * 0.3;
+      baseColors[i3] = tint.r * brightness;
+      baseColors[i3 + 1] = tint.g * brightness;
+      baseColors[i3 + 2] = tint.b * brightness;
+      phases[index] = random() * Math.PI * 2;
+      frequencies[index] = 0.45 + random() * 1.1;
+    }
+
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute("color", new THREE.BufferAttribute(baseColors.slice(), 3));
+    geometry.userData.twinkle = { phases, frequencies, baseColors } satisfies StarTwinkleData;
     return geometry;
   }, []);
 
@@ -113,6 +134,22 @@ export function Stars() {
       if (!universeState.reducedMotion && !universeState.ambientMotionPaused) {
         group.current.rotation.y += delta * 0.004;
       }
+    }
+
+    if (!universeState.reducedMotion && !universeState.ambientMotionPaused) {
+      const twinkle = brightGeometry.userData.twinkle as StarTwinkleData;
+      const colors = brightGeometry.getAttribute("color");
+      const colorArray = colors.array as Float32Array;
+      const time = state.clock.elapsedTime;
+      for (let index = 0; index < BRIGHT_COUNT; index += 1) {
+        const i3 = index * 3;
+        const wave = 0.5 + Math.sin(time * twinkle.frequencies[index] + twinkle.phases[index]) * 0.5;
+        const brightness = 0.58 + wave * 0.42;
+        colorArray[i3] = twinkle.baseColors[i3] * brightness;
+        colorArray[i3 + 1] = twinkle.baseColors[i3 + 1] * brightness;
+        colorArray[i3 + 2] = twinkle.baseColors[i3 + 2] * brightness;
+      }
+      colors.needsUpdate = true;
     }
   });
 
@@ -135,8 +172,21 @@ export function Stars() {
       <points geometry={brightGeometry}>
         <pointsMaterial
           map={sprite}
+          vertexColors
+          size={10}
+          sizeAttenuation={false}
+          transparent
+          opacity={0.28}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </points>
+      <points geometry={brightGeometry}>
+        <pointsMaterial
+          map={sprite}
           color={getSpaceColor("gold")}
-          size={0.95}
+          size={1.05}
           sizeAttenuation
           transparent
           opacity={0.95}

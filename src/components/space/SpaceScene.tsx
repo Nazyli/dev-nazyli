@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import * as THREE from "three";
 import { AccretionDisk } from "./AccretionDisk";
 import { AsteroidBelt } from "./AsteroidBelt";
@@ -18,7 +18,12 @@ import { Stars } from "./Stars";
 import { SurveySatellite } from "./SurveySatellite";
 import { useAmbientMotionPaused } from "@/hooks/useAmbientMotionPaused";
 import { getSpaceColor } from "@/lib/spaceColors";
-import { getPlanetaryBodyPosition } from "@/lib/planetaryTour";
+import {
+  getOpeningSystemLateralOffset,
+  getOpeningSystemOffset,
+  getPlanetaryBodyPosition,
+} from "@/lib/planetaryTour";
+import { universeState } from "@/lib/universeState";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const SATURN_POSITION = getPlanetaryBodyPosition(
@@ -93,6 +98,20 @@ function ContextLossSignal({ onContextLost }: { onContextLost?: () => void }) {
   return null;
 }
 
+function OpeningSystemOffset({ children }: { children: ReactNode }) {
+  const group = useRef<THREE.Group>(null);
+
+  useFrame(() => {
+    if (group.current) {
+      const progress = universeState.reducedMotion ? 0 : universeState.progress;
+      group.current.position.x = getOpeningSystemLateralOffset(progress);
+      group.current.position.z = getOpeningSystemOffset(progress);
+    }
+  });
+
+  return <group ref={group}>{children}</group>;
+}
+
 export function SpaceScene({
   onReady,
   onContextLost,
@@ -116,7 +135,9 @@ export function SpaceScene({
   return (
     <div
       aria-hidden="true"
-      className="space-nebula-backdrop pointer-events-none fixed inset-0 z-0"
+      className={`space-nebula-backdrop pointer-events-none fixed inset-0 z-0${
+        ambientMotionPaused || reducedMotion ? " motion-paused" : ""
+      }`}
     >
       <Canvas
         frameloop={
@@ -128,19 +149,23 @@ export function SpaceScene({
       >
         <InvalidateOnDemand enabled={pageVisible && demandRender} />
         <ContextLossSignal onContextLost={onContextLost} />
-        <ambientLight intensity={0.12} />
-        <directionalLight position={[-14, 5, -9]} intensity={2.4} color={getSpaceColor("planet-cream")} />
-        <directionalLight position={[10, -4, 6]} intensity={0.16} color={getSpaceColor("nebula-blue")} />
+        <ambientLight intensity={0.07} />
+        <directionalLight position={[-14, 5, -9]} intensity={0.12} color={getSpaceColor("planet-cream")} />
+        <directionalLight position={[10, -4, 6]} intensity={0.04} color={getSpaceColor("nebula-blue")} />
         <Nebula />
         <DustClouds />
         <DeepSkyGalaxy />
         <Stars />
         <AsteroidBelt />
-        <PlanetarySystem />
+        <OpeningSystemOffset>
+          <PlanetarySystem />
+        </OpeningSystemOffset>
         <Comet />
         <AccretionDisk />
         <ShootingStar />
-        <Planet position={SATURN_POSITION} radius={2.72} />
+        <OpeningSystemOffset>
+          <Planet position={SATURN_POSITION} radius={2.72} />
+        </OpeningSystemOffset>
         <Earth position={[4, 0.5, 138]} radius={5.5} />
         <SurveySatellite />
         <SpaceCamera />

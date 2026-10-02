@@ -18,42 +18,49 @@ type EarthProps = {
   radius?: number;
 };
 
+function makeAtmosphereTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 512;
+  const context = canvas.getContext("2d");
+  if (!context) return null;
+
+  const gradient = context.createRadialGradient(256, 256, 0, 256, 256, 256);
+  gradient.addColorStop(0, "rgba(255,255,255,0)");
+  gradient.addColorStop(0.35, "rgba(255,255,255,0)");
+  gradient.addColorStop(0.4, "rgba(255,255,255,0.08)");
+  gradient.addColorStop(0.46, "rgba(255,255,255,0.22)");
+  gradient.addColorStop(0.56, "rgba(255,255,255,0.17)");
+  gradient.addColorStop(0.74, "rgba(255,255,255,0.075)");
+  gradient.addColorStop(0.9, "rgba(255,255,255,0.018)");
+  gradient.addColorStop(1, "rgba(255,255,255,0)");
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, 512, 512);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 function Atmosphere({ radius }: { radius: number }) {
-  const material = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        transparent: true,
-        depthWrite: false,
-        side: THREE.BackSide,
-        blending: THREE.AdditiveBlending,
-        uniforms: {
-          uColor: { value: new THREE.Color(getSpaceColor("accent")) },
-          uIntensity: { value: 0.32 },
-        },
-        vertexShader: `
-          varying vec3 vNormal;
-          void main() {
-            vNormal = normalize(normalMatrix * normal);
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `,
-        fragmentShader: `
-          varying vec3 vNormal;
-          uniform vec3 uColor;
-          uniform float uIntensity;
-          void main() {
-            float f = pow(1.0 - abs(dot(normalize(vNormal), vec3(0.0, 0.0, 1.0))), 3.0);
-            gl_FragColor = vec4(uColor, f * uIntensity);
-          }
-        `,
-      }),
-    []
-  );
+  const texture = useMemo(() => makeAtmosphereTexture(), []);
+  useEffect(() => () => disposeGeneratedTexture(texture), [texture]);
+
+  if (!texture) return null;
 
   return (
-    <mesh material={material} scale={1.05}>
-      <sphereGeometry args={[radius, 48, 48]} />
-    </mesh>
+    <sprite position={[0, 0, 0]} scale={[radius * 5.2, radius * 5.2, 1]} renderOrder={1}>
+      <spriteMaterial
+        map={texture}
+        color={getSpaceColor("accent")}
+        transparent
+        opacity={0.72}
+        depthWrite={false}
+        depthTest={false}
+        blending={THREE.AdditiveBlending}
+        toneMapped={false}
+      />
+    </sprite>
   );
 }
 
@@ -153,14 +160,14 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
           />
         </mesh>
         {surface?.clouds && (
-          <mesh ref={cloudRef} scale={1.012}>
+          <mesh ref={cloudRef} scale={1.008}>
             <sphereGeometry args={[radius, 48, 48]} />
             <meshStandardMaterial
               map={surface.cloudsAreAlphaMap ? undefined : surface.clouds}
               alphaMap={surface.cloudsAreAlphaMap ? surface.clouds : undefined}
               color={getSpaceColor("starlight")}
               transparent
-              opacity={0.28}
+              opacity={0.22}
               depthWrite={false}
               roughness={1}
               metalness={0}

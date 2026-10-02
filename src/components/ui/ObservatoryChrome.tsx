@@ -365,7 +365,7 @@ export function ObservatoryChrome() {
 
       <nav
         aria-label="Sections"
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-indigo/30 bg-void/95 px-0 pt-2 pb-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] min-[375px]:gap-x-2 lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-indigo/10 bg-void/75 px-0 pt-2 pb-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-sm min-[375px]:gap-x-2 lg:hidden"
       >
         {MOBILE_SECTION_INDICES.map((i) => {
           const section = SECTION_REGISTRY[i];

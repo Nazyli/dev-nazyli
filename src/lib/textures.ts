@@ -285,9 +285,11 @@ function makeNebulaTexture(seed: number): THREE.CanvasTexture {
       const dy = fy - 0.5;
       const r2 = dx * dx + dy * dy;
       const falloff = Math.exp(-r2 * 3.1);
-      const rim = clamp(1 - r2 * 3.1, 0, 1);
+      const edgeDistance = Math.min(fx, 1 - fx, fy, 1 - fy);
+      const edgeProgress = clamp(edgeDistance / 0.24, 0, 1);
+      const edgeFade = edgeProgress * edgeProgress * (3 - 2 * edgeProgress);
       const v = fbm(noise, fx * 2.6 + 40, fy * 3.2 + 40, 5);
-      const density = clamp((v - 0.42) * 6, 0, 1) * falloff * rim;
+      const density = clamp((v - 0.42) * 6, 0, 1) * falloff * edgeFade;
       const lum = 0.6 + 0.4 * fbm(detail, fx * 6 + 7, fy * 6 + 9, 4);
       const i = (y * W + x) * 4;
       const c = clamp(245 * lum, 0, 255);
@@ -401,11 +403,11 @@ function makeAccretionDiskTexture(size = 768): THREE.CanvasTexture {
   const OUTER = 6.0;
   const innerFrac = INNER / OUTER;
   const thermalPalette = [
-    [180, 216, 255],
-    [255, 250, 235],
-    [255, 218, 142],
-    [255, 137, 62],
-    [92, 42, 32],
+    [206, 229, 255],
+    [255, 248, 225],
+    [255, 192, 112],
+    [207, 123, 132],
+    [78, 111, 178],
   ];
 
   const sstep = (a: number, b: number, x: number) => {
@@ -446,22 +448,27 @@ function makeAccretionDiskTexture(size = 768): THREE.CanvasTexture {
       const outerFade = 1 - sstep(0.76, 1, r);
       const doppler = 0.38 + 0.82 * ((Math.sin(theta) + 1) * 0.5);
       const turbulence = 0.58 + 0.42 * Math.sin(n * 6.283 + r * 13);
-      const density = 0.38 + 0.62 * d;
+      const density = 0.24 + 0.76 * d * d;
       const flare = Math.pow(Math.max(n - 0.64, 0) * 2.8, 2);
-      const brightness = doppler * turbulence * (0.7 + density * 0.3);
+      const hotspot = Math.pow(Math.max(0, Math.cos(theta - 0.55)), 5);
+      const brightness =
+        doppler * turbulence * (0.56 + density * 0.44) * (1 + hotspot * 0.48);
+      const hotR = lerp(lerp(hot[0], cool[0], paletteBlend), 255, hotspot * 0.38);
+      const hotG = lerp(lerp(hot[1], cool[1], paletteBlend), 185, hotspot * 0.22);
+      const hotB = lerp(lerp(hot[2], cool[2], paletteBlend), 106, hotspot * 0.12);
 
       data[i] = clamp(
-        lerp(hot[0], cool[0], paletteBlend) * brightness + flare * 84,
+        hotR * brightness + flare * 84,
         0,
         255,
       );
       data[i + 1] = clamp(
-        lerp(hot[1], cool[1], paletteBlend) * brightness + flare * 72,
+        hotG * brightness + flare * 72,
         0,
         255,
       );
       data[i + 2] = clamp(
-        lerp(hot[2], cool[2], paletteBlend) * brightness + flare * 52,
+        hotB * brightness + flare * 52,
         0,
         255,
       );
@@ -487,7 +494,7 @@ function makePhotonRingTexture(size = 512): THREE.CanvasTexture {
     [180, 218, 255],
     [255, 249, 232],
     [255, 198, 121],
-    [198, 89, 51],
+    [106, 125, 205],
   ];
 
   const sstep = (a: number, b: number, x: number) => {
@@ -521,13 +528,16 @@ function makePhotonRingTexture(size = 512): THREE.CanvasTexture {
       const clumps = 0.06 + 1.12 * Math.pow(f, 1.8);
       const arc = Math.max(0, Math.sin(theta * 2.3 + n * 3.6 + f * 1.8));
       const caustic = Math.pow(arc, 8);
+      const hotspot = Math.pow(Math.max(0, Math.cos(theta - 0.55)), 6);
       const turbulentGap = sstep(0.38, 0.82, f) * innerRim * 0.52;
       const brightness =
-        doppler * clumps * (0.12 + innerRim * 0.92 + caustic * 0.9);
+        doppler * clumps * (0.08 + innerRim * 0.92 + caustic * 0.9) *
+        (1 + hotspot * 0.72);
       const alpha = clamp(
         outerFade *
-          (0.025 + innerRim * (0.34 + caustic * 0.86)) *
+          (0.018 + innerRim * (0.23 + caustic * 0.92)) *
           (0.24 + n * 0.76) *
+          (0.28 + clumps * 0.72) *
           (1 - turbulentGap),
         0,
         1,
@@ -535,9 +545,21 @@ function makePhotonRingTexture(size = 512): THREE.CanvasTexture {
       const hot = palette[paletteIndex];
       const cool = palette[paletteIndex + 1];
 
-      data[i] = clamp(lerp(hot[0], cool[0], paletteBlend) * brightness, 0, 255);
-      data[i + 1] = clamp(lerp(hot[1], cool[1], paletteBlend) * brightness, 0, 255);
-      data[i + 2] = clamp(lerp(hot[2], cool[2], paletteBlend) * brightness, 0, 255);
+      data[i] = clamp(
+        lerp(lerp(hot[0], cool[0], paletteBlend), 255, hotspot * 0.3) * brightness,
+        0,
+        255,
+      );
+      data[i + 1] = clamp(
+        lerp(lerp(hot[1], cool[1], paletteBlend), 175, hotspot * 0.16) * brightness,
+        0,
+        255,
+      );
+      data[i + 2] = clamp(
+        lerp(lerp(hot[2], cool[2], paletteBlend), 105, hotspot * 0.08) * brightness,
+        0,
+        255,
+      );
       data[i + 3] = alpha * 255;
     }
   }

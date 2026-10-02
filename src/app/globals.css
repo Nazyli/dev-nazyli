@@ -389,6 +389,15 @@
 
 .space-nebula-backdrop {
   background-color: var(--color-void);
+  isolation: isolate;
+}
+
+.space-nebula-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: -24%;
+  z-index: 0;
+  pointer-events: none;
   background-image:
     radial-gradient(
       ellipse 76% 58% at 68% 38%,
@@ -410,6 +419,28 @@
       color-mix(in srgb, var(--color-accent) 20%, transparent) 0,
       transparent 78%
     );
+  background-repeat: no-repeat;
+  filter: blur(44px) saturate(1.12);
+  opacity: 0.84;
+  animation: nebula-backdrop-drift 84s ease-in-out infinite alternate;
+}
+
+.space-nebula-backdrop > div {
+  position: relative;
+  z-index: 1;
+}
+
+.space-nebula-backdrop.motion-paused::before {
+  animation-play-state: paused;
+}
+
+@keyframes nebula-backdrop-drift {
+  from {
+    transform: translate3d(-1.5%, 0.5%, 0) scale(1.015);
+  }
+  to {
+    transform: translate3d(1.5%, -0.5%, 0) scale(1.045);
+  }
 }
 
 .print-skills {

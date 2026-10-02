@@ -1,11 +1,32 @@
 import * as THREE from "three";
 import {
+  CAMERA_SCROLL_STOPS,
   CAMERA_POSITION_STOPS,
   CAMERA_TARGET_STOPS,
-  CAMERA_SCROLL_STOPS,
   cameraPath,
   cameraTargetPath,
 } from "@/lib/cameraPath";
+
+const OPENING_SYSTEM_OFFSET = -18;
+const OPENING_SYSTEM_LATERAL_OFFSET = -5;
+
+function getOpeningSystemProgress(progress: number) {
+  const tourStart = CAMERA_SCROLL_STOPS[2];
+  if (!Number.isFinite(tourStart) || tourStart <= 0) {
+    return progress <= 0 ? 0 : 1;
+  }
+
+  const scrollProgress = THREE.MathUtils.clamp(progress, 0, 1);
+  return THREE.MathUtils.smoothstep(scrollProgress, 0, tourStart);
+}
+
+export function getOpeningSystemOffset(progress: number) {
+  return OPENING_SYSTEM_OFFSET * (1 - getOpeningSystemProgress(progress));
+}
+
+export function getOpeningSystemLateralOffset(progress: number) {
+  return OPENING_SYSTEM_LATERAL_OFFSET * (1 - getOpeningSystemProgress(progress));
+}
 
 export const PLANETARY_TOUR_BODIES = [
   { name: "Mercury", radius: 1.1, orbitRadius: 10, x: 0, y: 0, viewDistance: 7.2 },

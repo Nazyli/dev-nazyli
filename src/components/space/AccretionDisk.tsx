@@ -4,7 +4,11 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
-import { makeAccretionDiskTexture, makePhotonRingTexture } from "@/lib/textures";
+import {
+  makeAccretionDiskTexture,
+  makeNebulaTexture,
+  makePhotonRingTexture,
+} from "@/lib/textures";
 import { getSpaceColor } from "@/lib/spaceColors";
 
 const INNER = 1.4;
@@ -17,6 +21,8 @@ export function AccretionDisk({
   const spin = useRef<THREE.Group>(null);
   const map = useMemo(() => makeAccretionDiskTexture(), []);
   const photonRing = useMemo(() => makePhotonRingTexture(), []);
+  const blueGas = useMemo(() => makeNebulaTexture(7717), []);
+  const violetGas = useMemo(() => makeNebulaTexture(9495), []);
   const aspect = useThree((state) => state.size.width / state.size.height);
   const compactLayout = THREE.MathUtils.clamp((1.35 - aspect) / 0.65, 0, 1);
 
@@ -24,8 +30,10 @@ export function AccretionDisk({
     () => () => {
       map.dispose();
       photonRing.dispose();
+      blueGas.dispose();
+      violetGas.dispose();
     },
-    [map, photonRing],
+    [map, photonRing, blueGas, violetGas],
   );
 
   useFrame((_, delta) => {
@@ -47,6 +55,32 @@ export function AccretionDisk({
       rotation={rotation}
       scale={THREE.MathUtils.lerp(0.4, 0.3, compactLayout)}
     >
+      <mesh position={[0, 0, -0.72]} scale={[1.55, 1.05, 1]}>
+        <planeGeometry args={[OUTER * 3.6, OUTER * 3.6]} />
+        <meshBasicMaterial
+          map={blueGas}
+          color={getSpaceColor("nebula-blue")}
+          transparent
+          opacity={0.48}
+          depthWrite={false}
+          side={THREE.DoubleSide}
+          toneMapped={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+      <mesh position={[-1.2, 0.35, -0.5]} scale={[1.35, 0.82, 1]}>
+        <planeGeometry args={[OUTER * 2.9, OUTER * 2.9]} />
+        <meshBasicMaterial
+          map={violetGas}
+          color={getSpaceColor("nebula-violet")}
+          transparent
+          opacity={0.4}
+          depthWrite={false}
+          side={THREE.DoubleSide}
+          toneMapped={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
       <group ref={spin}>
         <mesh>
           <ringGeometry args={[INNER, OUTER, 96, 48]} />
