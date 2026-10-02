@@ -400,6 +400,13 @@ function makeAccretionDiskTexture(size = 768): THREE.CanvasTexture {
   const INNER = 1.4;
   const OUTER = 6.0;
   const innerFrac = INNER / OUTER;
+  const thermalPalette = [
+    [180, 216, 255],
+    [255, 250, 235],
+    [255, 218, 142],
+    [255, 137, 62],
+    [92, 42, 32],
+  ];
 
   const sstep = (a: number, b: number, x: number) => {
     const t = clamp((x - a) / (b - a), 0, 1);
@@ -430,27 +437,111 @@ function makeAccretionDiskTexture(size = 768): THREE.CanvasTexture {
       const n = fbm(noise, sx * 2.4 + 7, sy * 2.4 + 9, 5);
       const d = fbm(detail, sx * 8 + 3, sy * 8 + 5, 3);
 
-      const innerFade = sstep(innerFrac, innerFrac + 0.16, r);
-      const outerFade = 1 - sstep(0.72, 1, r);
-      const dopp = 1 + 0.32 * Math.sin(theta);
-      const bands = 0.62 + 0.38 * Math.sin(n * 6.283 + r * 9);
-      const density = 0.4 + 0.6 * d;
+      const radial = clamp(((r - innerFrac) / (1 - innerFrac)) * 3.99, 0, 3.99);
+      const paletteIndex = Math.floor(radial);
+      const paletteBlend = radial - paletteIndex;
+      const hot = thermalPalette[paletteIndex];
+      const cool = thermalPalette[paletteIndex + 1];
+      const innerFade = sstep(innerFrac, innerFrac + 0.045, r);
+      const outerFade = 1 - sstep(0.76, 1, r);
+      const doppler = 0.38 + 0.82 * ((Math.sin(theta) + 1) * 0.5);
+      const turbulence = 0.58 + 0.42 * Math.sin(n * 6.283 + r * 13);
+      const density = 0.38 + 0.62 * d;
+      const flare = Math.pow(Math.max(n - 0.64, 0) * 2.8, 2);
+      const brightness = doppler * turbulence * (0.7 + density * 0.3);
 
-      const baseR = lerp(20, 52, n);
-      const baseG = lerp(34, 74, n);
-      const baseB = lerp(72, 110, n);
-      const knot = Math.max(n - 0.62, 0) * 4;
-      const r8 = baseR + 130 * knot * knot;
-      const g8 = baseG + 96 * knot * knot;
-      const b8 = baseB + 42 * knot * knot;
-      const bright = dopp * bands * 0.85;
-
-      data[i] = clamp(r8 * bright, 0, 255);
-      data[i + 1] = clamp(g8 * bright, 0, 255);
-      data[i + 2] = clamp(b8 * bright, 0, 255);
+      data[i] = clamp(
+        lerp(hot[0], cool[0], paletteBlend) * brightness + flare * 84,
+        0,
+        255,
+      );
+      data[i + 1] = clamp(
+        lerp(hot[1], cool[1], paletteBlend) * brightness + flare * 72,
+        0,
+        255,
+      );
+      data[i + 2] = clamp(
+        lerp(hot[2], cool[2], paletteBlend) * brightness + flare * 52,
+        0,
+        255,
+      );
       data[i + 3] = clamp(innerFade * outerFade * density * 255, 0, 255);
     }
   }
+  ctx.putImageData(img, 0, 0);
+  return finalize(new THREE.CanvasTexture(canvas));
+}
+
+function makePhotonRingTexture(size = 512): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("2d context unavailable");
+  const img = ctx.createImageData(size, size);
+  const data = img.data;
+  const noise = makeNoise(9411);
+  const filaments = makeNoise(9473);
+  const half = size / 2;
+  const palette = [
+    [180, 218, 255],
+    [255, 249, 232],
+    [255, 198, 121],
+    [198, 89, 51],
+  ];
+
+  const sstep = (a: number, b: number, x: number) => {
+    const t = clamp((x - a) / (b - a), 0, 1);
+    return t * t * (3 - 2 * t);
+  };
+
+  for (let y = 0; y < size; y++) {
+    const dy = (y - half) / half;
+    for (let x = 0; x < size; x++) {
+      const dx = (x - half) / half;
+      const r = Math.sqrt(dx * dx + dy * dy);
+      const i = (y * size + x) * 4;
+      if (r < 0.59 || r > 1) continue;
+
+      const theta = Math.atan2(dy, dx);
+      const n = fbm(noise, dx * 7 + 13, dy * 7 + 19, 5);
+      const f = fbm(filaments, dx * 15 + 5, dy * 15 + 11, 3);
+      const radial = clamp((r - 0.59) / 0.41, 0, 0.999);
+      const palettePosition = radial * (palette.length - 1);
+      const paletteIndex = Math.floor(palettePosition);
+      const paletteBlend = palettePosition - paletteIndex;
+      const warpedRim =
+        0.69 +
+        0.026 * Math.sin(theta * 3 + 1.4) +
+        0.018 * Math.sin(theta * 7 + n * 8) +
+        0.008 * Math.sin(theta * 13 + f * 10);
+      const innerRim = Math.exp(-Math.pow((r - warpedRim) / 0.042, 2));
+      const outerFade = 1 - sstep(0.9, 1, r);
+      const doppler = 0.22 + 1.12 * ((Math.sin(theta) + 1) * 0.5);
+      const clumps = 0.06 + 1.12 * Math.pow(f, 1.8);
+      const arc = Math.max(0, Math.sin(theta * 2.3 + n * 3.6 + f * 1.8));
+      const caustic = Math.pow(arc, 8);
+      const turbulentGap = sstep(0.38, 0.82, f) * innerRim * 0.52;
+      const brightness =
+        doppler * clumps * (0.12 + innerRim * 0.92 + caustic * 0.9);
+      const alpha = clamp(
+        outerFade *
+          (0.025 + innerRim * (0.34 + caustic * 0.86)) *
+          (0.24 + n * 0.76) *
+          (1 - turbulentGap),
+        0,
+        1,
+      );
+      const hot = palette[paletteIndex];
+      const cool = palette[paletteIndex + 1];
+
+      data[i] = clamp(lerp(hot[0], cool[0], paletteBlend) * brightness, 0, 255);
+      data[i + 1] = clamp(lerp(hot[1], cool[1], paletteBlend) * brightness, 0, 255);
+      data[i + 2] = clamp(lerp(hot[2], cool[2], paletteBlend) * brightness, 0, 255);
+      data[i + 3] = alpha * 255;
+    }
+  }
+
   ctx.putImageData(img, 0, 0);
   return finalize(new THREE.CanvasTexture(canvas));
 }
@@ -464,4 +555,5 @@ export {
   makeNebulaTexture,
   makeDustLaneTexture,
   makeAccretionDiskTexture,
+  makePhotonRingTexture,
 };
