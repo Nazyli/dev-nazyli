@@ -115,7 +115,7 @@ const CAMERA_POINTS = [
   ...PLANETARY_TOUR_BODIES.map((body, index) =>
     BODY_POSITIONS[index].clone().add(
       new THREE.Vector3(
-        body.viewDistance * 0.2 * (index % 2 === 0 ? 1 : -1),
+        -body.viewDistance * 0.2,
         body.viewDistance * 0.44,
         -body.viewDistance,
       ),
@@ -132,8 +132,7 @@ const TARGET_POINTS = [
     position.clone().add(
       new THREE.Vector3(
         PLANETARY_TOUR_BODIES[index].viewDistance *
-          0.2 *
-          (index % 2 === 0 ? 1 : -1),
+          -0.2,
         0,
         0,
       ),

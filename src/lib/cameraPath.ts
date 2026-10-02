@@ -12,12 +12,12 @@ const CAMERA_STATIONS = {
     target: new THREE.Vector3(0, 0, -10),
   },
   "s-about": {
-    position: new THREE.Vector3(0, 0.4, -26),
-    target: new THREE.Vector3(0, 0.2, 0),
+    position: new THREE.Vector3(-3.5, 0.4, -26),
+    target: new THREE.Vector3(-3.5, 0.2, 0),
   },
   "s-expertise": {
-    position: new THREE.Vector3(3.5, 1.2, -8),
-    target: new THREE.Vector3(2, 1, 4),
+    position: new THREE.Vector3(-7, 1.2, -8),
+    target: new THREE.Vector3(-7, 1, 4),
   },
   "s-projects": {
     position: new THREE.Vector3(5, 2.4, 6),
