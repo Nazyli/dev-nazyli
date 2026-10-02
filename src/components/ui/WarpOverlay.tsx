@@ -56,7 +56,7 @@ const STREAKS: Streak[] = Array.from({ length: 56 }, (_, i) => {
 
 const READY_MIN = 450;
 const READY_MIN_REDUCED = 400;
-const TIMEOUT = 1400;
+const TIMEOUT = 8000;
 const TIMEOUT_REDUCED = 800;
 const FADE_MS = 450;
 
@@ -80,11 +80,12 @@ export function WarpOverlay() {
 
     const timeout = reducedMotion ? TIMEOUT_REDUCED : TIMEOUT;
     const readyMinimum = reducedMotion ? READY_MIN_REDUCED : READY_MIN;
-    const deadline =
-      startRef.current + Math.min(timeout, ready ? readyMinimum : timeout);
+    const delay = ready
+      ? Math.max(0, startRef.current + readyMinimum - Date.now())
+      : timeout;
     const timer = window.setTimeout(
       () => setLeaving(true),
-      Math.max(0, deadline - Date.now()),
+      delay,
     );
     return () => window.clearTimeout(timer);
   }, [ready, reducedMotion, leaving]);

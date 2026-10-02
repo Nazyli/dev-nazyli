@@ -276,13 +276,16 @@ function stampCraters(
   dark: RGB,
   light: RGB,
   count: number,
+  width = WIDTH,
+  height = HEIGHT,
 ) {
+  const scale = width / WIDTH;
   context.save();
   for (let index = 0; index < count; index += 1) {
-    const x = random() * WIDTH;
-    const y = 22 + random() * (HEIGHT - 44);
-    const radius = 2 + random() * (index < 8 ? 15 : 8);
-    const offsets = [x < radius ? WIDTH : 0, x > WIDTH - radius ? -WIDTH : 0];
+    const x = random() * width;
+    const y = 22 * scale + random() * (height - 44 * scale);
+    const radius = (2 + random() * (index < 8 ? 15 : 8)) * scale;
+    const offsets = [x < radius ? width : 0, x > width - radius ? -width : 0];
     for (const offset of [0, ...offsets.filter(Boolean)]) {
       const centerX = x + offset;
       const gradient = context.createRadialGradient(
@@ -306,35 +309,42 @@ function stampCraters(
   context.restore();
 }
 
-function stampGreatStorm(context: CanvasRenderingContext2D, color: RGB, seed: number) {
-  const stormX = WIDTH * 0.34;
-  const stormY = HEIGHT * 0.62;
+function stampGreatStorm(
+  context: CanvasRenderingContext2D,
+  color: RGB,
+  seed: number,
+  width = WIDTH,
+  height = HEIGHT,
+) {
+  const scale = width / WIDTH;
+  const stormX = width * 0.34;
+  const stormY = height * 0.62;
   const random = createSeededRandom(seed);
   context.save();
   context.translate(stormX, stormY);
   context.rotate(-0.12);
   context.beginPath();
-  context.ellipse(0, 0, 44, 19, 0, 0, Math.PI * 2);
+  context.ellipse(0, 0, 44 * scale, 19 * scale, 0, 0, Math.PI * 2);
   context.clip();
   const core = mix(color, [70, 40, 34], 0.46);
-  const storm = context.createRadialGradient(-8, -3, 2, 0, 0, 45);
+  const storm = context.createRadialGradient(-8 * scale, -3 * scale, 2 * scale, 0, 0, 45 * scale);
   storm.addColorStop(0, rgba(core, 0.76));
   storm.addColorStop(0.48, rgba(color, 0.74));
   storm.addColorStop(0.82, rgba(mix(color, [232, 214, 184], 0.34), 0.72));
   storm.addColorStop(1, rgba(color, 0.12));
   context.fillStyle = storm;
   context.beginPath();
-  context.ellipse(0, 0, 45, 20, 0, 0, Math.PI * 2);
+  context.ellipse(0, 0, 45 * scale, 20 * scale, 0, 0, Math.PI * 2);
   context.fill();
 
   for (let ribbon = 0; ribbon < 9; ribbon += 1) {
-    const radiusX = 13 + random() * 22;
-    const radiusY = 4 + random() * 8;
+    const radiusX = (13 + random() * 22) * scale;
+    const radiusY = (4 + random() * 8) * scale;
     const start = random() * Math.PI * 2;
     context.beginPath();
     context.ellipse(
-      (random() - 0.5) * 7,
-      (random() - 0.5) * 4,
+      (random() - 0.5) * 7 * scale,
+      (random() - 0.5) * 4 * scale,
       radiusX,
       radiusY,
       (random() - 0.5) * 0.32,
@@ -345,7 +355,7 @@ function stampGreatStorm(context: CanvasRenderingContext2D, color: RGB, seed: nu
       ribbon % 2 === 0 ? mix(color, [250, 228, 196], 0.3) : core,
       0.14 + random() * 0.2,
     );
-    context.lineWidth = 0.8 + random() * 1.5;
+    context.lineWidth = (0.8 + random() * 1.5) * scale;
     context.stroke();
   }
 
@@ -356,34 +366,36 @@ export async function makePlanetSurfaceTextures(
   style: PlanetSurfaceStyle,
   seed: number,
   palette: [SpaceColorToken, SpaceColorToken, SpaceColorToken],
+  size: { width: number; height: number } = { width: WIDTH, height: HEIGHT },
 ): Promise<PlanetSurfaceTextures> {
+  const { width, height } = size;
   const colors = palette.map(readTokenColor) as [RGB, RGB, RGB];
   const colorCanvas = document.createElement("canvas");
-  colorCanvas.width = WIDTH;
-  colorCanvas.height = HEIGHT;
+  colorCanvas.width = width;
+  colorCanvas.height = height;
   const colorContext = colorCanvas.getContext("2d");
   if (!colorContext) throw new Error("2d context unavailable");
-  const colorImage = colorContext.createImageData(WIDTH, HEIGHT);
+  const colorImage = colorContext.createImageData(width, height);
 
   const heightCanvas = document.createElement("canvas");
-  heightCanvas.width = WIDTH;
-  heightCanvas.height = HEIGHT;
+  heightCanvas.width = width;
+  heightCanvas.height = height;
   const heightContext = heightCanvas.getContext("2d");
   if (!heightContext) throw new Error("2d context unavailable");
-  const heightImage = heightContext.createImageData(WIDTH, HEIGHT);
+  const heightImage = heightContext.createImageData(width, height);
 
   const cloudCanvas = document.createElement("canvas");
-  cloudCanvas.width = WIDTH;
-  cloudCanvas.height = HEIGHT;
+  cloudCanvas.width = width;
+  cloudCanvas.height = height;
   const cloudContext = cloudCanvas.getContext("2d");
   if (!cloudContext) throw new Error("2d context unavailable");
-  const cloudImage = cloudContext.createImageData(WIDTH, HEIGHT);
+  const cloudImage = cloudContext.createImageData(width, height);
 
-  for (let y = 0; y < HEIGHT; y += 1) {
-    const v = y / HEIGHT;
+  for (let y = 0; y < height; y += 1) {
+    const v = y / height;
     const latitude = (v - 0.5) * 2;
-    for (let x = 0; x < WIDTH; x += 1) {
-      const u = x / WIDTH;
+    for (let x = 0; x < width; x += 1) {
+      const u = x / width;
       const warped = fractalNoise(u, v, seed, 2) - 0.5;
       const detail = periodicNoise(u, v, 15, seed ^ 0x6d2b79f5) - 0.5;
       const fine = periodicNoise(u, v, 48, seed ^ 0x1b873593) - 0.5;
@@ -423,7 +435,7 @@ export async function makePlanetSurfaceTextures(
         cloud = smoothstep(0.65, 0.88, mottling + detail * 0.22);
       }
 
-      const index = (y * WIDTH + x) * 4;
+      const index = (y * width + x) * 4;
       colorImage.data[index] = surfaceColor[0];
       colorImage.data[index + 1] = surfaceColor[1];
       colorImage.data[index + 2] = surfaceColor[2];
@@ -447,18 +459,18 @@ export async function makePlanetSurfaceTextures(
 
   if (style === "rocky") {
     const random = createSeededRandom(seed ^ 0x4f1bbcdc);
-    stampCraters(colorContext, random, colors[0], colors[2], seed === 1101 ? 46 : 26);
-    stampCraters(heightContext, createSeededRandom(seed ^ 0x4f1bbcdc), [36, 36, 36], [224, 224, 224], seed === 1101 ? 46 : 26);
+    stampCraters(colorContext, random, colors[0], colors[2], seed === 1101 ? 46 : 26, width, height);
+    stampCraters(heightContext, createSeededRandom(seed ^ 0x4f1bbcdc), [36, 36, 36], [224, 224, 224], seed === 1101 ? 46 : 26, width, height);
   }
   if (style === "banded" || style === "stormy") {
-    stampGreatStorm(colorContext, colors[2], seed ^ 0x7f4a7c15);
+    stampGreatStorm(colorContext, colors[2], seed ^ 0x7f4a7c15, width, height);
   }
 
   const color = makeCanvasTexture(colorCanvas);
-  const height = makeCanvasTexture(heightCanvas, false);
+  const heightTexture = makeCanvasTexture(heightCanvas, false);
   const clouds = ["clouded", "banded", "icy", "stormy"].includes(style)
     ? makeCanvasTexture(cloudCanvas)
     : null;
 
-  return { color, height, clouds };
+  return { color, height: heightTexture, clouds };
 }

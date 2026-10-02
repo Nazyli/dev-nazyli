@@ -16,6 +16,7 @@ import {
 type EarthProps = {
   position?: [number, number, number];
   radius?: number;
+  onTexturesReady?: () => void;
 };
 
 function makeAtmosphereTexture() {
@@ -64,7 +65,11 @@ function Atmosphere({ radius }: { radius: number }) {
   );
 }
 
-export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
+export function Earth({
+  position = [0, 2.2, 80],
+  radius = 5.5,
+  onTexturesReady,
+}: EarthProps) {
   const group = useRef<THREE.Group>(null);
   const cloudRef = useRef<THREE.Mesh>(null);
   const spin = useRef(0);
@@ -76,7 +81,7 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
     let disposed = false;
     let loadedSurface: PlanetSurfaceTextures | null = null;
     let loadedNightMap: THREE.Texture | null = null;
-    void makeTerrestrialSurfaceTextures().then((result) => {
+    const surfaceTask = makeTerrestrialSurfaceTextures().then((result) => {
       loadedSurface = result;
       if (disposed) {
         disposeGeneratedSurfaceTextures([result]);
@@ -84,7 +89,7 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
         setSurface(result);
       }
     });
-    void loadEarthNightTexture().then((texture) => {
+    const nightTask = loadEarthNightTexture().then((texture) => {
       loadedNightMap = texture;
       if (disposed) {
         disposeGeneratedTexture(texture);
@@ -92,12 +97,15 @@ export function Earth({ position = [0, 2.2, 80], radius = 5.5 }: EarthProps) {
         setNightMap(texture);
       }
     }).catch(() => {});
+    void Promise.allSettled([surfaceTask, nightTask]).then(() => {
+      if (!disposed) onTexturesReady?.();
+    });
     return () => {
       disposed = true;
       if (loadedSurface) disposeGeneratedSurfaceTextures([loadedSurface]);
       disposeGeneratedTexture(loadedNightMap);
     };
-  }, []);
+  }, [onTexturesReady]);
 
   useFrame((_, delta) => {
     if (universeState.reducedMotion) {
