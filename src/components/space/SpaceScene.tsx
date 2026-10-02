@@ -1,8 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
-import * as THREE from "three";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { AccretionDisk } from "./AccretionDisk";
 import { AsteroidBelt } from "./AsteroidBelt";
 import { Comet } from "./Comet";
@@ -18,12 +17,8 @@ import { Stars } from "./Stars";
 import { SurveySatellite } from "./SurveySatellite";
 import { useAmbientMotionPaused } from "@/hooks/useAmbientMotionPaused";
 import { getSpaceColor } from "@/lib/spaceColors";
-import {
-  getOpeningSystemLateralOffset,
-  getOpeningSystemOffset,
-  getPlanetaryBodyPosition,
-} from "@/lib/planetaryTour";
-import { universeState } from "@/lib/universeState";
+import { OPENING_SYSTEM_Z, getPlanetaryBodyPosition } from "@/lib/planetaryTour";
+import * as THREE from "three";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const SATURN_POSITION = getPlanetaryBodyPosition(
@@ -104,20 +99,6 @@ function ContextLossSignal({ onContextLost }: { onContextLost?: () => void }) {
   return null;
 }
 
-function OpeningSystemOffset({ children }: { children: ReactNode }) {
-  const group = useRef<THREE.Group>(null);
-
-  useFrame(() => {
-    if (group.current) {
-      const progress = universeState.reducedMotion ? 0 : universeState.progress;
-      group.current.position.x = getOpeningSystemLateralOffset(progress);
-      group.current.position.z = getOpeningSystemOffset(progress);
-    }
-  });
-
-  return <group ref={group}>{children}</group>;
-}
-
 export function SpaceScene({
   onReady,
   onContextLost,
@@ -167,15 +148,13 @@ export function SpaceScene({
         <DeepSkyGalaxy />
         <Stars />
         <AsteroidBelt />
-        <OpeningSystemOffset>
-        <PlanetarySystem onTexturesReady={markPlanetTexturesReady} />
-        </OpeningSystemOffset>
+        <group position={[0, 0, OPENING_SYSTEM_Z]}>
+          <PlanetarySystem onTexturesReady={markPlanetTexturesReady} />
+          <Planet position={SATURN_POSITION} radius={2.72} />
+        </group>
         <Comet />
         <AccretionDisk />
         <ShootingStar />
-        <OpeningSystemOffset>
-          <Planet position={SATURN_POSITION} radius={2.72} />
-        </OpeningSystemOffset>
         <Earth
           position={[4, 0.5, 138]}
           radius={5.5}

@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from "react";
 import {
   getPlanetaryTourReadout,
-  PLANETARY_TOUR_BODIES,
+  PLANETARY_FOCUS_COUNT,
   subscribeToPlanetaryTourReadout,
 } from "@/lib/planetaryTour";
 
@@ -24,7 +24,7 @@ export function PlanetaryTourReadout() {
     >
       <p className="text-[8px] tracking-[0.2em] text-gold/75">
         CURRENT FLYBY · {String(current.index + 1).padStart(2, "0")}/
-        {String(PLANETARY_TOUR_BODIES.length).padStart(2, "0")}
+        {String(PLANETARY_FOCUS_COUNT).padStart(2, "0")}
       </p>
       <p className="mt-1 text-xs tracking-[0.18em] text-starlight">
         {current.body}

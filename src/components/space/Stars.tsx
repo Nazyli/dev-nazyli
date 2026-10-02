@@ -130,7 +130,7 @@ export function Stars() {
 
   useFrame((state, delta) => {
     if (group.current) {
-      group.current.position.copy(state.camera.position);
+      group.current.position.copy(state.camera.position).multiplyScalar(0.82);
       if (!universeState.reducedMotion && !universeState.ambientMotionPaused) {
         group.current.rotation.y += delta * 0.004;
       }

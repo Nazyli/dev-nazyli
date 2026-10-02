@@ -5,6 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
 import { getSpaceColor } from "@/lib/spaceColors";
+import { getPlanetaryBodyVisibility } from "@/lib/planetaryTour";
 import { makePlanetTexture, makeRingTexture } from "@/lib/textures";
 import {
   disposeGeneratedTexture,
@@ -17,7 +18,9 @@ type PlanetProps = {
 };
 
 export function Planet({ position, radius = 2 }: PlanetProps) {
+  const group = useRef<THREE.Group>(null);
   const body = useRef<THREE.Mesh>(null);
+  const rings = useRef<THREE.Mesh>(null);
   const [map, setMap] = useState<THREE.Texture | null>(null);
   const ringMap = useMemo(() => makeRingTexture(), []);
 
@@ -44,6 +47,19 @@ export function Planet({ position, radius = 2 }: PlanetProps) {
   }, [ringMap]);
 
   useFrame((_, delta) => {
+    const visibility = universeState.reducedMotion
+      ? 0
+      : getPlanetaryBodyVisibility(universeState.progress, "Saturn");
+    if (group.current) {
+      group.current.visible = visibility > 0.001;
+      group.current.scale.setScalar(0.72 + visibility * 0.28);
+    }
+    if (body.current) {
+      (body.current.material as THREE.MeshStandardMaterial).opacity = visibility;
+    }
+    if (rings.current) {
+      (rings.current.material as THREE.MeshStandardMaterial).opacity = visibility;
+    }
     if (universeState.reducedMotion || universeState.ambientMotionPaused) return;
     if (body.current) {
       body.current.rotation.y += delta * 0.03;
@@ -51,7 +67,7 @@ export function Planet({ position, radius = 2 }: PlanetProps) {
   });
 
   return (
-    <group position={position} rotation={[-1.08, 0.22, 0]}>
+    <group ref={group} position={position} rotation={[-1.08, 0.22, 0]}>
       <mesh ref={body}>
         <sphereGeometry args={[radius, 64, 64]} />
         <meshStandardMaterial
@@ -59,9 +75,11 @@ export function Planet({ position, radius = 2 }: PlanetProps) {
           color={map ? getSpaceColor("starlight") : getSpaceColor("planet-tan")}
           roughness={0.92}
           metalness={0.02}
+          transparent
+          depthWrite={false}
         />
       </mesh>
-      <mesh>
+      <mesh ref={rings}>
         <ringGeometry args={[radius * 1.32, radius * 2.35, 128]} />
         <meshStandardMaterial
           map={ringMap}

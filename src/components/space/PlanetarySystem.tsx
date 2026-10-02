@@ -22,6 +22,7 @@ import {
   PLANETARY_TOUR_BODIES,
   type PlanetaryTourBodyName,
   getPlanetaryBodyPosition,
+  getPlanetaryBodyVisibility,
 } from "@/lib/planetaryTour";
 
 type PlanetSpec = {
@@ -188,9 +189,6 @@ const SATURN_POSITION = getPlanetaryBodyPosition(
   "Saturn",
   new THREE.Vector3(),
 ).toArray() as [number, number, number];
-
-
-
 const PLANET_RINGS = {
   saturn: [
     { inner: 1.22, outer: 1.38, color: "planet-lunar", opacity: 0.28 },
@@ -437,6 +435,7 @@ function CelestialPlanet({
   moons: MoonSpec[];
   moonTextures: Record<string, PlanetSurfaceTextures>;
 }) {
+  const group = useRef<THREE.Group>(null);
   const body = useRef<THREE.Mesh>(null);
   const cloudLayer = useRef<THREE.Mesh>(null);
   const position = useMemo(
@@ -451,13 +450,41 @@ function CelestialPlanet({
   useEffect(() => () => atmosphere?.dispose(), [atmosphere]);
 
   useFrame((_, delta) => {
+    const visibility = universeState.reducedMotion
+      ? 0
+      : getPlanetaryBodyVisibility(universeState.progress, spec.name);
+    if (group.current) {
+      group.current.visible = visibility > 0.001;
+      group.current.scale.setScalar(0.72 + visibility * 0.28);
+      if (visibility > 0.001) {
+        group.current.traverse((object) => {
+          if (!(object instanceof THREE.Mesh)) return;
+          const materials = Array.isArray(object.material)
+            ? object.material
+            : [object.material];
+          materials.forEach((material) => {
+            if (material instanceof THREE.ShaderMaterial) {
+              material.uniforms.uIntensity.value = 0.105 * visibility;
+              return;
+            }
+            const opacity = typeof material.userData.tourOpacity === "number"
+              ? material.userData.tourOpacity
+              : material.opacity;
+            material.userData.tourOpacity = opacity;
+            material.transparent = true;
+            material.depthWrite = false;
+            material.opacity = opacity * visibility;
+          });
+        });
+      }
+    }
     if (universeState.reducedMotion || universeState.ambientMotionPaused) return;
     if (body.current) body.current.rotation.y += delta * spec.spin * 8;
     if (cloudLayer.current) cloudLayer.current.rotation.y += delta * spec.spin * 8 * 1.18;
   });
 
   return (
-    <group position={position} rotation={[spec.tilt, 0, 0]}>
+    <group ref={group} position={position} rotation={[spec.tilt, 0, 0]}>
       <mesh ref={body} scale={spec.shape ?? 1}>
         <sphereGeometry args={[spec.radius, 64, 48]} />
         <meshStandardMaterial
@@ -560,6 +587,7 @@ function NaturalSatellite({
 }
 
 function SolarCore({ surface }: { surface: THREE.Texture | null }) {
+  const group = useRef<THREE.Group>(null);
   const body = useRef<THREE.Mesh>(null);
   const corona = useRef<THREE.SpriteMaterial>(null);
   const glow = useMemo(() => makeSolarGlowTexture(), []);
@@ -567,44 +595,59 @@ function SolarCore({ surface }: { surface: THREE.Texture | null }) {
   useEffect(() => () => glow?.dispose(), [glow]);
 
   useFrame((state, delta) => {
+    const visibility = universeState.reducedMotion
+      ? 1
+      : getPlanetaryBodyVisibility(universeState.progress, "Sun");
+    if (group.current) group.current.visible = visibility > 0.001;
+    if (body.current) {
+      (body.current.material as THREE.MeshBasicMaterial).opacity = visibility;
+    }
     if (!universeState.ambientMotionPaused && !universeState.reducedMotion) {
       if (body.current) body.current.rotation.y += delta * 0.04;
-      if (corona.current) {
-        corona.current.opacity = 0.76 + Math.sin(state.clock.elapsedTime * 0.7) * 0.06;
-      }
+    }
+    if (corona.current) {
+      corona.current.opacity = visibility * (
+        universeState.ambientMotionPaused || universeState.reducedMotion
+          ? 0.76
+          : 0.76 + Math.sin(state.clock.elapsedTime * 0.7) * 0.06
+      );
     }
   });
 
   return (
     <group>
-      {glow && (
-        <sprite position={[0, 0, 0]} scale={[30, 30, 1]} renderOrder={-1}>
-          <spriteMaterial
-            ref={corona}
-            map={glow}
-            transparent
-            opacity={0.82}
-            depthWrite={false}
-            blending={THREE.AdditiveBlending}
-            toneMapped={false}
-          />
-        </sprite>
-      )}
       <pointLight
         color={getSpaceColor("planet-cream")}
         intensity={3600}
         distance={210}
         decay={1.65}
       />
-      <mesh ref={body}>
-        <sphereGeometry args={[3.2, 64, 48]} />
-        <meshBasicMaterial
-          key={surface ? "surface-ready" : "surface-placeholder"}
-          map={surface}
-          color={getSpaceColor(surface ? "starlight" : "gold")}
-          toneMapped={false}
-        />
-      </mesh>
+      <group ref={group}>
+        {glow && (
+          <sprite position={[0, 0, 0]} scale={[30, 30, 1]} renderOrder={-1}>
+            <spriteMaterial
+              ref={corona}
+              map={glow}
+              transparent
+              opacity={0.82}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+              toneMapped={false}
+            />
+          </sprite>
+        )}
+        <mesh ref={body}>
+          <sphereGeometry args={[3.2, 64, 48]} />
+          <meshBasicMaterial
+            key={surface ? "surface-ready" : "surface-placeholder"}
+            map={surface}
+            color={getSpaceColor(surface ? "starlight" : "gold")}
+            transparent
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </mesh>
+      </group>
     </group>
   );
 }
@@ -638,6 +681,14 @@ export function PlanetarySystem({
   const [textures, setTextures] = useState<Record<string, PlanetSurfaceTextures>>({});
   const [moonTextures, setMoonTextures] = useState<Record<string, PlanetSurfaceTextures>>({});
   const [solarSurface, setSolarSurface] = useState<THREE.Texture | null>(null);
+  const saturnMoons = useRef<THREE.Group>(null);
+
+  useFrame(() => {
+    if (saturnMoons.current) {
+      saturnMoons.current.visible = !universeState.reducedMotion &&
+        getPlanetaryBodyVisibility(universeState.progress, "Saturn") > 0.001;
+    }
+  });
 
   useEffect(() => {
     let disposed = false;
@@ -741,7 +792,7 @@ export function PlanetarySystem({
           moonTextures={moonTextures}
         />
       ))}
-      <group position={SATURN_POSITION}>
+      <group ref={saturnMoons} position={SATURN_POSITION}>
         {MOONS.filter((moon) => moon.host === "Saturn").map((moon) => (
           <NaturalSatellite
             key={moon.name}

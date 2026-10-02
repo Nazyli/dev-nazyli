@@ -7,33 +7,7 @@ import {
   cameraTargetPath,
 } from "@/lib/cameraPath";
 
-const OPENING_SYSTEM_OFFSET = -18;
-const OPENING_SYSTEM_LATERAL_OFFSET = -5;
-const OPENING_SYSTEM_EXIT_LATERAL_OFFSET = -28;
-
-function getOpeningSystemProgress(progress: number) {
-  const tourStart = CAMERA_SCROLL_STOPS[2];
-  const transitionStart = CAMERA_SCROLL_STOPS[0];
-  if (!Number.isFinite(tourStart) || tourStart <= 0) {
-    return progress <= 0 ? 0 : 1;
-  }
-
-  const scrollProgress = THREE.MathUtils.clamp(progress, 0, 1);
-  if (tourStart <= transitionStart) return scrollProgress >= tourStart ? 1 : 0;
-  return THREE.MathUtils.smoothstep(scrollProgress, transitionStart, tourStart);
-}
-
-export function getOpeningSystemOffset(progress: number) {
-  return OPENING_SYSTEM_OFFSET * (1 - getOpeningSystemProgress(progress));
-}
-
-export function getOpeningSystemLateralOffset(progress: number) {
-  return THREE.MathUtils.lerp(
-    OPENING_SYSTEM_LATERAL_OFFSET,
-    OPENING_SYSTEM_EXIT_LATERAL_OFFSET,
-    getOpeningSystemProgress(progress),
-  );
-}
+export const OPENING_SYSTEM_Z = -18;
 
 export const PLANETARY_TOUR_BODIES = [
   { name: "Mercury", radius: 1.1, orbitRadius: 10, x: 0, y: 0, viewDistance: 7.2 },
@@ -42,7 +16,7 @@ export const PLANETARY_TOUR_BODIES = [
   { name: "Mars", radius: 1.25, orbitRadius: 36, x: 2.5, y: -0.2, viewDistance: 8.4 },
   { name: "Ceres", radius: 0.88, orbitRadius: 44, x: -2.5, y: 0.35, viewDistance: 7.4 },
   { name: "Jupiter", radius: 3.1, orbitRadius: 56, x: 3.5, y: 0.15, viewDistance: 17 },
-  { name: "Saturn", radius: 2.72, orbitRadius: 70, x: -3.5, y: 0.4, viewDistance: 15.2 },
+  { name: "Saturn", radius: 2.72, orbitRadius: 70, x: -3.5, y: 0.4, viewDistance: 34 },
   { name: "Uranus", radius: 2.05, orbitRadius: 84, x: 2.5, y: -0.28, viewDistance: 12.2 },
   { name: "Neptune", radius: 2.35, orbitRadius: 99, x: -3.2, y: 0.22, viewDistance: 13.6 },
   { name: "Pluto", radius: 0.9, orbitRadius: 108, x: 3.4, y: -0.25, viewDistance: 7.4 },
@@ -52,11 +26,70 @@ export const PLANETARY_TOUR_BODIES = [
 ] as const;
 
 export type PlanetaryTourBodyName = (typeof PLANETARY_TOUR_BODIES)[number]["name"];
+export type PlanetaryFocusName = "Sun" | PlanetaryTourBodyName;
+export type PlanetaryTourReadout = { body: PlanetaryFocusName; index: number };
 
-export type PlanetaryTourReadout = {
-  body: PlanetaryTourBodyName;
-  index: number;
-};
+const FOCUS_NAMES = [
+  "Sun", "Mercury", "Venus", "Earth", "Mars",
+  "Jupiter", "Saturn", "Uranus", "Neptune",
+] as const;
+export const PLANETARY_FOCUS_COUNT = FOCUS_NAMES.length;
+
+const BODY_POSITIONS = PLANETARY_TOUR_BODIES.map(
+  ({ orbitRadius, x, y }, index) => {
+    const orbitalPhase = THREE.MathUtils.degToRad(58 - index * 2.6);
+    const localPhase = Math.asin(THREE.MathUtils.clamp(x / orbitRadius, -1, 1));
+    const phase = orbitalPhase + localPhase * 0.35;
+    const depth = Math.cos(phase) * orbitRadius;
+    const inclination = THREE.MathUtils.degToRad(8);
+    return new THREE.Vector3(
+      Math.sin(phase) * orbitRadius,
+      y + depth * Math.sin(inclination),
+      depth * Math.cos(inclination),
+    );
+  },
+);
+
+const BODY_INDEX = new Map(
+  PLANETARY_TOUR_BODIES.map((body, index) => [body.name, index]),
+);
+
+const FOCUS_POINTS = FOCUS_NAMES.map((name) => {
+  if (name === "Sun") return new THREE.Vector3(0, 0, OPENING_SYSTEM_Z);
+  const index = BODY_INDEX.get(name)!;
+  return BODY_POSITIONS[index].clone().add(new THREE.Vector3(0, 0, OPENING_SYSTEM_Z));
+});
+
+const APPROACH_POINTS = FOCUS_NAMES.map((name, index) => {
+  const point = FOCUS_POINTS[index];
+  const distance = name === "Sun"
+    ? 22
+    : PLANETARY_TOUR_BODIES[BODY_INDEX.get(name)!].viewDistance;
+  return point.clone().add(new THREE.Vector3(
+    name === "Sun" ? 0 : -distance * 0.12,
+    name === "Sun" ? 0 : distance * 0.16,
+    -distance,
+  ));
+});
+
+const CLOSE_POINTS = FOCUS_NAMES.map((name, index) =>
+  FOCUS_POINTS[index].clone().lerp(
+    APPROACH_POINTS[index],
+    name === "Sun" ? 0.5 : 0.57,
+  ),
+);
+
+function smooth(progress: number) {
+  const t = THREE.MathUtils.clamp(progress, 0, 1);
+  return t * t * (3 - 2 * t);
+}
+
+function getTourStage(progress: number) {
+  const tourEnd = Math.max(CAMERA_SCROLL_STOPS[5], 0.0001);
+  const scaled = THREE.MathUtils.clamp(progress / tourEnd, 0, 1) * FOCUS_NAMES.length;
+  const index = Math.min(FOCUS_NAMES.length - 1, Math.floor(scaled));
+  return { index, phase: Math.min(1, scaled - index) };
+}
 
 let currentReadout: PlanetaryTourReadout | null = null;
 const readoutListeners = new Set<() => void>();
@@ -71,103 +104,50 @@ export function getPlanetaryTourReadout() {
 }
 
 export function updatePlanetaryTourReadout(progress: number) {
-  const start = CAMERA_SCROLL_STOPS[2];
-  const end = CAMERA_SCROLL_STOPS[6];
-  const labelStart = start + ((end - start) * 0.5) / (PLANETARY_TOUR_BODIES.length + 1);
-  const labelEnd = start +
-    ((end - start) * (PLANETARY_TOUR_BODIES.length + 0.2)) /
-      (PLANETARY_TOUR_BODIES.length + 1);
-  let nextReadout: PlanetaryTourReadout | null = null;
-
-  if (progress >= labelStart && progress < labelEnd) {
-    const waypoint = getPlanetaryTourProgress(progress) * (PLANETARY_TOUR_BODIES.length + 1);
-    const index = THREE.MathUtils.clamp(
-      Math.round(waypoint) - 1,
-      0,
-      PLANETARY_TOUR_BODIES.length - 1,
-    );
-    nextReadout = { body: PLANETARY_TOUR_BODIES[index].name, index };
+  const end = CAMERA_SCROLL_STOPS[5];
+  let next: PlanetaryTourReadout | null = null;
+  if (progress <= end && end > 0) {
+    const { index, phase } = getTourStage(progress);
+    const focusIndex = phase > 0.76 && index < FOCUS_NAMES.length - 1
+      ? index + 1
+      : index;
+    next = { body: FOCUS_NAMES[focusIndex], index: focusIndex };
   }
-
-  if (nextReadout?.index === currentReadout?.index) return;
-  currentReadout = nextReadout;
+  if (next?.index === currentReadout?.index) return;
+  currentReadout = next;
   readoutListeners.forEach((listener) => listener());
 }
-
-const BODY_POSITIONS = PLANETARY_TOUR_BODIES.map(
-  ({ orbitRadius, x, y }, index) => {
-    const orbitalPhase = THREE.MathUtils.degToRad(58 - index * 2.6);
-    const localPhase = Math.asin(
-      THREE.MathUtils.clamp(x / orbitRadius, -1, 1),
-    );
-    const phase = -orbitalPhase + localPhase * 0.35;
-
-    const orbitalInclination = THREE.MathUtils.degToRad(8);
-    const depth = Math.cos(phase) * orbitRadius;
-
-    return new THREE.Vector3(
-      Math.sin(phase) * orbitRadius,
-      y + depth * Math.sin(orbitalInclination),
-      depth * Math.cos(orbitalInclination),
-    );
-  },
-);
-
-const CAMERA_POINTS = [
-  cameraPath.getPointAt(CAMERA_POSITION_STOPS[0]),
-  cameraPath.getPointAt(CAMERA_POSITION_STOPS[1]),
-  cameraPath.getPointAt(CAMERA_POSITION_STOPS[2]),
-  ...PLANETARY_TOUR_BODIES.map((body, index) =>
-    BODY_POSITIONS[index].clone().add(
-      new THREE.Vector3(
-        -body.viewDistance * 0.2,
-        body.viewDistance * 0.44,
-        -body.viewDistance,
-      ),
-    ),
-  ),
-  cameraPath.getPointAt(CAMERA_POSITION_STOPS[6]),
-];
-
-const TARGET_POINTS = [
-  cameraTargetPath.getPointAt(CAMERA_TARGET_STOPS[0]),
-  cameraTargetPath.getPointAt(CAMERA_TARGET_STOPS[1]),
-  cameraTargetPath.getPointAt(CAMERA_TARGET_STOPS[2]),
-  ...BODY_POSITIONS.map((position, index) =>
-    position.clone().add(
-      new THREE.Vector3(
-        PLANETARY_TOUR_BODIES[index].viewDistance *
-          -0.2,
-        0,
-        0,
-      ),
-    ),
-  ),
-  new THREE.Vector3(4, 3.5, 138),
-];
-
-const cameraTour = new THREE.CatmullRomCurve3(CAMERA_POINTS, false, "centripetal");
-const targetTour = new THREE.CatmullRomCurve3(TARGET_POINTS, false, "centripetal");
-const TOUR_SEGMENTS = CAMERA_POINTS.length - 1;
-const ABOUT_TOUR_PROGRESS = 1 / TOUR_SEGMENTS;
-const EXPERTISE_TOUR_PROGRESS = 2 / TOUR_SEGMENTS;
-const BODY_INDEX = new Map(
-  PLANETARY_TOUR_BODIES.map((body, index) => [body.name, index]),
-);
 
 export function getPlanetaryBodyPosition(
   name: PlanetaryTourBodyName,
   target: THREE.Vector3,
 ) {
-  const index = BODY_INDEX.get(name) ?? 0;
-  return target.copy(BODY_POSITIONS[index]);
+  return target.copy(BODY_POSITIONS[BODY_INDEX.get(name) ?? 0]);
 }
 
-export function getPlanetaryTourProgress(progress: number) {
-  const start = CAMERA_SCROLL_STOPS[2];
-  const end = CAMERA_SCROLL_STOPS[6];
-  const span = Math.max(0.0001, end - start);
-  return THREE.MathUtils.clamp((progress - start) / span, 0, 1);
+export function getPlanetaryBodyVisibility(
+  progress: number,
+  name: PlanetaryFocusName,
+) {
+  const focusIndex = FOCUS_NAMES.findIndex((focus) => focus === name);
+  if (focusIndex < 0) return 0;
+  if (progress > CAMERA_SCROLL_STOPS[5]) {
+    return focusIndex === FOCUS_NAMES.length - 1
+      ? 1 - smooth(
+          (progress - CAMERA_SCROLL_STOPS[5]) /
+            Math.max(0.0001, (CAMERA_SCROLL_STOPS[6] - CAMERA_SCROLL_STOPS[5]) * 0.72),
+        )
+      : 0;
+  }
+
+  const { index, phase } = getTourStage(progress);
+  if (focusIndex === index) {
+    return index === FOCUS_NAMES.length - 1
+      ? 1
+      : 1 - smooth((phase - 0.56) / 0.36);
+  }
+  if (focusIndex === index + 1) return smooth((phase - 0.54) / 0.38);
+  return 0;
 }
 
 export function getPlanetaryTourPose(
@@ -175,37 +155,30 @@ export function getPlanetaryTourPose(
   position: THREE.Vector3,
   target: THREE.Vector3,
 ) {
-  const start = CAMERA_SCROLL_STOPS[0];
-  const about = CAMERA_SCROLL_STOPS[1];
-  const expertise = CAMERA_SCROLL_STOPS[2];
-  const end = CAMERA_SCROLL_STOPS[6];
-  if (progress < start || progress > end) return false;
+  const tourEnd = CAMERA_SCROLL_STOPS[5];
+  const contact = CAMERA_SCROLL_STOPS[6];
+  if (progress < 0 || progress > contact) return false;
 
-  const localProgress = progress <= about
-    ? THREE.MathUtils.mapLinear(
-        progress,
-        start,
-        about,
-        0,
-        ABOUT_TOUR_PROGRESS,
-      )
-    : progress <= expertise
-      ? THREE.MathUtils.mapLinear(
-          progress,
-          about,
-          expertise,
-          ABOUT_TOUR_PROGRESS,
-          EXPERTISE_TOUR_PROGRESS,
-        )
-      : THREE.MathUtils.mapLinear(
-          progress,
-          expertise,
-          end,
-          EXPERTISE_TOUR_PROGRESS,
-          1,
-        );
-  cameraTour.getPoint(localProgress, position);
-  targetTour.getPoint(localProgress, target);
+  if (progress > tourEnd) {
+    const blend = smooth((progress - tourEnd) / Math.max(0.0001, contact - tourEnd));
+    cameraPath.getPointAt(CAMERA_POSITION_STOPS[6], position);
+    cameraTargetPath.getPointAt(CAMERA_TARGET_STOPS[6], target);
+    position.lerpVectors(CLOSE_POINTS[CLOSE_POINTS.length - 1], position, blend);
+    target.lerpVectors(FOCUS_POINTS[FOCUS_POINTS.length - 1], target, blend);
+    return true;
+  }
+
+  const { index, phase } = getTourStage(progress);
+  const focus = FOCUS_POINTS[index];
+  const approach = APPROACH_POINTS[index];
+  const close = CLOSE_POINTS[index];
+  if (phase < 0.56 || index === FOCUS_NAMES.length - 1) {
+    position.copy(approach).lerp(close, smooth((phase - 0.12) / 0.44));
+    target.copy(focus);
+  } else {
+    const blend = smooth((phase - 0.56) / 0.36);
+    position.copy(close).lerp(APPROACH_POINTS[index + 1], blend);
+    target.copy(focus).lerp(FOCUS_POINTS[index + 1], blend);
+  }
   return true;
 }
-
