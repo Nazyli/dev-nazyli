@@ -38,8 +38,8 @@ export const PLANETARY_FOCUS_COUNT = FOCUS_NAMES.length - 1;
 
 const SUN_DISTANCE = 26;
 
-const ORBIT_PHASE_START = 48;
-const ORBIT_PHASE_STEP = 1.8;
+const ORBIT_PHASE_START = -25;
+const ORBIT_PHASE_STEP = -360 / 13;
 export const ORBIT_INCLINATION = 20;
 
 const SUN_LOCAL = new THREE.Vector3(0, 0, 0);

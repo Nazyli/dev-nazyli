@@ -99,6 +99,24 @@ function ContextLossSignal({ onContextLost }: { onContextLost?: () => void }) {
   return null;
 }
 
+function CameraFillLight() {
+  const light = useRef<THREE.PointLight>(null);
+
+  useFrame(({ camera }) => {
+    light.current?.position.copy(camera.position);
+  });
+
+  return (
+    <pointLight
+      ref={light}
+      color={getSpaceColor("starlight")}
+      intensity={26}
+      distance={90}
+      decay={1.6}
+    />
+  );
+}
+
 export function SpaceScene({
   onReady,
   onContextLost,
@@ -140,9 +158,10 @@ export function SpaceScene({
       >
         <InvalidateOnDemand enabled={pageVisible && demandRender} />
         <ContextLossSignal onContextLost={onContextLost} />
-        <ambientLight intensity={0.07} />
+        <ambientLight intensity={0.1} />
         <directionalLight position={[-14, 5, -9]} intensity={0.12} color={getSpaceColor("planet-cream")} />
         <directionalLight position={[10, -4, 6]} intensity={0.04} color={getSpaceColor("nebula-blue")} />
+        <CameraFillLight />
         <Nebula />
         <DustClouds />
         <DeepSkyGalaxy />
