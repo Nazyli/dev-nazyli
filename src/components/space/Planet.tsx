@@ -80,7 +80,7 @@ export function Planet({ position, radius = 2 }: PlanetProps) {
         />
       </mesh>
       <mesh ref={rings}>
-        <ringGeometry args={[radius * 1.32, radius * 2.35, 128]} />
+        <ringGeometry args={[radius * 1.32, radius * 1.9, 128]} />
         <meshStandardMaterial
           map={ringMap}
           transparent

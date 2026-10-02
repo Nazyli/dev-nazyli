@@ -14,6 +14,7 @@ import { universeState } from "@/lib/universeState";
 import { useAmbientMotionPaused } from "@/hooks/useAmbientMotionPaused";
 import {
   getPlanetaryTourPose,
+  getTourRoll,
   updatePlanetaryTourReadout,
 } from "@/lib/planetaryTour";
 
@@ -56,6 +57,7 @@ export function SpaceCamera() {
         getPlanetaryTourPose(0, tmpPosition, tmpTarget);
         camera.position.copy(tmpPosition);
         smoothedTarget.current.copy(tmpTarget);
+        camera.up.set(0, 1, 0);
         camera.lookAt(tmpTarget);
       }
       return;
@@ -135,6 +137,8 @@ export function SpaceCamera() {
     tmpTarget.copy(smoothedTarget.current);
     tmpTarget.x += universeState.mouseX * 0.6;
     tmpTarget.y += universeState.mouseY * 0.4;
+    const roll = getTourRoll(universeState.progress);
+    camera.up.set(Math.sin(roll), Math.cos(roll), 0);
     camera.lookAt(tmpTarget);
   });
 

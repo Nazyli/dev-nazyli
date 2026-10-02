@@ -19,7 +19,7 @@ import {
 } from "@/lib/planetaryTextures";
 import { getSpaceColor, type SpaceColorToken } from "@/lib/spaceColors";
 import {
-  PLANETARY_DIAGONAL_POINTS,
+  ORBIT_INCLINATION,
   PLANETARY_TOUR_BODIES,
   type PlanetaryTourBodyName,
   getPlanetaryBodyPosition,
@@ -91,7 +91,7 @@ const PLANET_VISUALS: Record<PlanetaryTourBodyName, Omit<PlanetSpec, "name">> = 
     bumpScale: 0.03,
   },
   Ceres: {
-    radius: 0.88,
+    radius: 1.2,
     surface: "rocky",
     palette: ["planet-basalt", "planet-lunar", "planet-cream"],
     atmosphere: null,
@@ -143,7 +143,7 @@ const PLANET_VISUALS: Record<PlanetaryTourBodyName, Omit<PlanetSpec, "name">> = 
     cloudOpacity: 0.2,
   },
   Pluto: {
-    radius: 0.9,
+    radius: 1.25,
     surface: "icy",
     palette: ["planet-ocean", "planet-ice", "planet-cloud"],
     atmosphere: "planet-ice",
@@ -153,7 +153,7 @@ const PLANET_VISUALS: Record<PlanetaryTourBodyName, Omit<PlanetSpec, "name">> = 
     cloudOpacity: 0.08,
   },
   Haumea: {
-    radius: 0.72,
+    radius: 1.32,
     surface: "rocky",
     palette: ["planet-ice", "planet-lunar", "planet-cloud"],
     atmosphere: null,
@@ -163,7 +163,7 @@ const PLANET_VISUALS: Record<PlanetaryTourBodyName, Omit<PlanetSpec, "name">> = 
     shape: [1.34, 0.72, 0.82],
   },
   Eris: {
-    radius: 0.82,
+    radius: 1.45,
     surface: "icy",
     palette: ["planet-basalt", "planet-ice", "planet-lunar"],
     atmosphere: null,
@@ -172,7 +172,7 @@ const PLANET_VISUALS: Record<PlanetaryTourBodyName, Omit<PlanetSpec, "name">> = 
     bumpScale: 0.02,
   },
   Makemake: {
-    radius: 0.78,
+    radius: 1.3,
     surface: "icy",
     palette: ["planet-rust", "planet-ochre", "planet-cream"],
     atmosphere: null,
@@ -654,38 +654,17 @@ function SolarCore({ surface }: { surface: THREE.Texture | null }) {
 }
 
 function TrajectoryPath() {
-  const trajectory = useMemo(() => {
-    const geometry = new THREE.BufferGeometry().setFromPoints([
-      ...PLANETARY_DIAGONAL_POINTS,
-    ]);
-    const material = new THREE.LineBasicMaterial({
-      color: new THREE.Color(getSpaceColor("gold-muted")),
-      transparent: true,
-      opacity: 0.22,
-      depthWrite: false,
-      toneMapped: false,
-    });
-    return new THREE.Line(geometry, material);
-  }, []);
-
-  useEffect(
-    () => () => {
-      trajectory.geometry.dispose();
-      (trajectory.material as THREE.Material).dispose();
-    },
-    [trajectory],
-  );
+  const inclination = THREE.MathUtils.degToRad(ORBIT_INCLINATION);
 
   return (
-    <group>
-      <primitive object={trajectory} />
-      {PLANETARY_DIAGONAL_POINTS.map((point, index) => (
-        <mesh key={index} position={point}>
-          <sphereGeometry args={[0.09, 12, 12]} />
+    <group rotation={[Math.PI / 2 - inclination, 0, 0]}>
+      {PLANETARY_TOUR_BODIES.map((body) => (
+        <mesh key={body.name}>
+          <torusGeometry args={[body.orbitRadius, 0.012, 4, 320]} />
           <meshBasicMaterial
-            color={getSpaceColor("gold")}
+            color={getSpaceColor("gold-muted")}
             transparent
-            opacity={0.65}
+            opacity={0.1}
             depthWrite={false}
             toneMapped={false}
           />
