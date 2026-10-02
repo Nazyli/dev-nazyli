@@ -24,7 +24,7 @@ export function Planet({ position, radius = 2 }: PlanetProps) {
   useEffect(() => {
     let disposed = false;
     let generatedMap: THREE.Texture | null = null;
-    void loadPlanetImageTexture("/textures/planetary/2k_saturn.jpg")
+    void loadPlanetImageTexture("/textures/planetary/2k_saturn.webp")
       .then((texture) => {
         if (!disposed) setMap(texture);
       })

@@ -21,16 +21,16 @@ const textureLoader = new THREE.TextureLoader();
 const loadedTextures = new Map<string, Promise<THREE.Texture>>();
 
 export const PLANET_IMAGE_TEXTURES: Partial<Record<PlanetaryTourBodyName, string>> = {
-  Mercury: "/textures/planetary/2k_mercury.jpg",
-  Venus: "/textures/planetary/2k_venus_surface.jpg",
-  Earth: "/textures/planetary/2k_earth_daymap.jpg",
-  Mars: "/textures/planetary/2k_mars.jpg",
-  Ceres: "/textures/planetary/2k_ceres_fictional.jpg",
-  Jupiter: "/textures/planetary/2k_jupiter.jpg",
-  Saturn: "/textures/planetary/2k_saturn.jpg",
-  Uranus: "/textures/planetary/2k_uranus.jpg",
-  Neptune: "/textures/planetary/2k_neptune.jpg",
-  Makemake: "/textures/planetary/2k_makemake_fictional.jpg",
+  Mercury: "/textures/planetary/2k_mercury.webp",
+  Venus: "/textures/planetary/2k_venus_surface.webp",
+  Earth: "/textures/planetary/2k_earth_daymap.webp",
+  Mars: "/textures/planetary/2k_mars.webp",
+  Ceres: "/textures/planetary/2k_ceres_fictional.webp",
+  Jupiter: "/textures/planetary/2k_jupiter.webp",
+  Saturn: "/textures/planetary/2k_saturn.webp",
+  Uranus: "/textures/planetary/2k_uranus.webp",
+  Neptune: "/textures/planetary/2k_neptune.webp",
+  Makemake: "/textures/planetary/2k_makemake_fictional.webp",
 };
 
 function loadImageTexture(url: string, color = true) {
@@ -64,17 +64,33 @@ export async function loadPlanetImageSurface(name: PlanetaryTourBodyName): Promi
   return {
     color: await loadImageTexture(colorUrl),
     height: null,
-    clouds: await loadImageTexture("/textures/planetary/2k_earth_clouds.jpg", false),
+    clouds: await loadImageTexture("/textures/planetary/2k_earth_clouds.webp", false),
     cloudsAreAlphaMap: true,
   };
 }
 
 export async function loadSolarImageTexture() {
-  return loadImageTexture("/textures/planetary/2k_sun.jpg");
+  return loadImageTexture("/textures/planetary/2k_sun.webp");
 }
 
 export async function loadEarthNightTexture() {
-  return loadImageTexture("/textures/planetary/2k_earth_nightmap.jpg");
+  return loadImageTexture("/textures/planetary/2k_earth_nightmap.webp");
+}
+
+export async function preloadPlanetaryImageTextures() {
+  const requests = new Map<string, boolean>(
+    Object.values(PLANET_IMAGE_TEXTURES)
+      .filter((url): url is string => typeof url === "string")
+      .map((url) => [url, true]),
+  );
+  requests.set("/textures/planetary/2k_earth_clouds.webp", false);
+  requests.set("/textures/planetary/2k_earth_nightmap.webp", true);
+  requests.set("/textures/planetary/2k_moon.webp", true);
+  requests.set("/textures/planetary/2k_sun.webp", true);
+
+  await Promise.allSettled(
+    [...requests].map(([url, color]) => loadImageTexture(url, color)),
+  );
 }
 
 export function disposeGeneratedSurfaceTextures(surfaces: PlanetSurfaceTextures[]) {

@@ -44,16 +44,34 @@ export function SpaceSceneDynamic() {
   useEffect(() => {
     if (reducedMotion) return;
     let alive = true;
-    const id = requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
+    let frameId = 0;
+    let loadingTimeout = 0;
+    frameId = requestAnimationFrame(() => {
+      frameId = requestAnimationFrame(() => {
         if (!alive) return;
-        setWebgl(supportsWebGL());
-        setMounted(true);
+        const supported = supportsWebGL();
+        setWebgl(supported);
+        if (!supported) {
+          setMounted(true);
+          return;
+        }
+
+        loadingTimeout = window.setTimeout(() => {
+          if (alive) setMounted(true);
+        }, 1100);
+        void import("@/lib/planetaryTextures")
+          .then(({ preloadPlanetaryImageTextures }) => preloadPlanetaryImageTextures())
+          .catch(() => {})
+          .finally(() => {
+            window.clearTimeout(loadingTimeout);
+            if (alive) setMounted(true);
+          });
       });
     });
     return () => {
       alive = false;
-      cancelAnimationFrame(id);
+      cancelAnimationFrame(frameId);
+      window.clearTimeout(loadingTimeout);
     };
   }, [reducedMotion]);
 

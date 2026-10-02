@@ -653,7 +653,7 @@ export function PlanetarySystem() {
         surface = solarTexture;
         setSolarSurface(solarTexture);
       }).catch(() => {});
-      const moonSurfaceTask = loadPlanetImageTexture("/textures/planetary/2k_moon.jpg")
+      const moonSurfaceTask = loadPlanetImageTexture("/textures/planetary/2k_moon.webp")
         .then((color) => ({ color, height: null, clouds: null }))
         .catch(() => makePlanetSurfaceTextures("rocky", 41003, MOONS[0].palette));
       void moonSurfaceTask.then((moonSurface) => {
