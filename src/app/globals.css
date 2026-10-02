@@ -14,8 +14,9 @@
 }
 
 @theme static {
-  --color-nebula-blue: #1e2a4a;
-  --color-nebula-teal: #12323e;
+  --color-nebula-blue: #365489;
+  --color-nebula-teal: #226275;
+  --color-nebula-violet: #593b86;
   --color-dust: #2a4a5c;
   --color-gold-muted: #c2a06a;
   --color-planet-basalt: #4d4c49;
@@ -305,6 +306,21 @@
   background-color: var(--color-void);
   background-image:
     radial-gradient(
+      ellipse 72% 48% at 70% 42%,
+      color-mix(in srgb, var(--color-nebula-violet) 52%, transparent) 0,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 64% 44% at 28% 58%,
+      color-mix(in srgb, var(--color-planet-cobalt) 43%, transparent) 0,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 46% 30% at 20% 22%,
+      color-mix(in srgb, var(--color-planet-aqua) 34%, transparent) 0,
+      transparent 72%
+    ),
+    radial-gradient(
       ellipse 55% 40% at 30% 18%,
       rgb(30 33 63 / 0.5) 0,
       transparent 70%
@@ -368,6 +384,31 @@
       1px 1px at 90% 82%,
       rgb(245 239 224 / 0.45) 0,
       transparent 100%
+    );
+}
+
+.space-nebula-backdrop {
+  background-color: var(--color-void);
+  background-image:
+    radial-gradient(
+      ellipse 76% 58% at 68% 38%,
+      color-mix(in srgb, var(--color-nebula-violet) 62%, transparent) 0,
+      transparent 74%
+    ),
+    radial-gradient(
+      ellipse 68% 52% at 26% 58%,
+      color-mix(in srgb, var(--color-nebula-blue) 70%, transparent) 0,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 52% 38% at 48% 78%,
+      color-mix(in srgb, var(--color-nebula-teal) 52%, transparent) 0,
+      transparent 74%
+    ),
+    radial-gradient(
+      ellipse 36% 28% at 14% 20%,
+      color-mix(in srgb, var(--color-accent) 20%, transparent) 0,
+      transparent 78%
     );
 }
 

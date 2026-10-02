@@ -7,6 +7,7 @@ export type SpaceColorToken =
   | "gold"
   | "nebula-blue"
   | "nebula-teal"
+  | "nebula-violet"
   | "dust"
   | "gold-muted"
   | "planet-basalt"

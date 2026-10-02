@@ -284,10 +284,10 @@ function makeNebulaTexture(seed: number): THREE.CanvasTexture {
       const dx = fx - 0.5;
       const dy = fy - 0.5;
       const r2 = dx * dx + dy * dy;
-      const falloff = Math.exp(-r2 * 4.6);
-      const rim = clamp(1 - r2 * 4.6, 0, 1);
-      const v = fbm(noise, fx * 3.4 + 40, fy * 3.4 + 40, 5);
-      const density = clamp((v - 0.52) * 5, 0, 1) * falloff * rim;
+      const falloff = Math.exp(-r2 * 3.1);
+      const rim = clamp(1 - r2 * 3.1, 0, 1);
+      const v = fbm(noise, fx * 2.6 + 40, fy * 3.2 + 40, 5);
+      const density = clamp((v - 0.42) * 6, 0, 1) * falloff * rim;
       const lum = 0.6 + 0.4 * fbm(detail, fx * 6 + 7, fy * 6 + 9, 4);
       const i = (y * W + x) * 4;
       const c = clamp(245 * lum, 0, 255);

@@ -16,15 +16,15 @@ type CloudDef = {
 };
 
 const CLOUDS: CloudDef[] = [
-  { position: [-16, 3, -48], scale: 44, texture: 0, color: "nebula-blue", opacity: 0.065 },
-  { position: [20, -5, -40], scale: 38, texture: 1, color: "nebula-teal", opacity: 0.055 },
-  { position: [-26, 7, -30], scale: 40, texture: 2, color: "indigo", opacity: 0.045 },
-  { position: [14, 9, -16], scale: 34, texture: 0, color: "nebula-teal", opacity: 0.06 },
-  { position: [-12, -8, -6], scale: 30, texture: 1, color: "nebula-blue", opacity: 0.05 },
-  { position: [22, 2, 4], scale: 36, texture: 2, color: "indigo", opacity: 0.04 },
-  { position: [-18, 6, 14], scale: 32, texture: 0, color: "nebula-teal", opacity: 0.05 },
-  { position: [10, -3, 24], scale: 28, texture: 1, color: "nebula-blue", opacity: 0.045 },
-  { position: [-8, 1, 34], scale: 26, texture: 2, color: "nebula-teal", opacity: 0.05 },
+  { position: [-2, 5, -34], scale: 58, texture: 0, color: "nebula-blue", opacity: 0.28 },
+  { position: [8, -3, -28], scale: 54, texture: 1, color: "nebula-violet", opacity: 0.25 },
+  { position: [-8, -7, -38], scale: 56, texture: 2, color: "nebula-teal", opacity: 0.22 },
+  { position: [14, 9, -16], scale: 40, texture: 0, color: "nebula-teal", opacity: 0.12 },
+  { position: [-12, -8, -6], scale: 38, texture: 1, color: "nebula-blue", opacity: 0.105 },
+  { position: [22, 2, 4], scale: 42, texture: 2, color: "nebula-violet", opacity: 0.1 },
+  { position: [-18, 6, 14], scale: 38, texture: 0, color: "nebula-teal", opacity: 0.105 },
+  { position: [10, -3, 24], scale: 34, texture: 1, color: "nebula-blue", opacity: 0.095 },
+  { position: [-8, 1, 34], scale: 34, texture: 2, color: "nebula-violet", opacity: 0.095 },
 ];
 
 const DUST_LANES: CloudDef[] = [
@@ -33,21 +33,21 @@ const DUST_LANES: CloudDef[] = [
 ];
 
 const EMISSION: CloudDef[] = [
-  { position: [-9, -1, -46], scale: 38, texture: 0, color: "gold", opacity: 0.05 },
-  { position: [14, 4, -38], scale: 34, texture: 1, color: "accent", opacity: 0.04 },
-  { position: [-20, 5, -30], scale: 40, texture: 2, color: "indigo", opacity: 0.04 },
-  { position: [-12, 2, 12], scale: 36, texture: 0, color: "gold", opacity: 0.035 },
-  { position: [8, 6, 18], scale: 32, texture: 1, color: "accent", opacity: 0.03 },
+  { position: [-9, -1, -46], scale: 42, texture: 0, color: "nebula-blue", opacity: 0.085 },
+  { position: [14, 4, -38], scale: 40, texture: 1, color: "nebula-violet", opacity: 0.09 },
+  { position: [-20, 5, -30], scale: 44, texture: 2, color: "nebula-teal", opacity: 0.075 },
+  { position: [-12, 2, 12], scale: 40, texture: 0, color: "gold", opacity: 0.045 },
+  { position: [8, 6, 18], scale: 36, texture: 1, color: "accent", opacity: 0.05 },
 ];
 
 const REFLECTION: CloudDef[] = [
-  { position: [0, 0, -44], scale: 56, texture: 1, color: "indigo", opacity: 0.05 },
-  { position: [8, 3, -44], scale: 34, texture: 1, color: "accent", opacity: 0.055 },
-  { position: [-6, 6, -24], scale: 36, texture: 0, color: "accent", opacity: 0.05 },
-  { position: [16, -3, -12], scale: 32, texture: 2, color: "indigo", opacity: 0.045 },
-  { position: [2, 5, 6], scale: 34, texture: 1, color: "accent", opacity: 0.045 },
-  { position: [-10, 3, 22], scale: 30, texture: 0, color: "accent", opacity: 0.04 },
-  { position: [4, 2, 30], scale: 36, texture: 2, color: "indigo", opacity: 0.045 },
+  { position: [0, 0, -44], scale: 58, texture: 1, color: "nebula-violet", opacity: 0.095 },
+  { position: [8, 3, -44], scale: 40, texture: 1, color: "nebula-blue", opacity: 0.09 },
+  { position: [-6, 6, -24], scale: 40, texture: 0, color: "accent", opacity: 0.075 },
+  { position: [16, -3, -12], scale: 38, texture: 2, color: "nebula-violet", opacity: 0.085 },
+  { position: [2, 5, 6], scale: 38, texture: 1, color: "nebula-teal", opacity: 0.075 },
+  { position: [-10, 3, 22], scale: 36, texture: 0, color: "nebula-blue", opacity: 0.07 },
+  { position: [4, 2, 30], scale: 40, texture: 2, color: "nebula-violet", opacity: 0.08 },
 ];
 
 const SEEDS = [10101, 20202, 30303];

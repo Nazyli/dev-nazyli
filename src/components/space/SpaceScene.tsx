@@ -116,14 +116,14 @@ export function SpaceScene({
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-0"
+      className="space-nebula-backdrop pointer-events-none fixed inset-0 z-0"
     >
       <Canvas
         frameloop={
           !pageVisible ? "never" : demandRender ? "demand" : "always"
         }
         dpr={[1, 1.75]}
-        gl={{ antialias: true, powerPreference: "high-performance" }}
+        gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
         camera={{ fov: 55, near: 0.1, far: 500, position: [0, 0, -46] }}
       >
         <InvalidateOnDemand enabled={pageVisible && demandRender} />
