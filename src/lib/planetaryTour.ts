@@ -12,12 +12,14 @@ const OPENING_SYSTEM_LATERAL_OFFSET = -5;
 
 function getOpeningSystemProgress(progress: number) {
   const tourStart = CAMERA_SCROLL_STOPS[2];
+  const transitionStart = CAMERA_SCROLL_STOPS[1];
   if (!Number.isFinite(tourStart) || tourStart <= 0) {
     return progress <= 0 ? 0 : 1;
   }
 
   const scrollProgress = THREE.MathUtils.clamp(progress, 0, 1);
-  return THREE.MathUtils.smoothstep(scrollProgress, 0, tourStart);
+  if (tourStart <= transitionStart) return scrollProgress >= tourStart ? 1 : 0;
+  return THREE.MathUtils.smoothstep(scrollProgress, transitionStart, tourStart);
 }
 
 export function getOpeningSystemOffset(progress: number) {
@@ -107,6 +109,8 @@ const BODY_POSITIONS = PLANETARY_TOUR_BODIES.map(
 );
 
 const CAMERA_POINTS = [
+  cameraPath.getPointAt(CAMERA_POSITION_STOPS[0]),
+  cameraPath.getPointAt(CAMERA_POSITION_STOPS[1]),
   cameraPath.getPointAt(CAMERA_POSITION_STOPS[2]),
   ...PLANETARY_TOUR_BODIES.map((body, index) =>
     BODY_POSITIONS[index].clone().add(
@@ -121,6 +125,8 @@ const CAMERA_POINTS = [
 ];
 
 const TARGET_POINTS = [
+  cameraTargetPath.getPointAt(CAMERA_TARGET_STOPS[0]),
+  cameraTargetPath.getPointAt(CAMERA_TARGET_STOPS[1]),
   cameraTargetPath.getPointAt(CAMERA_TARGET_STOPS[2]),
   ...BODY_POSITIONS.map((position, index) =>
     position.clone().add(
@@ -138,6 +144,9 @@ const TARGET_POINTS = [
 
 const cameraTour = new THREE.CatmullRomCurve3(CAMERA_POINTS, false, "centripetal");
 const targetTour = new THREE.CatmullRomCurve3(TARGET_POINTS, false, "centripetal");
+const TOUR_SEGMENTS = CAMERA_POINTS.length - 1;
+const ABOUT_TOUR_PROGRESS = 1 / TOUR_SEGMENTS;
+const EXPERTISE_TOUR_PROGRESS = 2 / TOUR_SEGMENTS;
 const BODY_INDEX = new Map(
   PLANETARY_TOUR_BODIES.map((body, index) => [body.name, index]),
 );
@@ -162,11 +171,35 @@ export function getPlanetaryTourPose(
   position: THREE.Vector3,
   target: THREE.Vector3,
 ) {
-  const start = CAMERA_SCROLL_STOPS[2];
+  const start = CAMERA_SCROLL_STOPS[0];
+  const about = CAMERA_SCROLL_STOPS[1];
+  const expertise = CAMERA_SCROLL_STOPS[2];
   const end = CAMERA_SCROLL_STOPS[6];
   if (progress < start || progress > end) return false;
 
-  const localProgress = getPlanetaryTourProgress(progress);
+  const localProgress = progress <= about
+    ? THREE.MathUtils.mapLinear(
+        progress,
+        start,
+        about,
+        0,
+        ABOUT_TOUR_PROGRESS,
+      )
+    : progress <= expertise
+      ? THREE.MathUtils.mapLinear(
+          progress,
+          about,
+          expertise,
+          ABOUT_TOUR_PROGRESS,
+          EXPERTISE_TOUR_PROGRESS,
+        )
+      : THREE.MathUtils.mapLinear(
+          progress,
+          expertise,
+          end,
+          EXPERTISE_TOUR_PROGRESS,
+          1,
+        );
   cameraTour.getPoint(localProgress, position);
   targetTour.getPoint(localProgress, target);
   return true;
