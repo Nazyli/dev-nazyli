@@ -9,10 +9,11 @@ import {
 
 const OPENING_SYSTEM_OFFSET = -18;
 const OPENING_SYSTEM_LATERAL_OFFSET = -5;
+const OPENING_SYSTEM_EXIT_LATERAL_OFFSET = -28;
 
 function getOpeningSystemProgress(progress: number) {
   const tourStart = CAMERA_SCROLL_STOPS[2];
-  const transitionStart = CAMERA_SCROLL_STOPS[1];
+  const transitionStart = CAMERA_SCROLL_STOPS[0];
   if (!Number.isFinite(tourStart) || tourStart <= 0) {
     return progress <= 0 ? 0 : 1;
   }
@@ -27,7 +28,11 @@ export function getOpeningSystemOffset(progress: number) {
 }
 
 export function getOpeningSystemLateralOffset(progress: number) {
-  return OPENING_SYSTEM_LATERAL_OFFSET * (1 - getOpeningSystemProgress(progress));
+  return THREE.MathUtils.lerp(
+    OPENING_SYSTEM_LATERAL_OFFSET,
+    OPENING_SYSTEM_EXIT_LATERAL_OFFSET,
+    getOpeningSystemProgress(progress),
+  );
 }
 
 export const PLANETARY_TOUR_BODIES = [
