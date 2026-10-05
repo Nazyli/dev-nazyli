@@ -130,7 +130,7 @@ export function Expertise() {
           align="center"
           className="expertise-reveal"
         />
-        <h2 className="expertise-reveal mt-4 font-display text-3xl font-medium tracking-tight text-starlight sm:text-4xl">
+        <h2 className="expertise-reveal mt-4 font-display text-3xl font-medium tracking-tight text-starlight [text-shadow:0_1px_4px_#05060F] sm:text-4xl">
           A system of skills.
         </h2>
       </div>

@@ -191,7 +191,7 @@ export function SkillPlanet({
           <span
             ref={labelRef}
             style={{ transform: `rotate(${-skill.angleDeg}deg)` }}
-            className={`mt-1.5 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.15em] transition-colors duration-300 ${
+            className={`skill-orbit-label mt-1.5 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.15em] [text-shadow:0_1px_4px_#05060F] transition-colors duration-300 ${
               isActive ? "text-accent" : "text-starlight/80"
             }`}
           >
