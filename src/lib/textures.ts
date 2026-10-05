@@ -284,12 +284,13 @@ function makeNebulaTexture(seed: number): THREE.CanvasTexture {
       const dx = fx - 0.5;
       const dy = fy - 0.5;
       const r2 = dx * dx + dy * dy;
-      const falloff = Math.exp(-r2 * 3.1);
+      const falloff = Math.exp(-r2 * 4.2);
       const edgeDistance = Math.min(fx, 1 - fx, fy, 1 - fy);
-      const edgeProgress = clamp(edgeDistance / 0.24, 0, 1);
-      const edgeFade = edgeProgress * edgeProgress * (3 - 2 * edgeProgress);
+      const edgeProgress = clamp(edgeDistance / 0.38, 0, 1);
+      const edgeSmooth = edgeProgress * edgeProgress * (3 - 2 * edgeProgress);
+      const edgeFade = Math.pow(edgeSmooth, 1.4);
       const v = fbm(noise, fx * 2.6 + 40, fy * 3.2 + 40, 5);
-      const density = clamp((v - 0.42) * 6, 0, 1) * falloff * edgeFade;
+      const density = clamp((v - 0.38) * 4.8, 0, 1) * falloff * edgeFade;
       const lum = 0.6 + 0.4 * fbm(detail, fx * 6 + 7, fy * 6 + 9, 4);
       const i = (y * W + x) * 4;
       const c = clamp(245 * lum, 0, 255);
