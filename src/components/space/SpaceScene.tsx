@@ -172,7 +172,7 @@ export function SpaceScene({
         <group position={[0, 0, OPENING_SYSTEM_Z]}>
           <PlanetaryOrbitFrame>
             <PlanetarySystem onTexturesReady={markPlanetTexturesReady} />
-            <Planet position={SATURN_POSITION} radius={2.72} />
+            <Planet position={SATURN_POSITION} radius={2.72} orbitBodyName="Saturn" />
           </PlanetaryOrbitFrame>
         </group>
         <Comet />

@@ -48,6 +48,7 @@ export function SpaceCamera() {
 
   useFrame((state, delta) => {
     const camera = state.camera;
+    const frameDelta = Math.min(Math.max(delta, 0), 1 / 30);
     const reducedMotion = universeState.reducedMotion;
     updatePlanetaryTourReadout(
       reducedMotion ? 0 : universeState.progress,
@@ -95,37 +96,37 @@ export function SpaceCamera() {
       camera.position.x,
       tmpPosition.x,
       6,
-      delta
+      frameDelta
     );
     camera.position.y = THREE.MathUtils.damp(
       camera.position.y,
       tmpPosition.y,
       6,
-      delta
+      frameDelta
     );
     camera.position.z = THREE.MathUtils.damp(
       camera.position.z,
       tmpPosition.z,
       6,
-      delta
+      frameDelta
     );
     smoothedTarget.current.x = THREE.MathUtils.damp(
       smoothedTarget.current.x,
       tmpTarget.x,
       6,
-      delta,
+      frameDelta,
     );
     smoothedTarget.current.y = THREE.MathUtils.damp(
       smoothedTarget.current.y,
       tmpTarget.y,
       6,
-      delta,
+      frameDelta,
     );
     smoothedTarget.current.z = THREE.MathUtils.damp(
       smoothedTarget.current.z,
       tmpTarget.z,
       6,
-      delta,
+      frameDelta,
     );
     if (
       ambientMotionPaused &&

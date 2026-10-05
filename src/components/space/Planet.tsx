@@ -5,7 +5,11 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
 import { getSpaceColor } from "@/lib/spaceColors";
-import { getPlanetaryBodyVisibility } from "@/lib/planetaryTour";
+import {
+  getPlanetaryBodyPosition,
+  getPlanetaryBodyVisibility,
+  type PlanetaryTourBodyName,
+} from "@/lib/planetaryTour";
 import { makePlanetTexture, makeRingTexture } from "@/lib/textures";
 import {
   disposeGeneratedTexture,
@@ -15,12 +19,14 @@ import {
 type PlanetProps = {
   position: [number, number, number];
   radius?: number;
+  orbitBodyName?: PlanetaryTourBodyName;
 };
 
-export function Planet({ position, radius = 2 }: PlanetProps) {
+export function Planet({ position, radius = 2, orbitBodyName }: PlanetProps) {
   const group = useRef<THREE.Group>(null);
   const body = useRef<THREE.Mesh>(null);
   const rings = useRef<THREE.Mesh>(null);
+  const orbitPosition = useMemo(() => new THREE.Vector3(), []);
   const [map, setMap] = useState<THREE.Texture | null>(null);
   const ringMap = useMemo(() => makeRingTexture(), []);
 
@@ -51,6 +57,11 @@ export function Planet({ position, radius = 2 }: PlanetProps) {
       ? 1
       : getPlanetaryBodyVisibility(universeState.progress, "Saturn");
     if (group.current) {
+      if (orbitBodyName) {
+        group.current.position.copy(
+          getPlanetaryBodyPosition(orbitBodyName, orbitPosition),
+        );
+      }
       group.current.visible = visibility > 0.001;
       group.current.scale.setScalar(0.72 + visibility * 0.28);
     }

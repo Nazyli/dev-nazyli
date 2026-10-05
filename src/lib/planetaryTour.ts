@@ -43,23 +43,34 @@ const ORBIT_PHASE_STEP = -360 / 13;
 export const ORBIT_INCLINATION = 20;
 const ORBIT_AXIS = new THREE.Vector3(
   0,
-  -Math.cos(THREE.MathUtils.degToRad(ORBIT_INCLINATION)),
-  Math.sin(THREE.MathUtils.degToRad(ORBIT_INCLINATION)),
+  Math.cos(THREE.MathUtils.degToRad(ORBIT_INCLINATION)),
+  -Math.sin(THREE.MathUtils.degToRad(ORBIT_INCLINATION)),
 );
-const SYSTEM_CENTER = new THREE.Vector3(0, 0, OPENING_SYSTEM_Z);
-
-const ORBITAL_PERIOD_SECONDS = 360;
-let planetaryOrbitAngle = 0;
+const BASE_ORBITAL_PERIOD_SECONDS = 80;
+const planetaryOrbitAngles = new Map<PlanetaryTourBodyName, number>(
+  PLANETARY_TOUR_BODIES.map(({ name }) => [name, 0]),
+);
+const planetaryOrbitPeriods = new Map<PlanetaryTourBodyName, number>(
+  PLANETARY_TOUR_BODIES.map(({ name, orbitRadius }) => [
+    name,
+    BASE_ORBITAL_PERIOD_SECONDS * Math.pow(orbitRadius / 8, 1.5),
+  ]),
+);
 
 export function advancePlanetaryOrbit(delta: number) {
-  planetaryOrbitAngle = THREE.MathUtils.euclideanModulo(
-    planetaryOrbitAngle + (delta * Math.PI * 2) / ORBITAL_PERIOD_SECONDS,
-    Math.PI * 2,
-  );
+  const frameDelta = Math.min(Math.max(delta, 0), 0.05);
+  PLANETARY_TOUR_BODIES.forEach(({ name }) => {
+    const angle = planetaryOrbitAngles.get(name) ?? 0;
+    const period = planetaryOrbitPeriods.get(name) ?? BASE_ORBITAL_PERIOD_SECONDS;
+    planetaryOrbitAngles.set(
+      name,
+      THREE.MathUtils.euclideanModulo(angle + (frameDelta * Math.PI * 2) / period, Math.PI * 2),
+    );
+  });
 }
 
-export function getPlanetaryOrbitAngle() {
-  return planetaryOrbitAngle;
+export function getPlanetaryOrbitAngle(name: PlanetaryTourBodyName) {
+  return planetaryOrbitAngles.get(name) ?? 0;
 }
 
 const SUN_LOCAL = new THREE.Vector3(0, 0, 0);
@@ -126,6 +137,18 @@ const targetCurve = new THREE.CatmullRomCurve3(
   false,
   "centripetal",
 );
+const dynamicOrbitPosition = new THREE.Vector3();
+
+function updateTargetCurveForOrbits() {
+  FOCUS_NAMES.forEach((name, index) => {
+    const point = targetCurve.points[index];
+    if (name === "Sun") {
+      point.copy(FOCUS_POINTS[index]);
+      return;
+    }
+    point.copy(getPlanetaryBodyPosition(name, dynamicOrbitPosition)).add(SYSTEM_OFFSET);
+  });
+}
 
 const TILT_DIRECTION = new THREE.Vector3(-0.1, 0.12, -1).normalize();
 const STRAIGHT_DIRECTION = new THREE.Vector3(0, 0, -1);
@@ -164,6 +187,7 @@ function sampleTour(
   const frac = scaled - index;
   const phase = smooth(frac);
 
+  updateTargetCurveForOrbits();
   targetCurve.getPoint(clamped, target);
 
   const distances = [getSunDistance(aspect), ...CRUISE_DISTANCES.slice(1)];
@@ -259,7 +283,9 @@ export function getPlanetaryBodyPosition(
   target: THREE.Vector3,
 ) {
   if ((name as string) === "Sun") return target.copy(SUN_LOCAL);
-  return target.copy(BODY_LOCALS.get(name) ?? SUN_LOCAL);
+  return target
+    .copy(BODY_LOCALS.get(name) ?? SUN_LOCAL)
+    .applyAxisAngle(ORBIT_AXIS, getPlanetaryOrbitAngle(name));
 }
 
 export function getPlanetaryBodyVisibility(
@@ -291,14 +317,14 @@ export function getPlanetaryTourPose(
     const blend = smooth((progress - tourEnd) / Math.max(0.0001, contact - tourEnd));
     tailPositionCurve.getPoint(blend, position);
     tailTargetCurve.getPoint(blend, target);
-    const transitionAngle = planetaryOrbitAngle * (1 - blend);
-    position.sub(SYSTEM_CENTER).applyAxisAngle(ORBIT_AXIS, transitionAngle).add(SYSTEM_CENTER);
-    target.sub(SYSTEM_CENTER).applyAxisAngle(ORBIT_AXIS, transitionAngle).add(SYSTEM_CENTER);
+    getPlanetaryBodyPosition("Eris", dynamicOrbitPosition)
+      .add(SYSTEM_OFFSET)
+      .sub(FOCUS_POINTS[FOCUS_POINTS.length - 1]);
+    target.addScaledVector(dynamicOrbitPosition, 1 - blend);
+    position.addScaledVector(dynamicOrbitPosition, 1 - blend);
     return true;
   }
 
   sampleTour(THREE.MathUtils.clamp(progress / getTourEnd(), 0, 1), aspect, position, target);
-  position.sub(SYSTEM_CENTER).applyAxisAngle(ORBIT_AXIS, planetaryOrbitAngle).add(SYSTEM_CENTER);
-  target.sub(SYSTEM_CENTER).applyAxisAngle(ORBIT_AXIS, planetaryOrbitAngle).add(SYSTEM_CENTER);
   return true;
 }

@@ -23,7 +23,6 @@ import {
   PLANETARY_TOUR_BODIES,
   type PlanetaryTourBodyName,
   advancePlanetaryOrbit,
-  getPlanetaryOrbitAngle,
   getPlanetaryBodyPosition,
   getPlanetaryBodyVisibility,
 } from "@/lib/planetaryTour";
@@ -445,6 +444,7 @@ function CelestialPlanet({
     () => getPlanetaryBodyPosition(spec.name, new THREE.Vector3()).toArray() as [number, number, number],
     [spec.name],
   );
+  const orbitPosition = useMemo(() => new THREE.Vector3(), []);
   const atmosphere = useMemo(
     () => spec.atmosphere ? makeAtmosphere(spec.atmosphere) : null,
     [spec.atmosphere],
@@ -457,6 +457,7 @@ function CelestialPlanet({
       ? 1
       : getPlanetaryBodyVisibility(universeState.progress, spec.name);
     if (group.current) {
+      group.current.position.copy(getPlanetaryBodyPosition(spec.name, orbitPosition));
       group.current.visible = visibility > 0.001;
       group.current.scale.setScalar(0.72 + visibility * 0.28);
       if (visibility > 0.001) {
@@ -685,9 +686,13 @@ export function PlanetarySystem({
   const [moonTextures, setMoonTextures] = useState<Record<string, PlanetSurfaceTextures>>({});
   const [solarSurface, setSolarSurface] = useState<THREE.Texture | null>(null);
   const saturnMoons = useRef<THREE.Group>(null);
+  const saturnOrbitPosition = useMemo(() => new THREE.Vector3(), []);
 
   useFrame(() => {
     if (saturnMoons.current) {
+      saturnMoons.current.position.copy(
+        getPlanetaryBodyPosition("Saturn", saturnOrbitPosition),
+      );
       saturnMoons.current.visible =
         getPlanetaryBodyVisibility(universeState.progress, "Saturn") > 0.001;
     }
@@ -809,18 +814,11 @@ export function PlanetarySystem({
 }
 
 export function PlanetaryOrbitFrame({ children }: { children: ReactNode }) {
-  const frame = useRef<THREE.Group>(null);
-  const orbitAxis = useMemo(() => {
-    const inclination = THREE.MathUtils.degToRad(ORBIT_INCLINATION);
-    return new THREE.Vector3(0, -Math.cos(inclination), Math.sin(inclination));
-  }, []);
-
   useFrame((_, delta) => {
     if (!universeState.reducedMotion && !universeState.ambientMotionPaused) {
       advancePlanetaryOrbit(delta);
     }
-    frame.current?.quaternion.setFromAxisAngle(orbitAxis, getPlanetaryOrbitAngle());
   });
 
-  return <group ref={frame}>{children}</group>;
+  return <group>{children}</group>;
 }
