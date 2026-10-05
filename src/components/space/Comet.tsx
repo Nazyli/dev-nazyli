@@ -406,8 +406,8 @@ export function SidingSpringComet() {
       group.current.position.copy(ssOrigin);
       ssTailAway.copy(ssOrigin).sub(SUN_WORLD).normalize();
       group.current.visible = true;
-      dustTail.current.visible = false;
-      ionTail.current.visible = false;
+      if (dustTail.current) dustTail.current.visible = false;
+      if (ionTail.current) ionTail.current.visible = false;
       if (coma.current) coma.current.opacity = 0.12;
       if (innerComa.current) innerComa.current.opacity = 0.08;
       if (nucleus.current) nucleus.current.opacity = 0.65;
@@ -448,8 +448,10 @@ export function SidingSpringComet() {
       * (0.88 + 0.08 * Math.sin(time * 3.1 + pulsePhase.current));
     if (nucleus.current) nucleus.current.opacity = (0.7 + 0.12 * flicker) * envelope;
     if (nucleus.current) nucleus.current.emissiveIntensity = 0.045 + 0.012 * flicker;
-    const dustMaterial = dustTail.current.material;
-    const ionMaterial = ionTail.current.material;
+    const dustTailMesh = dustTail.current;
+    const ionTailMesh = ionTail.current;
+    const dustMaterial = dustTailMesh?.material;
+    const ionMaterial = ionTailMesh?.material;
     if (dustMaterial instanceof THREE.ShaderMaterial) {
       dustMaterial.uniforms.uOpacity.value = 0.3 * envelope * flicker;
       dustMaterial.uniforms.uTime.value = time;
@@ -458,11 +460,11 @@ export function SidingSpringComet() {
       ionMaterial.uniforms.uOpacity.value = 0.2 * envelope * flicker;
       ionMaterial.uniforms.uTime.value = time;
     }
-    if (dustTail.current && ionTail.current) {
-      updateIonTail(dustTail.current.geometry, ssDustDirection, 7, 0.48, 0.24);
-      updateIonTail(ionTail.current.geometry, ssAway, 8.5, 0.055, 0.015);
-      dustTail.current.visible = true;
-      ionTail.current.visible = true;
+    if (dustTailMesh && ionTailMesh) {
+      updateIonTail(dustTailMesh.geometry, ssDustDirection, 7, 0.48, 0.24);
+      updateIonTail(ionTailMesh.geometry, ssAway, 8.5, 0.055, 0.015);
+      dustTailMesh.visible = true;
+      ionTailMesh.visible = true;
     }
 
     const positions = dustData.geometry.getAttribute("position") as THREE.BufferAttribute;

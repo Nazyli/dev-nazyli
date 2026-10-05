@@ -6,9 +6,10 @@ import * as THREE from "three";
 import { createSeededRandom } from "@/lib/random";
 import { universeState } from "@/lib/universeState";
 import { getSpaceColor } from "@/lib/spaceColors";
+import { CAMERA_SCROLL_STOPS } from "@/lib/cameraPath";
 
 const ASTEROID_COUNT = 160;
-const ASTEROID_TONES = ["dust", "dust", "dust", "gold-muted", "nebula-teal"] as const;
+const ASTEROID_TONES = ["dust", "dust", "dust", "dust", "gold-muted"] as const;
 
 type AsteroidTone = (typeof ASTEROID_TONES)[number];
 
@@ -44,6 +45,7 @@ function makeAsteroidTransforms(): AsteroidTransform[] {
 export function AsteroidBelt() {
   const group = useRef<THREE.Group>(null);
   const instances = useRef<THREE.InstancedMesh>(null);
+  const material = useRef<THREE.MeshStandardMaterial>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const tint = useMemo(() => new THREE.Color(), []);
   const transforms = useMemo(() => makeAsteroidTransforms(), []);
@@ -62,7 +64,9 @@ export function AsteroidBelt() {
       dummy.scale.setScalar(transform.scale);
       dummy.updateMatrix();
       mesh.setMatrixAt(index, dummy.matrix);
-      tint.set(getSpaceColor(transform.tone));
+      tint.set(getSpaceColor(transform.tone)).multiplyScalar(
+        transform.tone === "gold-muted" ? 0.58 : 0.72,
+      );
       mesh.setColorAt(index, tint);
     });
 
@@ -71,8 +75,16 @@ export function AsteroidBelt() {
   }, [dummy, tint, transforms]);
 
   useFrame((_, delta) => {
+    const journeyProgress = universeState.progress / CAMERA_SCROLL_STOPS[5];
+    const planetLeg = journeyProgress * 13;
+    const approach = THREE.MathUtils.smoothstep(planetLeg, 3.35, 4.15);
+    const departure = 1 - THREE.MathUtils.smoothstep(planetLeg, 5.05, 5.85);
+    const visibility = approach * departure;
+    if (group.current) group.current.visible = visibility > 0.001;
+    if (material.current) material.current.opacity = visibility;
     if (
       group.current &&
+      visibility > 0.001 &&
       !universeState.reducedMotion &&
       !universeState.ambientMotionPaused
     ) {
@@ -84,7 +96,15 @@ export function AsteroidBelt() {
     <group ref={group} position={[0, 0, 44]} rotation={[0.42, -0.08, 0]}>
       <instancedMesh ref={instances} args={[undefined, undefined, ASTEROID_COUNT]}>
         <dodecahedronGeometry args={[1, 0]} />
-        <meshStandardMaterial color="white" roughness={1} metalness={0} />
+        <meshStandardMaterial
+          ref={material}
+          color="white"
+          transparent
+          opacity={0}
+          depthWrite={false}
+          roughness={1}
+          metalness={0}
+        />
       </instancedMesh>
     </group>
   );

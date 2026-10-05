@@ -37,7 +37,7 @@ type PlanetSpec = {
   spin: number;
   bumpScale: number;
   cloudOpacity?: number;
-  rings?: "saturn" | "uranus";
+  rings?: "saturn" | "uranus" | "haumea";
   shape?: [number, number, number];
 };
 
@@ -162,6 +162,7 @@ const PLANET_VISUALS: Record<PlanetaryTourBodyName, Omit<PlanetSpec, "name">> = 
     spin: 0.042,
     bumpScale: 0.025,
     shape: [1.34, 0.72, 0.82],
+    rings: "haumea",
   },
   Eris: {
     radius: 1.45,
@@ -203,6 +204,9 @@ const PLANET_RINGS = {
   { inner: 1.42, outer: 1.58, color: "planet-lunar", opacity: 0.24 },
   { inner: 1.62, outer: 1.72, color: "planet-basalt", opacity: 0.2 },
   { inner: 1.76, outer: 1.92, color: "planet-cream", opacity: 0.14 },
+  ],
+  haumea: [
+    { inner: 2.54, outer: 2.66, color: "planet-lunar", opacity: 0.34 },
   ],
 } as const;
 
@@ -395,6 +399,7 @@ const MOONS: MoonSpec[] = [
     palette: ["planet-basalt", "planet-lunar", "planet-ice"],
   },
 ];
+const PROCEDURAL_MOON_TEXTURE_SIZE = { width: 128, height: 64 };
 
 function makeAtmosphere(color: SpaceColorToken) {
   return new THREE.ShaderMaterial({
@@ -522,7 +527,11 @@ function CelestialPlanet({
         </mesh>
       )}
       {spec.rings && (
-          <group rotation={[spec.rings === "saturn" ? 0.34 : 1.16, 0, 0]}>
+          <group rotation={[
+            spec.rings === "saturn" ? 0.34 : spec.rings === "uranus" ? 1.16 : 0,
+            0,
+            0,
+          ]}>
             {PLANET_RINGS[spec.rings].map((ring) => (
               <mesh key={ring.inner}>
                 <ringGeometry
@@ -677,11 +686,7 @@ function TrajectoryPath() {
   );
 }
 
-export function PlanetarySystem({
-  onTexturesReady,
-}: {
-  onTexturesReady?: () => void;
-}) {
+export function PlanetarySystem() {
   const [textures, setTextures] = useState<Record<string, PlanetSurfaceTextures>>({});
   const [moonTextures, setMoonTextures] = useState<Record<string, PlanetSurfaceTextures>>({});
   const [solarSurface, setSolarSurface] = useState<THREE.Texture | null>(null);
@@ -703,89 +708,88 @@ export function PlanetarySystem({
     let surface: THREE.Texture | null = null;
     const planetSurfaces: PlanetSurfaceTextures[] = [];
     const satelliteSurfaces: PlanetSurfaceTextures[] = [];
-    const generateTextures = async () => {
-      const planetTasks = PLANETS.map(async (spec, index) => {
-        let planetTextures: PlanetSurfaceTextures;
-        try {
-          if (spec.name === "Earth") {
-            planetTextures = await makeTerrestrialSurfaceTextures();
-          } else if (PLANET_IMAGE_TEXTURES[spec.name]) {
-            planetTextures = await loadPlanetImageSurface(spec.name);
-          } else {
-            planetTextures = await makePlanetSurfaceTextures(
-              spec.surface,
-              1101 + index * 1301,
-              spec.palette,
-            );
-          }
-        } catch {
+    const planetTasks = PLANETS.map(async (spec, index) => {
+      let planetTextures: PlanetSurfaceTextures;
+      try {
+        if (spec.name === "Earth") {
+          planetTextures = await makeTerrestrialSurfaceTextures();
+        } else if (PLANET_IMAGE_TEXTURES[spec.name]) {
+          planetTextures = await loadPlanetImageSurface(spec.name);
+        } else {
           planetTextures = await makePlanetSurfaceTextures(
             spec.surface,
             1101 + index * 1301,
             spec.palette,
           );
         }
-        return { name: spec.name, textures: planetTextures };
-      });
-      const moonTasks = MOONS.map(async (moon, index) => {
-        let moonSurface: PlanetSurfaceTextures;
-        if (index === 0) {
-          try {
-            const color = await loadPlanetImageTexture("/textures/planetary/2k_moon.webp");
-            moonSurface = { color, height: null, clouds: null };
-          } catch {
-            moonSurface = await makePlanetSurfaceTextures(
-              "rocky",
-              41003,
-              moon.palette,
-              { width: 256, height: 128 },
-            );
-          }
-        } else {
-          moonSurface = await makePlanetSurfaceTextures(
-            "rocky",
-            41003 + index * 1543,
-            moon.palette,
-            { width: 256, height: 128 },
-          );
-        }
-        return { name: moon.name, textures: moonSurface };
-      });
-      const [solarTexture, planetResults, moonResults] = await Promise.all([
-        loadSolarImageTexture().catch(() => makeSolarSurfaceTexture(912735)),
-        Promise.all(planetTasks),
-        Promise.all(moonTasks),
-        loadPlanetImageTexture(PLANET_IMAGE_TEXTURES.Saturn!),
-      ]);
-
+      } catch {
+        planetTextures = await makePlanetSurfaceTextures(
+          spec.surface,
+          1101 + index * 1301,
+          spec.palette,
+        );
+      }
+      return { name: spec.name, textures: planetTextures };
+    }).map((task) => task.then(({ name, textures: planetSurface }) => {
       if (disposed) {
-        disposeGeneratedTexture(solarTexture);
-        disposeGeneratedSurfaceTextures([
-          ...planetResults.map(({ textures }) => textures),
-          ...moonResults.map(({ textures }) => textures),
-        ]);
+        disposeGeneratedSurfaceTextures([planetSurface]);
         return;
       }
+      planetSurfaces.push(planetSurface);
+      setTextures((current) => ({ ...current, [name]: planetSurface }));
+    }));
+    const moonTasks = MOONS.map(async (moon, index) => {
+      let moonSurface: PlanetSurfaceTextures;
+      if (index === 0) {
+        try {
+          const color = await loadPlanetImageTexture("/textures/planetary/2k_moon.webp");
+          moonSurface = { color, height: null, clouds: null };
+        } catch {
+          moonSurface = await makePlanetSurfaceTextures(
+            "rocky",
+            41003,
+            moon.palette,
+            PROCEDURAL_MOON_TEXTURE_SIZE,
+          );
+        }
+      } else {
+        moonSurface = await makePlanetSurfaceTextures(
+          "rocky",
+          41003 + index * 1543,
+          moon.palette,
+          PROCEDURAL_MOON_TEXTURE_SIZE,
+        );
+      }
+      return { name: moon.name, textures: moonSurface };
+    }).map((task) => task.then(({ name, textures: moonSurface }) => {
+      if (disposed) {
+        disposeGeneratedSurfaceTextures([moonSurface]);
+        return;
+      }
+      satelliteSurfaces.push(moonSurface);
+      setMoonTextures((current) => ({ ...current, [name]: moonSurface }));
+    }));
+    const solarTask = loadSolarImageTexture()
+      .catch(() => makeSolarSurfaceTexture(912735))
+      .then((solarTexture) => {
+        if (disposed) {
+          disposeGeneratedTexture(solarTexture);
+          return;
+        }
+        surface = solarTexture;
+        setSolarSurface(solarTexture);
+      });
 
-      surface = solarTexture;
-      planetSurfaces.push(...planetResults.map(({ textures }) => textures));
-      satelliteSurfaces.push(...moonResults.map(({ textures }) => textures));
-      setSolarSurface(solarTexture);
-      setTextures(Object.fromEntries(planetResults.map(({ name, textures }) => [name, textures])));
-      setMoonTextures(Object.fromEntries(moonResults.map(({ name, textures }) => [name, textures])));
-      onTexturesReady?.();
-    };
+    void loadPlanetImageTexture(PLANET_IMAGE_TEXTURES.Saturn!).catch(() => {});
+    void Promise.allSettled([...planetTasks, ...moonTasks, solarTask]);
 
-    void generateTextures().catch(() => {
-      if (!disposed) onTexturesReady?.();
-    });
     return () => {
       disposed = true;
       disposeGeneratedTexture(surface);
       disposeGeneratedSurfaceTextures(planetSurfaces);
       disposeGeneratedSurfaceTextures(satelliteSurfaces);
     };
-  }, [onTexturesReady]);
+  }, []);
 
   return (
     <group>

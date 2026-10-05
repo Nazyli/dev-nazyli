@@ -1,13 +1,16 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { AccretionDisk } from "./AccretionDisk";
 import { AsteroidBelt } from "./AsteroidBelt";
 import { Comet, SidingSpringComet } from "./Comet";
 import { DeepSkyGalaxy } from "./DeepSkyGalaxy";
 import { DustClouds } from "./DustClouds";
 import { Earth } from "./Earth";
+import { KuiperBelt } from "./KuiperBelt";
+import { OortCloud } from "./OortCloud";
+import { JupiterTrojans } from "./JupiterTrojans";
 import { Nebula } from "./Nebula";
 import { Planet } from "./Planet";
 import { PlanetaryOrbitFrame, PlanetarySystem } from "./PlanetarySystem";
@@ -49,11 +52,9 @@ function getMotionPreference() {
 
 function ReadySignal({
   onReady,
-  assetsReady,
   keepRendering,
 }: {
   onReady?: () => void;
-  assetsReady: boolean;
   keepRendering: boolean;
 }) {
   const frame = useRef(0);
@@ -61,10 +62,6 @@ function ReadySignal({
 
   useFrame((state) => {
     if (fired.current) return;
-    if (!assetsReady) {
-      if (keepRendering) state.invalidate();
-      return;
-    }
     frame.current += 1;
     if (frame.current >= 3 && !fired.current) {
       fired.current = true;
@@ -126,10 +123,6 @@ export function SpaceScene({
   onReady?: () => void;
   onContextLost?: () => void;
 }) {
-  const [planetTexturesReady, setPlanetTexturesReady] = useState(false);
-  const [earthTexturesReady, setEarthTexturesReady] = useState(false);
-  const markPlanetTexturesReady = useCallback(() => setPlanetTexturesReady(true), []);
-  const markEarthTexturesReady = useCallback(() => setEarthTexturesReady(true), []);
   const reducedMotion = useSyncExternalStore(
     subscribeToMotionPreference,
     getMotionPreference,
@@ -169,9 +162,12 @@ export function SpaceScene({
         <DeepSkyGalaxy />
         <Stars />
         <AsteroidBelt />
+        <KuiperBelt />
+        <OortCloud />
         <group position={[0, 0, OPENING_SYSTEM_Z]}>
           <PlanetaryOrbitFrame>
-            <PlanetarySystem onTexturesReady={markPlanetTexturesReady} />
+            <PlanetarySystem />
+            <JupiterTrojans />
             <Planet position={SATURN_POSITION} radius={2.72} orbitBodyName="Saturn" />
           </PlanetaryOrbitFrame>
         </group>
@@ -184,14 +180,12 @@ export function SpaceScene({
         <Earth
           position={[0, 2.2, 138]}
           radius={5.5}
-          onTexturesReady={markEarthTexturesReady}
         >
           <SurveySatellite />
         </Earth>
         <SpaceCamera />
         <ReadySignal
           onReady={onReady}
-          assetsReady={planetTexturesReady && earthTexturesReady}
           keepRendering={demandRender}
         />
       </Canvas>

@@ -19,7 +19,7 @@ export const PLANETARY_TOUR_BODIES = [
   { name: "Saturn", radius: 2.72, orbitRadius: 41, x: -3.5, y: 0.4, viewDistance: 13 },
   { name: "Uranus", radius: 2.05, orbitRadius: 48, x: 0.5, y: 1.3, viewDistance: 11 },
   { name: "Neptune", radius: 2.35, orbitRadius: 52, x: -3.2, y: 2.6, viewDistance: 12 },
-  { name: "Pluto", radius: 1.25, orbitRadius: 57, x: -2.0, y: -1.0, viewDistance: 8 },
+  { name: "Pluto", radius: 1.25, orbitRadius: 57, x: -2.0, y: 1.5, viewDistance: 8 },
   { name: "Haumea", radius: 1.25, orbitRadius: 61, x: -2, y: 0.36, viewDistance: 7.8 },
   { name: "Makemake", radius: 1.3, orbitRadius: 64, x: -4.5, y: 0.18, viewDistance: 7.6 },
   { name: "Eris", radius: 1.45, orbitRadius: 70, x: -2, y: -0.12, viewDistance: 7.6 },
@@ -38,8 +38,8 @@ export const PLANETARY_FOCUS_COUNT = FOCUS_NAMES.length - 1;
 
 const SUN_DISTANCE = 26;
 
-const ORBIT_PHASE_START = -25;
-const ORBIT_PHASE_STEP = -360 / 13;
+const ORBIT_PHASE_START = 5;
+const ORBIT_PHASE_STEP = -1.75;
 export const ORBIT_INCLINATION = 20;
 const ORBIT_AXIS = new THREE.Vector3(
   0,
@@ -79,7 +79,7 @@ const BODY_LOCALS = new Map<PlanetaryTourBodyName, THREE.Vector3>();
 PLANETARY_TOUR_BODIES.forEach(({ orbitRadius, x, y, name }, index) => {
   const phase = THREE.MathUtils.degToRad(
     -(ORBIT_PHASE_START - index * ORBIT_PHASE_STEP),
-  ) + Math.asin(THREE.MathUtils.clamp(x / orbitRadius, -1, 1)) * 0.35;
+  ) + Math.asin(THREE.MathUtils.clamp(x / orbitRadius, -1, 1)) * 0.05;
   const depth = Math.cos(phase) * orbitRadius;
   const inclination = THREE.MathUtils.degToRad(ORBIT_INCLINATION);
   const rise = index >= 9 ? (index - 8) * 1.5 : 0;
@@ -128,7 +128,7 @@ function getWindowAspect() {
 
 function getSunDistance(aspect: number) {
   const clamped = Math.min(1, Math.max(0.4, aspect));
-  const margin = 1.15 + 0.25 * THREE.MathUtils.clamp((1 - clamped) / 0.3, 0, 1);
+  const margin = 1.08 + 0.25 * THREE.MathUtils.clamp((1 - clamped) / 0.3, 0, 1);
   return (SUN_DISTANCE * margin) / clamped;
 }
 
@@ -150,7 +150,7 @@ function updateTargetCurveForOrbits() {
   });
 }
 
-const TILT_DIRECTION = new THREE.Vector3(-0.1, 0.12, -1).normalize();
+const TILT_DIRECTION = new THREE.Vector3(0, 0.12, -1).normalize();
 const STRAIGHT_DIRECTION = new THREE.Vector3(0, 0, -1);
 const SWAY_DIRECTION = new THREE.Vector3(0.482, 0.876, 0).normalize();
 const SWAY_AMPLITUDE = 0.5;
@@ -191,15 +191,17 @@ function sampleTour(
   targetCurve.getPoint(clamped, target);
 
   const distances = [getSunDistance(aspect), ...CRUISE_DISTANCES.slice(1)];
-  const distance = THREE.MathUtils.lerp(
+  const cruiseDistance = THREE.MathUtils.lerp(
     distances[index],
     distances[index + 1],
     phase,
   );
+  const flybyClearance = SEG_GAPS[index] * 0.4 * Math.sin(frac * Math.PI);
+  const distance = cruiseDistance + flybyClearance;
 
   const tilt = smooth(scaled / 1.2);
   const direction = STRAIGHT_DIRECTION.clone().lerp(TILT_DIRECTION, tilt).normalize();
-  const weaveSide = index % 2 === 0 ? -1 : 1;
+  const weaveSide = index % 2 === 0 ? 1 : -1;
   const weaveAmp = 0.12 * THREE.MathUtils.clamp(SEG_GAPS[index] / 8, 0.3, 1);
   direction.x += weaveSide * weaveAmp * Math.sin(frac * Math.PI) * tilt;
   direction.normalize();

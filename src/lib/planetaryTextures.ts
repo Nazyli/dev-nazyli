@@ -384,12 +384,14 @@ export async function makePlanetSurfaceTextures(
   if (!heightContext) throw new Error("2d context unavailable");
   const heightImage = heightContext.createImageData(width, height);
 
-  const cloudCanvas = document.createElement("canvas");
-  cloudCanvas.width = width;
-  cloudCanvas.height = height;
-  const cloudContext = cloudCanvas.getContext("2d");
-  if (!cloudContext) throw new Error("2d context unavailable");
-  const cloudImage = cloudContext.createImageData(width, height);
+  const cloudCanvas = style === "rocky" ? null : document.createElement("canvas");
+  if (cloudCanvas) {
+    cloudCanvas.width = width;
+    cloudCanvas.height = height;
+  }
+  const cloudContext = cloudCanvas?.getContext("2d") ?? null;
+  if (cloudCanvas && !cloudContext) throw new Error("2d context unavailable");
+  const cloudImage = cloudContext?.createImageData(width, height) ?? null;
 
   for (let y = 0; y < height; y += 1) {
     const v = y / height;
@@ -445,17 +447,19 @@ export async function makePlanetSurfaceTextures(
       heightImage.data[index + 1] = height;
       heightImage.data[index + 2] = height;
       heightImage.data[index + 3] = 255;
-      cloudImage.data[index] = 245;
-      cloudImage.data[index + 1] = 239;
-      cloudImage.data[index + 2] = 224;
-      cloudImage.data[index + 3] = Math.round(cloud * 210);
+      if (cloudImage) {
+        cloudImage.data[index] = 245;
+        cloudImage.data[index + 1] = 239;
+        cloudImage.data[index + 2] = 224;
+        cloudImage.data[index + 3] = Math.round(cloud * 210);
+      }
     }
     if (y > 0 && y % 16 === 0) await yieldToBrowser();
   }
 
   colorContext.putImageData(colorImage, 0, 0);
   heightContext.putImageData(heightImage, 0, 0);
-  cloudContext.putImageData(cloudImage, 0, 0);
+  if (cloudContext && cloudImage) cloudContext.putImageData(cloudImage, 0, 0);
 
   if (style === "rocky") {
     const random = createSeededRandom(seed ^ 0x4f1bbcdc);
@@ -468,9 +472,7 @@ export async function makePlanetSurfaceTextures(
 
   const color = makeCanvasTexture(colorCanvas);
   const heightTexture = makeCanvasTexture(heightCanvas, false);
-  const clouds = ["clouded", "banded", "icy", "stormy"].includes(style)
-    ? makeCanvasTexture(cloudCanvas)
-    : null;
+  const clouds = cloudCanvas ? makeCanvasTexture(cloudCanvas) : null;
 
   return { color, height: heightTexture, clouds };
 }

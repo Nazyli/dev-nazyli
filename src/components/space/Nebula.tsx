@@ -46,6 +46,14 @@ const FAR_CLOUDS: CloudDef[] = [
   { position: [24, 0, 170], scale: 70, texture: 0, color: "nebula-blue", opacity: 0.09 },
   { position: [2, 18, 176], scale: 65, texture: 1, color: "nebula-violet", opacity: 0.08 },
   { position: [0, 4, 182], scale: 85, texture: 1, color: "nebula-violet", opacity: 0.11 },
+  { position: [-8, 26, 42], scale: 52, texture: 2, color: "nebula-teal", opacity: 0.16 },
+  { position: [8, 20, 52], scale: 58, texture: 0, color: "nebula-blue", opacity: 0.14 },
+  { position: [-18, 12, 58], scale: 62, texture: 1, color: "nebula-violet", opacity: 0.12 },
+  { position: [-8, 2, 132], scale: 70, texture: 0, color: "nebula-blue", opacity: 0.13 },
+  { position: [12, 10, 146], scale: 78, texture: 2, color: "nebula-teal", opacity: 0.19 },
+  { position: [-16, -10, 154], scale: 82, texture: 1, color: "nebula-violet", opacity: 0.17 },
+  { position: [0, 8, 150], scale: 76, texture: 0, color: "nebula-blue", opacity: 0.16 },
+  { position: [-6, 22, 48], scale: 54, texture: 1, color: "nebula-violet", opacity: 0.1 },
 ];
 
 const DUST_LANES: CloudDef[] = [
@@ -68,6 +76,8 @@ const FAR_EMISSION: CloudDef[] = [
   { position: [-8, -2, 158], scale: 38, texture: 0, color: "accent", opacity: 0.04 },
   { position: [0, 4, 160], scale: 40, texture: 0, color: "accent", opacity: 0.04 },
   { position: [0, 6, 172], scale: 42, texture: 1, color: "gold", opacity: 0.045 },
+  { position: [-8, 26, 50], scale: 48, texture: 2, color: "nebula-teal", opacity: 0.075 },
+  { position: [8, 8, 160], scale: 54, texture: 1, color: "nebula-violet", opacity: 0.085 },
 ];
 
 const REFLECTION: CloudDef[] = [
