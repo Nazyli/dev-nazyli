@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { universeState } from "@/lib/universeState";
@@ -22,6 +22,8 @@ import {
   ORBIT_INCLINATION,
   PLANETARY_TOUR_BODIES,
   type PlanetaryTourBodyName,
+  advancePlanetaryOrbit,
+  getPlanetaryOrbitAngle,
   getPlanetaryBodyPosition,
   getPlanetaryBodyVisibility,
 } from "@/lib/planetaryTour";
@@ -804,4 +806,21 @@ export function PlanetarySystem({
       </group>
     </group>
   );
+}
+
+export function PlanetaryOrbitFrame({ children }: { children: ReactNode }) {
+  const frame = useRef<THREE.Group>(null);
+  const orbitAxis = useMemo(() => {
+    const inclination = THREE.MathUtils.degToRad(ORBIT_INCLINATION);
+    return new THREE.Vector3(0, -Math.cos(inclination), Math.sin(inclination));
+  }, []);
+
+  useFrame((_, delta) => {
+    if (!universeState.reducedMotion && !universeState.ambientMotionPaused) {
+      advancePlanetaryOrbit(delta);
+    }
+    frame.current?.quaternion.setFromAxisAngle(orbitAxis, getPlanetaryOrbitAngle());
+  });
+
+  return <group ref={frame}>{children}</group>;
 }

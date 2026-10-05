@@ -4,14 +4,16 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { AccretionDisk } from "./AccretionDisk";
 import { AsteroidBelt } from "./AsteroidBelt";
-import { Comet } from "./Comet";
+import { Comet, SidingSpringComet } from "./Comet";
 import { DeepSkyGalaxy } from "./DeepSkyGalaxy";
 import { DustClouds } from "./DustClouds";
 import { Earth } from "./Earth";
 import { Nebula } from "./Nebula";
 import { Planet } from "./Planet";
-import { PlanetarySystem } from "./PlanetarySystem";
+import { PlanetaryOrbitFrame, PlanetarySystem } from "./PlanetarySystem";
+import { Meteor } from "./Meteor";
 import { ShootingStar } from "./ShootingStar";
+import { Supernova } from "./Supernova";
 import { SpaceCamera } from "./SpaceCamera";
 import { Stars } from "./Stars";
 import { SurveySatellite } from "./SurveySatellite";
@@ -168,12 +170,17 @@ export function SpaceScene({
         <Stars />
         <AsteroidBelt />
         <group position={[0, 0, OPENING_SYSTEM_Z]}>
-          <PlanetarySystem onTexturesReady={markPlanetTexturesReady} />
-          <Planet position={SATURN_POSITION} radius={2.72} />
+          <PlanetaryOrbitFrame>
+            <PlanetarySystem onTexturesReady={markPlanetTexturesReady} />
+            <Planet position={SATURN_POSITION} radius={2.72} />
+          </PlanetaryOrbitFrame>
         </group>
         <Comet />
+        <SidingSpringComet />
         <AccretionDisk />
+        <Meteor />
         <ShootingStar />
+        <Supernova />
         <Earth
           position={[0, 2.2, 138]}
           radius={5.5}

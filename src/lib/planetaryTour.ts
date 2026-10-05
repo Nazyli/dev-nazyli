@@ -41,6 +41,26 @@ const SUN_DISTANCE = 26;
 const ORBIT_PHASE_START = -25;
 const ORBIT_PHASE_STEP = -360 / 13;
 export const ORBIT_INCLINATION = 20;
+const ORBIT_AXIS = new THREE.Vector3(
+  0,
+  -Math.cos(THREE.MathUtils.degToRad(ORBIT_INCLINATION)),
+  Math.sin(THREE.MathUtils.degToRad(ORBIT_INCLINATION)),
+);
+const SYSTEM_CENTER = new THREE.Vector3(0, 0, OPENING_SYSTEM_Z);
+
+const ORBITAL_PERIOD_SECONDS = 360;
+let planetaryOrbitAngle = 0;
+
+export function advancePlanetaryOrbit(delta: number) {
+  planetaryOrbitAngle = THREE.MathUtils.euclideanModulo(
+    planetaryOrbitAngle + (delta * Math.PI * 2) / ORBITAL_PERIOD_SECONDS,
+    Math.PI * 2,
+  );
+}
+
+export function getPlanetaryOrbitAngle() {
+  return planetaryOrbitAngle;
+}
 
 const SUN_LOCAL = new THREE.Vector3(0, 0, 0);
 
@@ -271,9 +291,14 @@ export function getPlanetaryTourPose(
     const blend = smooth((progress - tourEnd) / Math.max(0.0001, contact - tourEnd));
     tailPositionCurve.getPoint(blend, position);
     tailTargetCurve.getPoint(blend, target);
+    const transitionAngle = planetaryOrbitAngle * (1 - blend);
+    position.sub(SYSTEM_CENTER).applyAxisAngle(ORBIT_AXIS, transitionAngle).add(SYSTEM_CENTER);
+    target.sub(SYSTEM_CENTER).applyAxisAngle(ORBIT_AXIS, transitionAngle).add(SYSTEM_CENTER);
     return true;
   }
 
   sampleTour(THREE.MathUtils.clamp(progress / getTourEnd(), 0, 1), aspect, position, target);
+  position.sub(SYSTEM_CENTER).applyAxisAngle(ORBIT_AXIS, planetaryOrbitAngle).add(SYSTEM_CENTER);
+  target.sub(SYSTEM_CENTER).applyAxisAngle(ORBIT_AXIS, planetaryOrbitAngle).add(SYSTEM_CENTER);
   return true;
 }

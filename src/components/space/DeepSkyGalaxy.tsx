@@ -8,10 +8,10 @@ import { createSeededRandom } from "@/lib/random";
 import { getSpaceColor } from "@/lib/spaceColors";
 import { universeState } from "@/lib/universeState";
 
-const STAR_COUNT = 1500;
+const STAR_COUNT = 2600;
 const PROJECTS_STATION = 3;
 const ARM_COUNT = 4;
-const GALAXY_RADIUS = 8.5;
+const GALAXY_RADIUS = 11.4;
 
 function makeGalaxyGeometry() {
   const random = createSeededRandom(718235);
@@ -31,10 +31,10 @@ function makeGalaxyGeometry() {
     const angle = inBulge
       ? random() * Math.PI * 2
       : arm * Math.PI * 2 / ARM_COUNT + radius * 0.56 + (random() - 0.5) * 0.56;
-    const width = inBulge ? 0.54 : 0.22 + radius * 0.025;
+    const width = inBulge ? 0.68 : 0.3 + radius * 0.04;
     const x = Math.cos(angle) * radius + (random() - 0.5) * width;
     const z = Math.sin(angle) * radius + (random() - 0.5) * width;
-    const y = (random() - 0.5) * (inBulge ? 1.1 : 0.34 + radius * 0.045);
+    const y = (random() - 0.5) * (inBulge ? 1.35 : 0.48 + radius * 0.065);
     positions[i3] = x;
     positions[i3 + 1] = y;
     positions[i3 + 2] = z;
@@ -81,8 +81,8 @@ function getRoutePosition(aspect: number) {
 
   return camera
     .addScaledVector(forward, distance)
-    .addScaledVector(right, halfHeight * aspect * 0.72)
-    .addScaledVector(up, -halfHeight * 0.42)
+    .addScaledVector(right, halfHeight * aspect * 0.32)
+    .addScaledVector(up, -halfHeight * 0.15)
     .toArray() as [number, number, number];
 }
 
@@ -94,11 +94,11 @@ export function DeepSkyGalaxy() {
   const map = useMemo(() => makeStarTexture(), []);
   const material = useMemo(
     () => new THREE.PointsMaterial({
-      size: 0.22,
+      size: 0.25,
       map,
       vertexColors: true,
       transparent: true,
-      opacity: 0.86,
+      opacity: 0.9,
       alphaTest: 0.04,
       depthWrite: false,
       sizeAttenuation: true,
@@ -115,17 +115,18 @@ export function DeepSkyGalaxy() {
 
   useFrame((_, delta) => {
     if (universeState.reducedMotion || universeState.ambientMotionPaused || !group.current) return;
-    group.current.rotation.y += delta * 0.0012;
+    group.current.rotation.y += delta * 0.008;
   });
 
   return (
     <group
-      ref={group}
       position={position}
-      rotation={[0.34, -0.16, 0.24]}
-      scale={1.8}
+      rotation={[1.15, -0.16, 0.78]}
+      scale={2.1}
     >
-      <points geometry={geometry} material={material} />
+      <group ref={group}>
+        <points geometry={geometry} material={material} />
+      </group>
     </group>
   );
 }
