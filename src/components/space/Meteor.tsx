@@ -103,9 +103,9 @@ export function Meteor() {
   const phase = useRef(0);
 
   const glowTexture = useMemo(() => makeMeteorGlow(), []);
-  const ionGeometry = useMemo(() => new THREE.PlaneGeometry(0.2, 8, 1, 12), []);
-  const hotGeometry = useMemo(() => new THREE.PlaneGeometry(0.13, 3.2, 1, 8), []);
-  const coreGeometry = useMemo(() => new THREE.PlaneGeometry(0.052, 1.35, 1, 6), []);
+  const ionGeometry = useMemo(() => new THREE.PlaneGeometry(0.34, 4.8, 1, 12), []);
+  const hotGeometry = useMemo(() => new THREE.PlaneGeometry(0.24, 2.4, 1, 8), []);
+  const coreGeometry = useMemo(() => new THREE.PlaneGeometry(0.1, 1.2, 1, 6), []);
   const ionMaterial = useMemo(() => makeTrailMaterial(getSpaceColor("accent"), 0.36), []);
   const hotMaterial = useMemo(() => makeTrailMaterial(getSpaceColor("gold"), 0.58), []);
   const coreTrailMaterial = useMemo(() => makeTrailMaterial(getSpaceColor("starlight"), 0.82), []);
@@ -215,9 +215,9 @@ export function Meteor() {
     if (sheath.current) sheath.current.opacity = envelope * 0.74;
     if (glow.current) glow.current.opacity = envelope * 0.65;
     if (glow.current) glow.current.rotation = Math.sin(progress * 4 + phase.current) * 0.04;
-    if (ionTrail.current) setOpacity(ionTrail.current.material, envelope * 0.34);
-    if (hotTrail.current) setOpacity(hotTrail.current.material, envelope * 0.52);
-    if (coreTrail.current) setOpacity(coreTrail.current.material, envelope * 0.8);
+    if (ionTrail.current) setOpacity(ionTrail.current.material, envelope * 0.16);
+    if (hotTrail.current) setOpacity(hotTrail.current.material, envelope * 0.32);
+    if (coreTrail.current) setOpacity(coreTrail.current.material, envelope * 0.58);
 
     if (ionTrail.current) setPhase(ionTrail.current.material, phase.current + elapsed.current * 8);
     if (hotTrail.current) setPhase(hotTrail.current.material, phase.current + elapsed.current * 8);
@@ -228,9 +228,9 @@ export function Meteor() {
 
   return (
     <group ref={group} visible={false}>
-      <mesh ref={ionTrail} geometry={ionGeometry} material={ionMaterial} position={[0, -4.2, 0]} frustumCulled={false} />
-      <mesh ref={hotTrail} geometry={hotGeometry} material={hotMaterial} position={[0, -1.75, 0]} frustumCulled={false} />
-      <mesh ref={coreTrail} geometry={coreGeometry} material={coreTrailMaterial} position={[0, -0.72, 0]} frustumCulled={false} />
+      <mesh ref={ionTrail} geometry={ionGeometry} material={ionMaterial} position={[0, -2.55, 0]} frustumCulled={false} />
+      <mesh ref={hotTrail} geometry={hotGeometry} material={hotMaterial} position={[0, -0.85, 0]} frustumCulled={false} />
+      <mesh ref={coreTrail} geometry={coreGeometry} material={coreTrailMaterial} position={[0, -0.32, 0]} frustumCulled={false} />
       <mesh>
         <sphereGeometry args={[0.1, 12, 8]} />
         <meshBasicMaterial ref={sheath} color={getSpaceColor("gold")} transparent opacity={0} toneMapped={false} blending={THREE.AdditiveBlending} />

@@ -19,7 +19,6 @@ import {
 } from "@/lib/planetaryTextures";
 import { getSpaceColor, type SpaceColorToken } from "@/lib/spaceColors";
 import {
-  ORBIT_INCLINATION,
   PLANETARY_TOUR_BODIES,
   type PlanetaryTourBodyName,
   advancePlanetaryOrbit,
@@ -665,27 +664,6 @@ function SolarCore({ surface }: { surface: THREE.Texture | null }) {
   );
 }
 
-function TrajectoryPath() {
-  const inclination = THREE.MathUtils.degToRad(ORBIT_INCLINATION);
-
-  return (
-    <group rotation={[Math.PI / 2 - inclination, 0, 0]}>
-      {PLANETARY_TOUR_BODIES.map((body) => (
-        <mesh key={body.name}>
-          <torusGeometry args={[body.orbitRadius, 0.012, 4, 320]} />
-          <meshBasicMaterial
-            color={getSpaceColor("gold-muted")}
-            transparent
-            opacity={0.1}
-            depthWrite={false}
-            toneMapped={false}
-          />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
 export function PlanetarySystem() {
   const [textures, setTextures] = useState<Record<string, PlanetSurfaceTextures>>({});
   const [moonTextures, setMoonTextures] = useState<Record<string, PlanetSurfaceTextures>>({});
@@ -793,7 +771,6 @@ export function PlanetarySystem() {
 
   return (
     <group>
-      <TrajectoryPath />
       <SolarCore surface={solarSurface} />
       {PLANETS.map((spec) => (
         <CelestialPlanet
