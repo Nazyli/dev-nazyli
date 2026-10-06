@@ -11,7 +11,7 @@ Deep Space (Hero) → Planet Reveal (About) → Solar System (Expertise)
 → Constellations (Projects) → Space Timeline (Experience) → Earth (Contact)
 ```
 
-Working directory: `D:\me-nazyli`. Not yet a git repo (git init happens in P0). Deploy target: Vercel (not yet decided).
+Working directory: workspace root. Git repository initialized. Deploy target: Vercel (not yet decided).
 
 ## Stack (final — V1)
 

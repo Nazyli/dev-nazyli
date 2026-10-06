@@ -14,7 +14,6 @@ const ORBIT_SPEED = 0.003;
 const UP = new THREE.Vector3(0, 1, 0);
 const cometPosition = new THREE.Vector3();
 const awayFromSun = new THREE.Vector3();
-const cometTailView = new THREE.Vector3();
 
 function makeComaTexture() {
   const canvas = document.createElement("canvas");
@@ -85,141 +84,6 @@ function makeNucleusGeometry(radius = 0.42) {
   return geometry;
 }
 
-function makeTailMaterial(color: string, opacity: number) {
-  return new THREE.ShaderMaterial({
-    uniforms: {
-      uColor: { value: new THREE.Color(color) },
-      uOpacity: { value: opacity },
-      uTime: { value: 0 },
-    },
-    vertexShader: `
-      varying vec2 vUv;
-      void main() {
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-    fragmentShader: `
-      uniform vec3 uColor;
-      uniform float uOpacity;
-      uniform float uTime;
-      varying vec2 vUv;
-      float hash(vec2 point) {
-        return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453);
-      }
-      float noise(vec2 point) {
-        vec2 cell = floor(point);
-        vec2 blend = fract(point);
-        blend = blend * blend * (3.0 - 2.0 * blend);
-        return mix(
-          mix(hash(cell), hash(cell + vec2(1.0, 0.0)), blend.x),
-          mix(hash(cell + vec2(0.0, 1.0)), hash(cell + vec2(1.0, 1.0)), blend.x),
-          blend.y
-        );
-      }
-      void main() {
-        float turbulence = noise(vec2(vUv.x * 8.0 + 0.4, vUv.y * 9.0 - uTime * 0.012));
-        float eddy = noise(vec2(vUv.x * 15.0 + 2.1, vUv.y * 4.0 + uTime * 0.008));
-        float crossSection = (vUv.x * 2.0 - 1.0) + (turbulence - 0.5) * 0.16;
-        float radius = abs(crossSection);
-        float halo = exp(-radius * radius * 3.2);
-        float core = exp(-radius * radius * 22.0);
-        float longitudinal = smoothstep(0.0, 0.045, vUv.y)
-          * pow(1.0 - vUv.y, 0.72)
-          * (1.0 - smoothstep(0.9, 1.0, vUv.y));
-        float wisps = 0.62 + turbulence * 0.4 + eddy * 0.22;
-        float alpha = (halo * 0.3 + core * 0.7) * longitudinal * wisps * uOpacity;
-        vec3 color = uColor * (0.72 + core * 1.1 + turbulence * 0.12);
-        gl_FragColor = vec4(color, alpha);
-      }
-    `,
-    transparent: true,
-    depthWrite: false,
-    side: THREE.DoubleSide,
-    blending: THREE.AdditiveBlending,
-    toneMapped: false,
-  });
-}
-
-const TAIL_LENGTH_SEGMENTS = 28;
-const TAIL_WIDTH_SEGMENTS = 12;
-const ribbonSide = new THREE.Vector3();
-const ribbonPast = new THREE.Vector3();
-const ribbonAxis = new THREE.Vector3();
-const ribbonReference = new THREE.Vector3();
-const ribbonView = new THREE.Vector3();
-
-function makeTailGeometry() {
-  const rowSize = TAIL_WIDTH_SEGMENTS + 1;
-  const vertexCount = (TAIL_LENGTH_SEGMENTS + 1) * rowSize;
-  const positions = new Float32Array(vertexCount * 3);
-  const uvs = new Float32Array(vertexCount * 2);
-  const indices: number[] = [];
-
-  for (let row = 0; row <= TAIL_LENGTH_SEGMENTS; row += 1) {
-    for (let column = 0; column <= TAIL_WIDTH_SEGMENTS; column += 1) {
-      const vertex = row * rowSize + column;
-      uvs[vertex * 2] = column / TAIL_WIDTH_SEGMENTS;
-      uvs[vertex * 2 + 1] = row / TAIL_LENGTH_SEGMENTS;
-      if (row < TAIL_LENGTH_SEGMENTS && column < TAIL_WIDTH_SEGMENTS) {
-        const nextRow = vertex + rowSize;
-        indices.push(vertex, nextRow, vertex + 1, vertex + 1, nextRow, nextRow + 1);
-      }
-    }
-  }
-
-  const geometry = new THREE.BufferGeometry();
-  const positionAttribute = new THREE.BufferAttribute(positions, 3);
-  positionAttribute.setUsage(THREE.DynamicDrawUsage);
-  geometry.setAttribute("position", positionAttribute);
-  geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
-  geometry.setIndex(indices);
-  return geometry;
-}
-
-function updateIonTail(
-  geometry: THREE.BufferGeometry,
-  direction: THREE.Vector3,
-  viewDirection: THREE.Vector3,
-  length: number,
-  width: number,
-  bend = 0.18,
-) {
-  ribbonAxis.copy(direction).normalize();
-  ribbonView.copy(viewDirection).normalize();
-  ribbonSide.crossVectors(ribbonView, ribbonAxis);
-  if (ribbonSide.lengthSq() < 1e-5) {
-    ribbonReference.set(0, Math.abs(ribbonAxis.y) > 0.92 ? 0 : 1, Math.abs(ribbonAxis.y) > 0.92 ? 1 : 0);
-    ribbonSide.crossVectors(ribbonAxis, ribbonReference);
-  }
-  ribbonSide.normalize();
-  ribbonPast.crossVectors(ribbonAxis, ribbonSide);
-  ribbonPast.normalize();
-
-  const positionAttribute = geometry.getAttribute("position") as THREE.BufferAttribute;
-  const positions = positionAttribute.array as Float32Array;
-  const rowSize = TAIL_WIDTH_SEGMENTS + 1;
-  for (let row = 0; row <= TAIL_LENGTH_SEGMENTS; row += 1) {
-    const progress = row / TAIL_LENGTH_SEGMENTS;
-    const emergence = THREE.MathUtils.smoothstep(progress, 0, 0.09);
-    const tipFade = 1 - THREE.MathUtils.smoothstep(progress, 0.9, 1) * 0.38;
-    const along = length * progress;
-    const flow = length * bend * (progress + Math.sin(progress * Math.PI * 2.4) * 0.09);
-    for (let column = 0; column <= TAIL_WIDTH_SEGMENTS; column += 1) {
-      const across = (column / TAIL_WIDTH_SEGMENTS) * 2 - 1;
-      const ripples = 0.86
-        + 0.09 * Math.sin(progress * 21 + column * 0.72)
-        + 0.05 * Math.sin(progress * 37 - column * 1.1);
-      const tailWidth = width * emergence * tipFade * ripples;
-      const offset = (row * rowSize + column) * 3;
-      positions[offset] = ribbonAxis.x * along + ribbonSide.x * across * tailWidth + ribbonPast.x * flow;
-      positions[offset + 1] = ribbonAxis.y * along + ribbonSide.y * across * tailWidth + ribbonPast.y * flow;
-      positions[offset + 2] = ribbonAxis.z * along + ribbonSide.z * across * tailWidth + ribbonPast.z * flow;
-    }
-  }
-  positionAttribute.needsUpdate = true;
-}
-
 const ssOrigin = new THREE.Vector3();
 const ssDirection = new THREE.Vector3();
 const ssCurve = new THREE.Vector3();
@@ -229,8 +93,6 @@ const ssUp = new THREE.Vector3();
 const ssPosition = new THREE.Vector3();
 const ssAway = new THREE.Vector3();
 const ssTailAway = new THREE.Vector3();
-const ssDustDirection = new THREE.Vector3();
-const ssTailView = new THREE.Vector3();
 const SUN_WORLD = new THREE.Vector3(0, 0, OPENING_SYSTEM_Z);
 const DUST_COUNT = 420;
 
@@ -274,8 +136,6 @@ function updateFadingDust(
 
 export function SidingSpringComet() {
   const group = useRef<THREE.Group>(null);
-  const dustTail = useRef<THREE.Mesh>(null);
-  const ionTail = useRef<THREE.Mesh>(null);
   const dustCloud = useRef<THREE.Points>(null);
   const nucleusMesh = useRef<THREE.Mesh>(null);
   const coma = useRef<THREE.SpriteMaterial>(null);
@@ -296,16 +156,6 @@ export function SidingSpringComet() {
   const nucleusGeometry = useMemo(() => makeNucleusGeometry(0.31), []);
   const dust = useMemo(() => makeDustSystem(), []);
   const dustRef = useRef(dust);
-  const dustRibbonMaterial = useMemo(
-    () => makeTailMaterial(getSpaceColor("starlight"), 0.34),
-    [],
-  );
-  const ionRibbonMaterial = useMemo(
-    () => makeTailMaterial(getSpaceColor("accent"), 0.28),
-    [],
-  );
-  const dustRibbonGeometry = useMemo(() => makeTailGeometry(), []);
-  const ionRibbonGeometry = useMemo(() => makeTailGeometry(), []);
 
   useEffect(() => {
     let mounted = true;
@@ -332,11 +182,7 @@ export function SidingSpringComet() {
     texture?.dispose();
     nucleusGeometry.dispose();
     dust.geometry.dispose();
-    dustRibbonMaterial.dispose();
-    ionRibbonMaterial.dispose();
-    dustRibbonGeometry.dispose();
-    ionRibbonGeometry.dispose();
-  }, [texture, nucleusGeometry, dust, dustRibbonMaterial, ionRibbonMaterial, dustRibbonGeometry, ionRibbonGeometry]);
+  }, [texture, nucleusGeometry, dust]);
 
   useFrame((state, delta) => {
     if (!group.current) return;
@@ -420,8 +266,6 @@ export function SidingSpringComet() {
       group.current.position.copy(ssOrigin);
       ssTailAway.copy(ssOrigin).sub(SUN_WORLD).normalize();
       group.current.visible = true;
-      if (dustTail.current) dustTail.current.visible = false;
-      if (ionTail.current) ionTail.current.visible = false;
       if (coma.current) coma.current.opacity = 0.12;
       if (innerComa.current) innerComa.current.opacity = 0.08;
       if (nucleus.current) nucleus.current.opacity = 0.65;
@@ -448,7 +292,6 @@ export function SidingSpringComet() {
       nucleusMesh.current.rotation.set(elapsed.current * 0.018, elapsed.current * 0.026, elapsed.current * 0.012);
     }
     ssAway.copy(ssTailAway);
-    ssDustDirection.copy(ssTailAway).addScaledVector(ssDirection, -0.07).normalize();
 
     const envelope = THREE.MathUtils.smoothstep(k, 0, 0.15) *
       (1 - THREE.MathUtils.smoothstep(k, 0.7, 1));
@@ -462,25 +305,6 @@ export function SidingSpringComet() {
       * (0.88 + 0.08 * Math.sin(time * 3.1 + pulsePhase.current));
     if (nucleus.current) nucleus.current.opacity = (0.7 + 0.12 * flicker) * envelope;
     if (nucleus.current) nucleus.current.emissiveIntensity = 0.045 + 0.012 * flicker;
-    const dustTailMesh = dustTail.current;
-    const ionTailMesh = ionTail.current;
-    const dustMaterial = dustTailMesh?.material;
-    const ionMaterial = ionTailMesh?.material;
-    ssTailView.copy(camera.position).sub(ssPosition).normalize();
-    if (dustMaterial instanceof THREE.ShaderMaterial) {
-      dustMaterial.uniforms.uOpacity.value = 0.34 * envelope * flicker;
-      dustMaterial.uniforms.uTime.value = time;
-    }
-    if (ionMaterial instanceof THREE.ShaderMaterial) {
-      ionMaterial.uniforms.uOpacity.value = 0.075 * envelope * flicker;
-      ionMaterial.uniforms.uTime.value = time;
-    }
-    if (dustTailMesh && ionTailMesh) {
-      updateIonTail(dustTailMesh.geometry, ssDustDirection, ssTailView, 4.2, 1.35, 0.16);
-      updateIonTail(ionTailMesh.geometry, ssAway, ssTailView, 4.6, 0.14, 0.01);
-      dustTailMesh.visible = true;
-      ionTailMesh.visible = true;
-    }
 
     const positions = dustData.geometry.getAttribute("position") as THREE.BufferAttribute;
     const colors = dustData.geometry.getAttribute("color") as THREE.BufferAttribute;
@@ -520,18 +344,6 @@ export function SidingSpringComet() {
   return (
     <>
     <group ref={group} visible={false}>
-      <mesh
-        ref={dustTail}
-        geometry={dustRibbonGeometry}
-        material={dustRibbonMaterial}
-        frustumCulled={false}
-      />
-      <mesh
-        ref={ionTail}
-        geometry={ionRibbonGeometry}
-        material={ionRibbonMaterial}
-        frustumCulled={false}
-      />
       <sprite ref={comaSprite} scale={[5.2, 4.4, 1]}>
         <spriteMaterial
           ref={coma}
@@ -593,34 +405,18 @@ export function Comet() {
   const body = useRef<THREE.Group>(null);
   const coma = useRef<THREE.SpriteMaterial>(null);
   const comaSprite = useRef<THREE.Sprite>(null);
-  const dustTail = useRef<THREE.Mesh>(null);
-  const ionTail = useRef<THREE.Mesh>(null);
   const nucleusMesh = useRef<THREE.Mesh>(null);
   const phase = useRef(INITIAL_PHASE);
   const texture = useMemo(() => makeComaTexture(), []);
   const nucleusGeometry = useMemo(() => makeNucleusGeometry(0.28), []);
-  const dustTailGeometry = useMemo(() => makeTailGeometry(), []);
-  const ionTailGeometry = useMemo(() => makeTailGeometry(), []);
-  const dustTailMaterial = useMemo(
-    () => makeTailMaterial(getSpaceColor("starlight"), 0.12),
-    [],
-  );
-  const ionTailMaterial = useMemo(
-    () => makeTailMaterial(getSpaceColor("accent"), 0.17),
-    [],
-  );
 
   useEffect(() => () => {
     texture?.dispose();
     nucleusGeometry.dispose();
-    dustTailGeometry.dispose();
-    ionTailGeometry.dispose();
-    dustTailMaterial.dispose();
-    ionTailMaterial.dispose();
-  }, [texture, nucleusGeometry, dustTailGeometry, ionTailGeometry, dustTailMaterial, ionTailMaterial]);
+  }, [texture, nucleusGeometry]);
 
   useFrame((state, delta) => {
-    if (!body.current || !dustTail.current || !ionTail.current) return;
+    if (!body.current) return;
     if (!universeState.reducedMotion && !universeState.ambientMotionPaused) {
       phase.current += delta * ORBIT_SPEED;
     }
@@ -637,23 +433,9 @@ export function Comet() {
 
     const distance = cometPosition.length();
     const nearSun = 1 - THREE.MathUtils.clamp((distance - 54) / 44, 0, 1);
-    const tailLength = THREE.MathUtils.lerp(10, 16, nearSun);
     const time = universeState.reducedMotion || universeState.ambientMotionPaused
       ? phase.current * 50
       : state.clock.elapsedTime;
-    cometTailView.copy(state.camera.position).sub(cometPosition).normalize();
-    updateIonTail(dustTailGeometry, awayFromSun, cometTailView, Math.min(tailLength, 8), 1.25, 0.13);
-    updateIonTail(ionTailGeometry, awayFromSun, cometTailView, Math.min(tailLength * 0.58, 4.8), 0.14, 0.005);
-    const dustMaterial = dustTail.current.material;
-    const ionMaterial = ionTail.current.material;
-    if (dustMaterial instanceof THREE.ShaderMaterial) {
-      dustMaterial.uniforms.uOpacity.value = 0.2 + nearSun * 0.18;
-      dustMaterial.uniforms.uTime.value = time;
-    }
-    if (ionMaterial instanceof THREE.ShaderMaterial) {
-      ionMaterial.uniforms.uOpacity.value = 0.025 + nearSun * 0.035;
-      ionMaterial.uniforms.uTime.value = time * 0.35;
-    }
     if (coma.current) coma.current.opacity = (0.3 + nearSun * 0.24)
       * (0.94 + 0.035 * Math.sin(time * 1.7) + 0.025 * Math.sin(time * 3.9 + 1.2));
     if (comaSprite.current) comaSprite.current.rotation.z = 0.035 * Math.sin(time * 0.08);
@@ -664,18 +446,6 @@ export function Comet() {
 
   return (
     <group ref={body}>
-      <mesh
-        ref={dustTail}
-        geometry={dustTailGeometry}
-        material={dustTailMaterial}
-        frustumCulled={false}
-      />
-      <mesh
-        ref={ionTail}
-        geometry={ionTailGeometry}
-        material={ionTailMaterial}
-        frustumCulled={false}
-      />
       <sprite ref={comaSprite} scale={[3.8, 3.8, 1]} renderOrder={1}>
         <spriteMaterial
           ref={coma}
